@@ -1,0 +1,125 @@
+wwwroot\css\site.css
+wwwroot\favicon.ico
+wwwroot\js\site.js
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap.css
+wwwroot\lib\bootstrap\dist\css\bootstrap.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap.min.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css
+wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css.map
+wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css
+wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css.map
+wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js
+wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js.map
+wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js
+wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js.map
+wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js
+wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js.map
+wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js
+wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js.map
+wwwroot\lib\bootstrap\dist\js\bootstrap.js
+wwwroot\lib\bootstrap\dist\js\bootstrap.js.map
+wwwroot\lib\bootstrap\dist\js\bootstrap.min.js
+wwwroot\lib\bootstrap\dist\js\bootstrap.min.js.map
+wwwroot\lib\bootstrap\LICENSE
+wwwroot\lib\jquery-validation-unobtrusive\dist\jquery.validate.unobtrusive.js
+wwwroot\lib\jquery-validation-unobtrusive\dist\jquery.validate.unobtrusive.min.js
+wwwroot\lib\jquery-validation-unobtrusive\LICENSE.txt
+wwwroot\lib\jquery-validation\dist\additional-methods.js
+wwwroot\lib\jquery-validation\dist\additional-methods.min.js
+wwwroot\lib\jquery-validation\dist\jquery.validate.js
+wwwroot\lib\jquery-validation\dist\jquery.validate.min.js
+wwwroot\lib\jquery-validation\LICENSE.md
+wwwroot\lib\jquery\dist\jquery.js
+wwwroot\lib\jquery\dist\jquery.min.js
+wwwroot\lib\jquery\dist\jquery.min.map
+wwwroot\lib\jquery\dist\jquery.slim.js
+wwwroot\lib\jquery\dist\jquery.slim.min.js
+wwwroot\lib\jquery\dist\jquery.slim.min.map
+wwwroot\lib\jquery\LICENSE.txt
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\css\site.css
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\favicon.ico
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\js\site.js
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap.css
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap.css.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap.min.css
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap.min.css.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\js\bootstrap.js
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\js\bootstrap.js.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\js\bootstrap.min.js
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\bootstrap\dist\js\bootstrap.min.js.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\jquery-validation-unobtrusive\dist\jquery.validate.unobtrusive.js
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\jquery-validation-unobtrusive\dist\jquery.validate.unobtrusive.min.js
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\jquery-validation-unobtrusive\LICENSE.txt
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\jquery-validation\dist\additional-methods.js
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\jquery-validation\dist\additional-methods.min.js
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\jquery-validation\dist\jquery.validate.js
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\jquery-validation\dist\jquery.validate.min.js
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\jquery-validation\LICENSE.md
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\jquery\dist\jquery.js
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\jquery\dist\jquery.min.js
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\jquery\dist\jquery.min.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\jquery\dist\jquery.slim.js
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\jquery\dist\jquery.slim.min.js
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\jquery\dist\jquery.slim.min.map
+A:\College\My Visual studio projects\My-Net-Worth-master\wwwroot\lib\jquery\LICENSE.txt
