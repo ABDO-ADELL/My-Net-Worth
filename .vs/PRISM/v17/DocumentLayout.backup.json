@@ -1,0 +1,445 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Migrations\\20250918184119_test3.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Migrations\\20250918184119_test3.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\models\\branch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:models\\branch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\models\\business.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:models\\business.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\models\\target.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:models\\target.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Migrations\\20250918183551_test2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Migrations\\20250918183551_test2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Migrations\\20250918182609_test.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Migrations\\20250918182609_test.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\models\\auditlog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:models\\auditlog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\models\\register.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:models\\register.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\models\\payment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:models\\payment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\models\\orderitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:models\\orderitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\models\\order.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:models\\order.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\models\\login.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:models\\login.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\models\\itemcategory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:models\\itemcategory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\models\\item.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:models\\item.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\models\\inventory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:models\\inventory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\models\\expensecategory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:models\\expensecategory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\models\\errorviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:models\\errorviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\models\\expense.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:models\\expense.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\models\\customer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:models\\customer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\models\\appuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:models\\appuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\models\\addrole.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:models\\addrole.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|a:\\college\\my visual studio projects\\my-net-worth-master\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81647DEA-FC71-4060-8FD2-BA18C9373B76}|PRISM.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "20250918184119_test3.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Migrations\\20250918184119_test3.cs",
+              "RelativeDocumentMoniker": "Migrations\\20250918184119_test3.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Migrations\\20250918184119_test3.cs",
+              "RelativeToolTip": "Migrations\\20250918184119_test3.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T18:41:20.116Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "20250918183551_test2.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Migrations\\20250918183551_test2.cs",
+              "RelativeDocumentMoniker": "Migrations\\20250918183551_test2.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Migrations\\20250918183551_test2.cs",
+              "RelativeToolTip": "Migrations\\20250918183551_test2.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T18:35:51.416Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "20250918182609_test.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Migrations\\20250918182609_test.cs",
+              "RelativeDocumentMoniker": "Migrations\\20250918182609_test.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Migrations\\20250918182609_test.cs",
+              "RelativeToolTip": "Migrations\\20250918182609_test.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T18:26:09.447Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Register.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Register.cs",
+              "RelativeDocumentMoniker": "Models\\Register.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Register.cs",
+              "RelativeToolTip": "Models\\Register.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T18:22:43.438Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "OrderItem.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\OrderItem.cs",
+              "RelativeDocumentMoniker": "Models\\OrderItem.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\OrderItem.cs",
+              "RelativeToolTip": "Models\\OrderItem.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T15:00:54.365Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Target.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Target.cs",
+              "RelativeDocumentMoniker": "Models\\Target.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Target.cs",
+              "RelativeToolTip": "Models\\Target.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAkwA0AAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T15:09:17.675Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Business.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Business.cs",
+              "RelativeDocumentMoniker": "Models\\Business.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Business.cs",
+              "RelativeToolTip": "Models\\Business.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAAAAsAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T14:52:32.933Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Branch.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Branch.cs",
+              "RelativeDocumentMoniker": "Models\\Branch.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Branch.cs",
+              "RelativeToolTip": "Models\\Branch.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAIwAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T14:53:07.089Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "AppDbContext.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\AppDbContext.cs",
+              "RelativeToolTip": "AppDbContext.cs",
+              "ViewState": "AgIAACMAAAAAAAAAAAAUwDMAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-13T15:23:49.902Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Order.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Order.cs",
+              "RelativeDocumentMoniker": "Models\\Order.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Order.cs",
+              "RelativeToolTip": "Models\\Order.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAoAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T14:59:38.181Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Login.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Login.cs",
+              "RelativeDocumentMoniker": "Models\\Login.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Login.cs",
+              "RelativeToolTip": "Models\\Login.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T18:18:59.694Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "Item.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Item.cs",
+              "RelativeDocumentMoniker": "Models\\Item.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Item.cs",
+              "RelativeToolTip": "Models\\Item.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAuwA4AAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T14:53:33.903Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "Inventory.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Inventory.cs",
+              "RelativeDocumentMoniker": "Models\\Inventory.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Inventory.cs",
+              "RelativeToolTip": "Models\\Inventory.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAwAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T14:53:51.417Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "ExpenseCategory.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\ExpenseCategory.cs",
+              "RelativeDocumentMoniker": "Models\\ExpenseCategory.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\ExpenseCategory.cs",
+              "RelativeToolTip": "Models\\ExpenseCategory.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T16:38:37.473Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "AuditLog.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\AuditLog.cs",
+              "RelativeDocumentMoniker": "Models\\AuditLog.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\AuditLog.cs",
+              "RelativeToolTip": "Models\\AuditLog.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAoAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T17:35:42.799Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "ErrorViewModel.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\ErrorViewModel.cs",
+              "RelativeDocumentMoniker": "Models\\ErrorViewModel.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\ErrorViewModel.cs",
+              "RelativeToolTip": "Models\\ErrorViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T18:18:28.693Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "Customer.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Customer.cs",
+              "RelativeDocumentMoniker": "Models\\Customer.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Customer.cs",
+              "RelativeToolTip": "Models\\Customer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T16:21:22.99Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Payment.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Payment.cs",
+              "RelativeDocumentMoniker": "Models\\Payment.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Payment.cs",
+              "RelativeToolTip": "Models\\Payment.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T15:01:29.887Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "AppUser.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\AppUser.cs",
+              "RelativeDocumentMoniker": "Models\\AppUser.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\AppUser.cs",
+              "RelativeToolTip": "Models\\AppUser.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T18:16:38.08Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "ItemCategory.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\ItemCategory.cs",
+              "RelativeDocumentMoniker": "Models\\ItemCategory.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\ItemCategory.cs",
+              "RelativeToolTip": "Models\\ItemCategory.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-15T09:23:54.121Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "AddRole.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\AddRole.cs",
+              "RelativeDocumentMoniker": "Models\\AddRole.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\AddRole.cs",
+              "RelativeToolTip": "Models\\AddRole.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T18:16:34.788Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Properties\\launchSettings.json",
+              "RelativeDocumentMoniker": "Properties\\launchSettings.json",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Properties\\launchSettings.json",
+              "RelativeToolTip": "Properties\\launchSettings.json",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAiwBQAAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-09-18T17:39:57.072Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "Program.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAADgAAAAAAAAAAAAxwEYAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T15:33:02.546Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "Expense.cs",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Expense.cs",
+              "RelativeDocumentMoniker": "Models\\Expense.cs",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\Models\\Expense.cs",
+              "RelativeToolTip": "Models\\Expense.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAkwBsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-18T16:39:18.253Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "A:\\College\\My Visual studio projects\\My-Net-Worth-master\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-09-18T16:57:58.826Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
