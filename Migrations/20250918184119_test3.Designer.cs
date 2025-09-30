@@ -542,11 +542,11 @@ namespace PRISM.Migrations
 
             modelBuilder.Entity("PRISM.Models.Order", b =>
                 {
-                    b.Property<int>("order_id")
+                    b.Property<int>("OrderId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("order_id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
 
                     b.Property<int>("BranchId")
                         .HasColumnType("int");
@@ -578,7 +578,7 @@ namespace PRISM.Migrations
                     b.Property<int>("user_id")
                         .HasColumnType("int");
 
-                    b.HasKey("order_id");
+                    b.HasKey("OrderId");
 
                     b.HasIndex("BranchId");
 

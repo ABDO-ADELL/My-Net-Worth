@@ -17,11 +17,13 @@ namespace PRISM
         public int BusinessId { get; set; }
         public int? BranchId { get; set; }
         public string Name { get; set; }
-        public string Sku { get; set; }
+        public string Sku { get; set; }  // Stock Keeping Unit
         public decimal CostPrice { get; set; }
         public decimal SellPrice { get; set; }
         public int? DurationMinutes { get; set; } // for services
         public string Description { get; set; }
+
+        public bool IsDeleted { get; set; } 
 
         // Navigation
         public Business Business { get; set; }

@@ -465,7 +465,7 @@ namespace PRISM.Migrations
                         name: "FK_OrderItems_Orders_OrderId",
                         column: x => x.OrderId,
                         principalTable: "Orders",
-                        principalColumn: "order_id");
+                        principalColumn: "OrderId");
                 });
 
             migrationBuilder.CreateTable(
@@ -486,7 +486,7 @@ namespace PRISM.Migrations
                         name: "FK_Payments_Orders_OrderId",
                         column: x => x.OrderId,
                         principalTable: "Orders",
-                        principalColumn: "order_id");
+                        principalColumn: "OrderId");
                 });
 
             migrationBuilder.CreateIndex(

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PRISM.Models;
+using PRISM.Models.Authmodels;
 using System.Reflection.Emit;
 
 namespace PRISM

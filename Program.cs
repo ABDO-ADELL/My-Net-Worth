@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PRISM.Helpers;
-using PRISM.Models;
+using PRISM.Models.Authmodels;
 using PRISM.Services;
 
 

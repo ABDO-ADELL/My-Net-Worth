@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using PRISM.Helpers;
-using PRISM.Models;
+using PRISM.Models.Authmodels;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 namespace PRISM.Services
 {
@@ -15,13 +17,13 @@ namespace PRISM.Services
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly JWT _jwt;
 
-        public AuthService(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager,IOptions<JWT> jwt)
+        public AuthService(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWT> jwt)
         {
             _userManager = userManager;
             _jwt = jwt.Value;
             _roleManager = roleManager;
         }
-        public async Task<AuthModel> RegisterAsync(Register model)
+        public async Task<AuthModel> RegisterAsync(RegisterModel model)
         {
             if (await _userManager.FindByEmailAsync(model.Email) is not null)
             { return new AuthModel { Message = "Email is already registered!" }; }
@@ -51,14 +53,14 @@ namespace PRISM.Services
                 Email = user.Email,
                 IsAuthenticated = true,
                 Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
-                Expiration = jwtSecurityToken.ValidTo,
+                //  Expiration = jwtSecurityToken.ValidTo,
                 UserName = user.UserName,
                 Roles = (await _userManager.GetRolesAsync(user)).ToList()
             };
 
         }
 
-        public async Task<AuthModel> LoginAsync(Login model)
+        public async Task<AuthModel> LoginAsync(LoginModel model)
         {
             var authmodel = new AuthModel();
             var user = await _userManager.FindByEmailAsync(model.Email);
@@ -73,16 +75,31 @@ namespace PRISM.Services
 
             authmodel.IsAuthenticated = true;
             authmodel.Email = user.Email;
-            authmodel.Expiration = jwtSecurityToken.ValidTo;
+            //   authmodel.Expiration = jwtSecurityToken.ValidTo;
             authmodel.UserName = user.UserName;
             authmodel.Roles = roles.ToList();
             authmodel.Message = "Login Successful!";
+            if (user.RefreshTokens.Any(t => t.IsActive))
+            {
+                var activeRefreshToken = user.RefreshTokens.FirstOrDefault(t => t.IsActive);
+                authmodel.RefreshToken = activeRefreshToken.Token;
+                authmodel.RefreshTokenExpiration = activeRefreshToken.ExpiresOn;
+            }
+            else
+            {
+                var refreshToken = GenerateRefreshToken();
+                authmodel.RefreshToken = refreshToken.Token;
+                authmodel.RefreshTokenExpiration = refreshToken.ExpiresOn;
+                user.RefreshTokens.Add(refreshToken);
+                await _userManager.UpdateAsync(user);
 
+            }
             return authmodel;
+
         }
 
 
-        public async Task<string>AddRoleAsync(AddRole model)
+        public async Task<string> AddRoleAsync(AddRole model)
         {
             var user = await _userManager.FindByIdAsync(model.UserId);
             if (user is null || !await _roleManager.RoleExistsAsync(model.RoleName))
@@ -93,7 +110,7 @@ namespace PRISM.Services
             var result = await _userManager.AddToRoleAsync(user, model.RoleName);
 
             return result.Succeeded ? "User added to role successfully!"
-                :"Error: User could not be added to role.";
+                : "Error: User could not be added to role.";
         }
 
         private async Task<JwtSecurityToken> CreateJwtToken(AppUser user)
@@ -126,6 +143,79 @@ namespace PRISM.Services
                 signingCredentials: signingCredentials);
 
             return jwtSecurityToken;
+        }
+
+       public async Task<bool> RevokeTokenAsync(string token) {
+
+
+            var user = await _userManager.Users.SingleOrDefaultAsync(t => t.RefreshTokens.Any(r => r.Token == token));
+            if (user == null)
+               return false;
+
+            
+            var refreshtoken = user.RefreshTokens.Single(u => u.Token == token);
+            if (!refreshtoken.IsActive)
+                return false;
+
+            refreshtoken.RevokeOn = DateTime.UtcNow;
+
+            await _userManager.UpdateAsync(user);
+                return true;
+
+
+
+        }
+
+
+        private RefreshTokens GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return new RefreshTokens
+            {
+                Token = Convert.ToBase64String(randomNumber),
+                ExpiresOn = DateTime.UtcNow.AddDays(7),
+                CreatedOn = DateTime.UtcNow
+
+            };
+
+        }
+        public async Task<AuthModel> RefreshTokenAsync(string token)
+        {
+            var authmodel = new AuthModel();
+            var user = await _userManager.Users.SingleOrDefaultAsync(t => t.RefreshTokens.Any(r => r.Token == token));
+            if (user == null)
+            {
+                authmodel.IsAuthenticated = false;
+                authmodel.Message = "Invalid Token";
+                return authmodel;
+
+            }
+            var refreshtoken = user.RefreshTokens.Single(u => u.Token == token);
+            if (!refreshtoken.IsActive)
+            {
+                authmodel.IsAuthenticated = false;
+                authmodel.Message = "Invalid Token";
+                return authmodel;
+            }
+            refreshtoken.RevokeOn = DateTime.UtcNow;
+            var NewRefreshToken = GenerateRefreshToken();
+            user.RefreshTokens.Add(NewRefreshToken);
+
+            await _userManager.UpdateAsync(user);
+            var JwtToken = await CreateJwtToken(user);
+            authmodel.IsAuthenticated = true;
+            authmodel.Email = user.Email;
+            authmodel.UserName = user.UserName;
+            authmodel.Token = new JwtSecurityTokenHandler().WriteToken(JwtToken);
+            var roles = await _userManager.GetRolesAsync(user);
+            authmodel.Roles = roles.ToList();
+            authmodel.RefreshToken = NewRefreshToken.Token;
+            authmodel.RefreshTokenExpiration = NewRefreshToken.ExpiresOn;
+            return authmodel;
+
+
         }
     }
 }

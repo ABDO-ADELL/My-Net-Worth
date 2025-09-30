@@ -4,20 +4,20 @@
     "http": {
       "commandName": "Project",
       "launchBrowser": true,
-      "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:8080",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:8080"
     },
     "https": {
       "commandName": "Project",
       "launchBrowser": true,
-      "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:8080;https://localhost:8081",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:8001;https://localhost:8081"
     },
     "Container (Dockerfile)": {
       "commandName": "Docker",

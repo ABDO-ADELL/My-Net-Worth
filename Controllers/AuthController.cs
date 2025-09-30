@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PRISM.Models;
+using PRISM.Models.Authmodels;
 using PRISM.Services;
 
 
@@ -17,7 +17,7 @@ namespace PRISM.Controllers
             _auth = auth;
         }
         [HttpPost("Register")]
-        public async Task<IActionResult> Register([FromBody] Register model)
+        public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             if (!ModelState.IsValid)
             { return BadRequest(ModelState); }
@@ -28,13 +28,14 @@ namespace PRISM.Controllers
             if (!result.IsAuthenticated)
             { return BadRequest(result.Message); }
 
+            RefreshTokeinInCookie(result.RefreshToken, result.RefreshTokenExpiration);
 
-            return Ok(new { token = result.Token, ExpiresOn = result.Expiration });
+            return Ok(new { token = result.Token });
 
             
         }
         [HttpPost("Login")]
-        public async Task<IActionResult> LoginAsync([FromBody] Login model)
+        public async Task<IActionResult> LoginAsync([FromBody] LoginModel model)
         {
             if (!ModelState.IsValid)
             { return BadRequest(ModelState); }
@@ -45,7 +46,18 @@ namespace PRISM.Controllers
             if (!result.IsAuthenticated)
             { return BadRequest(result.Message); }
 
-            return Ok(new { token = result.Token, ExpiresOn = result.Expiration });
+
+            if (!string.IsNullOrEmpty(result.RefreshToken))
+            {
+                RefreshTokeinInCookie(result.RefreshToken,result.RefreshTokenExpiration);
+
+            }
+
+
+
+            return Ok(new { token = result.Token });
+           // return Ok(new { token = result.Token, ExpiresOn = result.Expiration });
+
         }
         [HttpPost("AddRole")]
         public async Task<IActionResult> Role([FromBody] AddRole model)
@@ -62,5 +74,51 @@ namespace PRISM.Controllers
             return Ok(model);
         }
 
+
+        private void RefreshTokeinInCookie(string RefreshToken, DateTime expires)
+        {
+            var CookieOption = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = expires.ToLocalTime(),
+                SameSite = SameSiteMode.None,
+                Secure = true
+
+            };
+
+            Response.Cookies.Append("RefreshToken", RefreshToken, CookieOption);
+
+
+        }
+        [HttpGet("RefreshToken")]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var refreshtoken = Request.Cookies["RefreshToken"];
+            var result = await _auth.RefreshTokenAsync(refreshtoken);
+            if (!result.IsAuthenticated)
+                return BadRequest();
+
+
+            RefreshTokeinInCookie(result.RefreshToken, result.RefreshTokenExpiration);
+
+            return Ok(result);
+
+        }
+
+        [HttpPost("RevokeToken")]
+        public async Task<IActionResult> RevokeToken([FromBody]RevokeToken model) { 
+                
+                var token = model.Token?? Request.Cookies["RefreshToken"];
+            if (string.IsNullOrEmpty(token))
+                return BadRequest("Token Required");
+        
+            var result = await _auth.RevokeTokenAsync(token);
+
+            if (!result)
+                return BadRequest("Token Required");
+
+
+            return Ok();
+        }
     }
 }
