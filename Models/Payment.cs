@@ -6,8 +6,6 @@ namespace PRISM.Models
     public class Payment
     {
 
-        //Payment
-        //payment_id (PK), order_id (FK), method, amount, datetime
         [Key]
         public int PaymentId { get; set; }
         public string Method { get; set; }

@@ -225,7 +225,13 @@ namespace PRISM.Migrations
                     b.Property<int>("BranchId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("BranchId1")
+                        .HasColumnType("int");
+
                     b.Property<int>("ItemId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ItemId1")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("LastUpdate")
@@ -241,7 +247,11 @@ namespace PRISM.Migrations
 
                     b.HasIndex("BranchId");
 
+                    b.HasIndex("BranchId1");
+
                     b.HasIndex("ItemId");
+
+                    b.HasIndex("ItemId1");
 
                     b.ToTable("Inventories");
                 });
@@ -264,6 +274,7 @@ namespace PRISM.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("CostPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Description")
@@ -273,11 +284,18 @@ namespace PRISM.Migrations
                     b.Property<int?>("DurationMinutes")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("ItemCategoryProductCategoryId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("SellPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Sku")
@@ -292,10 +310,50 @@ namespace PRISM.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("ItemCategoryProductCategoryId");
+
                     b.ToTable("Items");
                 });
 
-            modelBuilder.Entity("PRISM.Models.AppUser", b =>
+            modelBuilder.Entity("PRISM.Models.AuditLog", b =>
+                {
+                    b.Property<int>("AuditId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuditId"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ObjectId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ObjectType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("AuditId");
+
+                    b.HasIndex("BusinessId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AuditLogs");
+                });
+
+            modelBuilder.Entity("PRISM.Models.Authmodels.AppUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -376,44 +434,6 @@ namespace PRISM.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("PRISM.Models.AuditLog", b =>
-                {
-                    b.Property<int>("AuditId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuditId"));
-
-                    b.Property<string>("Action")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("BusinessId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ObjectId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ObjectType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("AuditId");
-
-                    b.HasIndex("BusinessId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AuditLogs");
-                });
-
             modelBuilder.Entity("PRISM.Models.Customer", b =>
                 {
                     b.Property<int>("CustomerId")
@@ -471,6 +491,9 @@ namespace PRISM.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<int?>("ExpenseCategoryId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("ExpenseDate")
                         .HasColumnType("datetime2");
 
@@ -486,6 +509,8 @@ namespace PRISM.Migrations
                     b.HasIndex("BusinessId");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("ExpenseCategoryId");
 
                     b.ToTable("Expenses");
                 });
@@ -539,11 +564,11 @@ namespace PRISM.Migrations
 
             modelBuilder.Entity("PRISM.Models.Order", b =>
                 {
-                    b.Property<int>("OrderId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("BranchId")
                         .HasColumnType("int");
@@ -554,8 +579,12 @@ namespace PRISM.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
-                    b.Property<int>("branch_id")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("OrderName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("business_id")
                         .HasColumnType("int");
@@ -567,15 +596,13 @@ namespace PRISM.Migrations
                         .HasColumnType("bit");
 
                     b.Property<decimal>("total_amount")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("userId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("user_id")
-                        .HasColumnType("int");
-
-                    b.HasKey("OrderId");
+                    b.HasKey("Id");
 
                     b.HasIndex("BranchId");
 
@@ -603,12 +630,14 @@ namespace PRISM.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<decimal>("TotalPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("OrderItemId");
@@ -629,7 +658,8 @@ namespace PRISM.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentId"));
 
                     b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(10,2)");
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Method")
                         .IsRequired()
@@ -669,9 +699,11 @@ namespace PRISM.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal?>("target_profit")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("target_revenue")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("TargetId");
@@ -686,25 +718,25 @@ namespace PRISM.Migrations
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("PRISM.Models.AppUser", null)
+                    b.HasOne("PRISM.Models.Authmodels.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("PRISM.Models.AppUser", null)
+                    b.HasOne("PRISM.Models.Authmodels.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
@@ -713,22 +745,22 @@ namespace PRISM.Migrations
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PRISM.Models.AppUser", null)
+                    b.HasOne("PRISM.Models.Authmodels.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("PRISM.Models.AppUser", null)
+                    b.HasOne("PRISM.Models.Authmodels.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
@@ -737,7 +769,7 @@ namespace PRISM.Migrations
                     b.HasOne("PRISM.Business", "Business")
                         .WithMany("Branches")
                         .HasForeignKey("BusinessId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Business");
@@ -746,16 +778,24 @@ namespace PRISM.Migrations
             modelBuilder.Entity("PRISM.Inventory", b =>
                 {
                     b.HasOne("PRISM.Branch", "Branch")
-                        .WithMany("Inventories")
+                        .WithMany()
                         .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PRISM.Item", "Item")
+                    b.HasOne("PRISM.Branch", null)
                         .WithMany("Inventories")
+                        .HasForeignKey("BranchId1");
+
+                    b.HasOne("PRISM.Item", "Item")
+                        .WithMany()
                         .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("PRISM.Item", null)
+                        .WithMany("Inventories")
+                        .HasForeignKey("ItemId1");
 
                     b.Navigation("Branch");
 
@@ -767,19 +807,23 @@ namespace PRISM.Migrations
                     b.HasOne("PRISM.Branch", "Branch")
                         .WithMany("Items")
                         .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("PRISM.Business", "Business")
                         .WithMany("Items")
                         .HasForeignKey("BusinessId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("PRISM.Models.ItemCategory", "ItemCategory")
-                        .WithMany("Items")
+                        .WithMany()
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("PRISM.Models.ItemCategory", null)
+                        .WithMany("Items")
+                        .HasForeignKey("ItemCategoryProductCategoryId");
 
                     b.Navigation("Branch");
 
@@ -793,13 +837,13 @@ namespace PRISM.Migrations
                     b.HasOne("PRISM.Business", "Business")
                         .WithMany()
                         .HasForeignKey("BusinessId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PRISM.Models.AppUser", "User")
+                    b.HasOne("PRISM.Models.Authmodels.AppUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Business");
@@ -807,12 +851,48 @@ namespace PRISM.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("PRISM.Models.Authmodels.AppUser", b =>
+                {
+                    b.OwnsMany("PRISM.Models.Authmodels.RefreshTokens", "RefreshTokens", b1 =>
+                        {
+                            b1.Property<string>("AppUserId")
+                                .HasColumnType("nvarchar(450)");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
+
+                            b1.Property<DateTime>("CreatedOn")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<DateTime>("ExpiresOn")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<DateTime>("RevokeOn")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<string>("Token")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("AppUserId", "Id");
+
+                            b1.ToTable("RefreshTokens");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AppUserId");
+                        });
+
+                    b.Navigation("RefreshTokens");
+                });
+
             modelBuilder.Entity("PRISM.Models.Customer", b =>
                 {
                     b.HasOne("PRISM.Branch", "Branch")
                         .WithMany()
                         .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Branch");
@@ -823,25 +903,29 @@ namespace PRISM.Migrations
                     b.HasOne("PRISM.Branch", "Branch")
                         .WithMany()
                         .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("PRISM.Business", "Business")
                         .WithMany()
                         .HasForeignKey("BusinessId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PRISM.Models.ExpenseCategory", "Category")
-                        .WithMany("Expenses")
+                    b.HasOne("PRISM.Models.ExpenseCategory", "ExpenseCategorys")
+                        .WithMany()
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("PRISM.Models.ExpenseCategory", null)
+                        .WithMany("Expenses")
+                        .HasForeignKey("ExpenseCategoryId");
 
                     b.Navigation("Branch");
 
                     b.Navigation("Business");
 
-                    b.Navigation("Category");
+                    b.Navigation("ExpenseCategorys");
                 });
 
             modelBuilder.Entity("PRISM.Models.ExpenseCategory", b =>
@@ -849,7 +933,7 @@ namespace PRISM.Migrations
                     b.HasOne("PRISM.Business", "Business")
                         .WithMany()
                         .HasForeignKey("BusinessId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Business");
@@ -860,7 +944,7 @@ namespace PRISM.Migrations
                     b.HasOne("PRISM.Business", "Business")
                         .WithMany()
                         .HasForeignKey("BusinessId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Business");
@@ -871,25 +955,24 @@ namespace PRISM.Migrations
                     b.HasOne("PRISM.Branch", "branch")
                         .WithMany()
                         .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("PRISM.Business", "business")
                         .WithMany()
                         .HasForeignKey("BusinessId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("PRISM.Models.Customer", "Customer")
                         .WithMany()
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PRISM.Models.AppUser", "user")
+                    b.HasOne("PRISM.Models.Authmodels.AppUser", "user")
                         .WithMany()
-                        .HasForeignKey("userId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .HasForeignKey("userId");
 
                     b.Navigation("Customer");
 
@@ -905,13 +988,13 @@ namespace PRISM.Migrations
                     b.HasOne("PRISM.Item", "Item")
                         .WithMany()
                         .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("PRISM.Models.Order", "order")
                         .WithMany("OrderItems")
                         .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Item");
@@ -924,7 +1007,7 @@ namespace PRISM.Migrations
                     b.HasOne("PRISM.Models.Order", "Order")
                         .WithMany()
                         .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Order");
@@ -935,7 +1018,7 @@ namespace PRISM.Migrations
                     b.HasOne("PRISM.Business", "business")
                         .WithMany()
                         .HasForeignKey("BusinessId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("business");

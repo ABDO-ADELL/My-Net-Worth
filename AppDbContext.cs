@@ -32,28 +32,116 @@ namespace PRISM
 
         public DbSet<AuditLog> AuditLogs { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(builder);
+            // Configure decimal precision
+            modelBuilder.Entity<Item>()
+                .Property(i => i.CostPrice)
+                .HasPrecision(18, 2);
 
-            // Example: enforce decimal precision globally
-            builder.Entity<Expense>()
-                .Property(e => e.Amount)
-                .HasColumnType("decimal(10,2)");
+            modelBuilder.Entity<Item>()
+                .Property(i => i.SellPrice)
+                .HasPrecision(18, 2);
 
-            builder.Entity<Payment>()
+            modelBuilder.Entity<Order>()
+                .Property(o => o.total_amount)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<OrderItem>()
+                .Property(oi => oi.Price)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<OrderItem>()
+                .Property(oi => oi.TotalPrice)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Target>()
+                .Property(t => t.target_profit)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Target>()
+                .Property(t => t.target_revenue)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Payment>()
                 .Property(p => p.Amount)
-                .HasColumnType("decimal(10,2)");
+                .HasPrecision(18, 2);
 
+            // Fix Branch relationship - IMPORTANT: Remove my previous Branch config
+            modelBuilder.Entity<Branch>()
+                .HasOne(b => b.Business)
+                .WithMany(bus => bus.Branches)
+                .HasForeignKey(b => b.BusinessId)
+                .OnDelete(DeleteBehavior.Cascade); // Branch should cascade with Business
 
-            // Disable cascades to prevent cycles - no way to do this with data annotations
-            foreach (var relationship in builder.Model.GetEntityTypes()
-                .SelectMany(e => e.GetForeignKeys()))
-            {
-                relationship.DeleteBehavior = DeleteBehavior.NoAction;
-            }
+            // Fix Item relationships
+            modelBuilder.Entity<Item>()
+                .HasOne(i => i.ItemCategory)
+                .WithMany()
+                .HasForeignKey(i => i.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Item>()
+                .HasOne(i => i.Branch)
+                .WithMany(b => b.Items)
+                .HasForeignKey(i => i.BranchId)
+                .OnDelete(DeleteBehavior.Restrict);
 
+            // Fix Inventory relationship
+            modelBuilder.Entity<Inventory>()
+                .HasOne(inv => inv.Item)
+                .WithMany()
+                .HasForeignKey(inv => inv.ItemId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Inventory>()
+                .HasOne(inv => inv.Branch)
+                .WithMany()
+                .HasForeignKey(inv => inv.BranchId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Expense relationships
+            modelBuilder.Entity<Expense>()
+                .HasOne(e => e.ExpenseCategorys)
+                .WithMany()
+                .HasForeignKey(e => e.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Expense>()
+                .HasOne(e => e.Branch)
+                .WithMany()
+                .HasForeignKey(e => e.BranchId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Order relationships
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.branch)
+                .WithMany()
+                .HasForeignKey(o => o.BranchId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Customer)
+                .WithMany()
+                .HasForeignKey(o => o.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // OrderItem relationship
+            modelBuilder.Entity<OrderItem>()
+                .HasOne(oi => oi.Item)
+                .WithMany()
+                .HasForeignKey(oi => oi.ItemId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Payment relationship
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Order)
+                .WithMany()
+                .HasForeignKey(p => p.OrderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            base.OnModelCreating(modelBuilder);
         }
+
     }
 }

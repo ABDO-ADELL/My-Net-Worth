@@ -29,7 +29,7 @@ namespace PRISM.Models
 
 
         [ForeignKey(nameof(CategoryId))]
-        public virtual ExpenseCategory Category { get; set; }
+        public virtual ExpenseCategory ExpenseCategorys { get; set; }
 
         [ForeignKey(nameof(BusinessId))]
         public virtual Business Business { get; set; }

@@ -1,140 +1,272 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PRISM.Models;
+using PRISM.Models.Authmodels;
 
 namespace PRISM.Controllers
 {
     public class OrderController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly UserManager<AppUser> _userManager;
 
-        public OrderController(AppDbContext context)
+        public OrderController(AppDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
-
-        //[HttpPost("AddOrderItem")]
-        public async Task<IActionResult> AddOrderItem(OrderItem model)
+        // GET: Order
+        public async Task<IActionResult> Index()
         {
+            var orders = await _context.Orders
+                .Include(o => o.business)
+                .Include(o => o.branch)
+                .Include(o => o.Customer)
+                .Include(o => o.user)
+                .Where(o => !o.IsDeleted)
+                .OrderByDescending(o => o.datetime)
+                .ToListAsync();
 
-            if (!ModelState.IsValid)
+            return View(orders);
+        }
+        // GET: Order/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
             {
-                return BadRequest("Invalid");
+                return NotFound();
             }
 
-            var order = await _context.Orders.FindAsync(model.OrderId);
+            var order = await _context.Orders
+                .Include(o => o.business)
+                .Include(o => o.branch)
+                .Include(o => o.Customer)
+                .Include(o => o.user)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Item)
+                .FirstOrDefaultAsync(m => m.Id == id && !m.IsDeleted);
+
             if (order == null)
-                return NotFound("order not found");
-            var item = await _context.Items.FindAsync(model.ItemId);
-            if (item == null)
-                return NotFound("Item not found");
-
-
-            var NewItem = new OrderItem
             {
-                Quantity = model.Quantity,
-                ItemId = model.ItemId,
-                Item = model.Item,
-                Price = item.SellPrice, 
-                TotalPrice = model.Quantity * item.SellPrice,
-                OrderId = model.OrderId
-            };
-            _context.OrderItems.Add(NewItem);
-            await _context.SaveChangesAsync();
-
-            order.total_amount = await _context.OrderItems
-              .Where(oi => oi.OrderId == model.OrderId)
-              .SumAsync(oi => oi.TotalPrice);
-        
-            _context.Orders.Update(order);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Details", "Orders", new { id = model.OrderId });
-
-        }
-
-
-        //[HttpDelete("DeleteOrderItem")]
-        public async Task<IActionResult> DeleteOrderItem(int itemid)
-        {
-            var item = await _context.OrderItems.FindAsync(itemid);
-            if (item == null)
                 return NotFound();
-            _context.OrderItems.Remove(item);
-            await _context.SaveChangesAsync();
-
-            var orderId = item.OrderId;
-            var order = await _context.Orders.FindAsync(orderId);
-            if (order != null)
-            {
-                order.total_amount = await _context.OrderItems
-                    .Where(oi => oi.OrderId == orderId)
-                    .SumAsync(oi => oi.TotalPrice);
-                await _context.SaveChangesAsync();
             }
-
-
-            return RedirectToAction("Orders");
-        }
-
-
-        //[HttpGet("GetAllOrders")]
-        public async Task<IActionResult> GetAllOrders()
-        {
-            var Orders = await _context.Orders.ToListAsync();
-            return View(Orders);
-        }
-        [HttpGet("OrderDetails")]
-        public async Task<IActionResult> OrderDetails(int OrderId)
-        {
-            var Order = await _context.Orders.Include(i => i.branch).Include(i => i.business).Include(i => i.Customer).Include(i => i.OrderItems)
-                            .ThenInclude(oi => oi.Item)   
-                .FirstOrDefaultAsync(z => z.order_id == OrderId);
-
-            if (Order == null)
-                return NotFound();
-
-            return View(Order);
-
-        }
-        //[HttpGet("SearchOrder")]
-        public async Task<IActionResult> SearchOrder(string Name)
-        {
-            var order = await _context.Orders.Where(o => o.OrderName == Name).ToListAsync();
-            if (!order.Any())
-                return NotFound("No orders found.");
 
             return View(order);
         }
-        //[HttpPost("EditOrder")]
-        public async Task<IActionResult> EditOrder(Order model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Missing some Information");
-            }
-            var order = await _context.Orders.FirstOrDefaultAsync(i => i.order_id == model.order_id);
-            if (order == null)
-            {
-                return NotFound("The Order dosen't exisit");
-            }
-            order.OrderName = model.OrderName;
-            order.total_amount = model.total_amount;
-            order.status = model.status;
-            order.datetime = model.datetime;
-            order.BranchId = model.BranchId;
-            order.business_id = model.business_id;
-            _context.Orders.Update(order);
-            await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index", "Orders");
-        }
-
-        public IActionResult Index()
+        // GET: Order/Create
+        public IActionResult Create()
         {
+            ViewData["business_id"] = new SelectList(_context.Businesses, "BusinessId", "Name");
+            ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name");
+            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName");
+            ViewData["Items"] = _context.Items
+                .Where(i => !i.IsDeleted)
+                .Select(i => new { i.ItemId, i.Name, i.SellPrice })
+                .ToList();
+
             return View();
         }
 
+        // POST: Order/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Order order, List<int> itemIds, List<int> quantities)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    // Get current user
+                    var user = await _userManager.GetUserAsync(User);
+                    order.user = user;
+                    order.datetime = DateTime.Now;
+                    order.IsDeleted = false;
+                    order.status = true;
 
+                    // Calculate total amount and create order items
+                    decimal totalAmount = 0;
+                    var orderItems = new List<OrderItem>();
+
+                    for (int i = 0; i < itemIds.Count; i++)
+                    {
+                        if (quantities[i] > 0)
+                        {
+                            var item = await _context.Items.FindAsync(itemIds[i]);
+                            if (item != null)
+                            {
+                                var orderItem = new OrderItem
+                                {
+                                    ItemId = itemIds[i],
+                                    Quantity = quantities[i],
+                                    Price = item.SellPrice,
+                                    TotalPrice = item.SellPrice * quantities[i]
+                                };
+                                orderItems.Add(orderItem);
+                                totalAmount += orderItem.TotalPrice;
+                            }
+                        }
+                    }
+
+                    order.total_amount = totalAmount;
+                    order.OrderItems = orderItems;
+
+                    _context.Orders.Add(order);
+                    await _context.SaveChangesAsync();
+
+                    TempData["Success"] = "Order created successfully!";
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Error creating order: " + ex.Message);
+            }
+
+            ViewData["business_id"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.business_id);
+            ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name", order.BranchId);
+            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId);
+            ViewData["Items"] = _context.Items
+                .Where(i => !i.IsDeleted)
+                .Select(i => new { i.ItemId, i.Name, i.SellPrice })
+                .ToList();
+
+            return View(order);
+        }
+
+        // GET: Order/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == id && !o.IsDeleted);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            ViewData["business_id"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.business_id);
+            ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name", order.BranchId);
+            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId);
+
+            return View(order);
+        }
+
+        // POST: Order/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Order order)
+        {
+            if (id != order.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(order);
+                    await _context.SaveChangesAsync();
+                    TempData["Success"] = "Order updated successfully!";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!OrderExists(order.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            ViewData["business_id"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.business_id);
+            ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name", order.BranchId);
+            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId);
+
+            return View(order);
+        }
+
+        // GET: Order/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var order = await _context.Orders
+                .Include(o => o.business)
+                .Include(o => o.branch)
+                .Include(o => o.Customer)
+                .Include(o => o.user)
+                .FirstOrDefaultAsync(m => m.Id == id && !m.IsDeleted);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            return View(order);
+        }
+
+        // POST: Order/Delete/5
+        [HttpPost , ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var order = await _context.Orders.FindAsync(id);
+            if (order != null)
+            {
+                // Soft delete
+                order.IsDeleted = true;
+                _context.Update(order);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Order deleted successfully!";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // API endpoint to get branches by business
+        [HttpGet]
+        public JsonResult GetBranchesByBusiness(int businessId)
+        {
+            var branches = _context.Branches
+                .Where(b => b.BusinessId == businessId)
+                .Select(b => new { b.BranchId, b.Name })
+                .ToList();
+
+            return Json(branches);
+        }
+
+        // API endpoint to get items by branch
+        [HttpGet]
+        public JsonResult GetItemsByBranch(int branchId)
+        {
+            var items = _context.Items
+                .Where(i => i.BranchId == branchId && !i.IsDeleted)
+                .Select(i => new { i.ItemId, i.Name, i.SellPrice })
+                .ToList();
+
+            return Json(items);
+        }
+
+        private bool OrderExists(int id)
+        {
+            return _context.Orders.Any(e => e.Id == id && !e.IsDeleted);
+        }
     }
 }
