@@ -11,6 +11,7 @@ namespace PRISM.Models
         public string Method { get; set; }
         public decimal Amount { get; set; }
         public DateTime datetime { get; set; }
+        public bool IsDeleted { get; set; }
 
         [ForeignKey("Order")]
         public int OrderId { get; set; }
