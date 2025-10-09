@@ -25,7 +25,8 @@ namespace PRISM.Models
 
         [MaxLength(500)]
         public string? Description { get; set; }
-
+        
+        public bool IsDeleted { get; set; }
 
 
         [ForeignKey(nameof(CategoryId))]
@@ -33,6 +34,7 @@ namespace PRISM.Models
 
         [ForeignKey(nameof(BusinessId))]
         public virtual Business Business { get; set; }
+        
 
         [ForeignKey(nameof(BranchId))]
         public virtual Branch? Branch { get; set; }
