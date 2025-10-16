@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PRISM.Helpers;
@@ -30,7 +30,7 @@ namespace PRISM
 
 
                 services.AddScoped<IAuthService, AuthService>();
-                services.AddAuthentication(Options =>
+                /*services.AddAuthentication(Options =>
                 {
                     Options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     Options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -50,12 +50,19 @@ namespace PRISM
 
                     };
                 });
+                 */
             }
 
 
 
 
             builder.Services.AddControllersWithViews();
+            builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.WriteIndented = true;
+    });
 
             var app = builder.Build();
 
@@ -68,13 +75,15 @@ namespace PRISM
 
             app.UseHttpsRedirection();
             app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
+            //app.UseAuthentication();
+            //app.UseAuthorization();
             app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}")
                 .WithStaticAssets();
+            // ✅  route  APIs
+            app.MapControllers();
 
             app.Run();
 

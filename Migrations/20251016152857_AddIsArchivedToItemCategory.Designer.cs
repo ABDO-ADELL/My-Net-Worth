@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PRISM;
 
@@ -11,9 +12,11 @@ using PRISM;
 namespace PRISM.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251016152857_AddIsArchivedToItemCategory")]
+    partial class AddIsArchivedToItemCategory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -264,7 +267,7 @@ namespace PRISM.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ItemId"));
 
-                    b.Property<int>("BranchId")
+                    b.Property<int?>("BranchId")
                         .HasColumnType("int");
 
                     b.Property<int>("BusinessId")
@@ -278,8 +281,7 @@ namespace PRISM.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("DurationMinutes")
                         .HasColumnType("int");
@@ -287,13 +289,12 @@ namespace PRISM.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("ItemCategoryCategoryId")
+                    b.Property<int?>("ItemCategoryProductCategoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("SellPrice")
                         .HasPrecision(18, 2)
@@ -301,8 +302,7 @@ namespace PRISM.Migrations
 
                     b.Property<string>("Sku")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ItemId");
 
@@ -312,7 +312,7 @@ namespace PRISM.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("ItemCategoryCategoryId");
+                    b.HasIndex("ItemCategoryProductCategoryId");
 
                     b.ToTable("Items");
                 });
@@ -547,11 +547,11 @@ namespace PRISM.Migrations
 
             modelBuilder.Entity("PRISM.Models.ItemCategory", b =>
                 {
-                    b.Property<int>("CategoryId")
+                    b.Property<int>("ProductCategoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductCategoryId"));
 
                     b.Property<int>("BusinessId")
                         .HasColumnType("int");
@@ -561,10 +561,9 @@ namespace PRISM.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("CategoryId");
+                    b.HasKey("ProductCategoryId");
 
                     b.HasIndex("BusinessId");
 
@@ -819,8 +818,7 @@ namespace PRISM.Migrations
                     b.HasOne("PRISM.Branch", "Branch")
                         .WithMany("Items")
                         .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("PRISM.Business", "Business")
                         .WithMany("Items")
@@ -836,7 +834,7 @@ namespace PRISM.Migrations
 
                     b.HasOne("PRISM.Models.ItemCategory", null)
                         .WithMany("Items")
-                        .HasForeignKey("ItemCategoryCategoryId");
+                        .HasForeignKey("ItemCategoryProductCategoryId");
 
                     b.Navigation("Branch");
 

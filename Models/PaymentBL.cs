@@ -13,7 +13,7 @@ namespace PRISM.Models
 
         public async Task<Payment> AddAsync(Payment payment)
         {
-            payment.Datetime = DateTime.UtcNow;
+            payment.datetime = DateTime.UtcNow; // Fix: Corrected property name to match the Payment class definition  
             _context.Payments.Add(payment);
             await _context.SaveChangesAsync();
             return payment;
@@ -27,13 +27,13 @@ namespace PRISM.Models
                 .Where(p => !p.IsDeleted && p.Order.business_id == businessId);
 
             if (startDate.HasValue)
-                query = query.Where(p => p.Datetime >= startDate.Value);
+                query = query.Where(p => p.datetime >= startDate.Value); // Fix: Corrected property name to match the Payment class definition  
 
             if (endDate.HasValue)
-                query = query.Where(p => p.Datetime <= endDate.Value);
+                query = query.Where(p => p.datetime <= endDate.Value); // Fix: Corrected property name to match the Payment class definition  
 
             return await query
-                .OrderByDescending(p => p.Datetime)
+                .OrderByDescending(p => p.datetime) // Fix: Corrected property name to match the Payment class definition  
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -54,7 +54,7 @@ namespace PRISM.Models
             payment.Method = updated.Method;
             payment.Amount = updated.Amount;
             payment.OrderId = updated.OrderId;
-            payment.Datetime = DateTime.UtcNow;
+            payment.datetime = DateTime.UtcNow; // Fix: Corrected property name to match the Payment class definition  
 
             await _context.SaveChangesAsync();
             return true;
