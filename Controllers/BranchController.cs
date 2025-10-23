@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using PRISM.Models;
+using PRISM.Models.Authmodels;
 
 namespace PRISM.Controllers
 {
@@ -55,14 +59,14 @@ namespace PRISM.Controllers
         public async Task<IActionResult> DeleteBranch(int id)
         {
             var branch = await _context.Branches.FindAsync(id);
-            if (branch == null)
-                return NotFound();
-
-            _context.Branches.Remove(branch);
-            await _context.SaveChangesAsync();
-
+            if (branch != null)
+            {
+                // Soft delete
+                branch.IsDeleted = true;
+                _context.Update(branch);
+                await _context.SaveChangesAsync();
+            }
             return NoContent();
         }
     }
-}
 }

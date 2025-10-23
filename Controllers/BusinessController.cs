@@ -55,14 +55,14 @@ namespace PRISM.Controllers
         public async Task<IActionResult> DeleteBusiness(int id)
         {
             var business = await _context.Businesses.FindAsync(id);
-            if (business == null)
-                return NotFound();
-
-            _context.Businesses.Remove(business);
-            await _context.SaveChangesAsync();
-
+            if (business != null)
+            {
+                // Soft delete
+                business.IsDeleted = true;
+                _context.Update(business);
+                await _context.SaveChangesAsync();
+            }
             return NoContent();
         }
     }
-}
 }
