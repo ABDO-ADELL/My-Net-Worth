@@ -15,6 +15,7 @@ namespace PRISM
         public string Industry { get; set; }
         public string Timezone { get; set; }
         public string Status { get; set; }
+        public bool IsDeleted { get; set; }
 
         // Relations
         public ICollection<Branch> Branches { get; set; }
