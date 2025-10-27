@@ -392,6 +392,13 @@
                     <span class="nav-text">Settings</span>
                 </a>
             </li>
+
+            <li class="nav-item">
+                <a href="@Url.Action("Profile", "Account")" class="nav-link">
+                    <i class="fas fa-user-circle"></i>
+                    <span class="nav-text">Account</span>
+                </a>
+            </li>
         </ul>
     </aside>
 
@@ -407,7 +414,7 @@
                 <span class="notification-badge">3</span>
             </div>
 
-            <div class="user-menu">
+            <a href="@Url.Action("Profile", "Account")" class="user-menu" style="text-decoration: none;">
                 <div class="user-avatar">
                     <i class="fas fa-user"></i>
                 </div>
@@ -418,7 +425,7 @@
                     <div class="user-role">Administrator</div>
                 </div>
                 <i class="fas fa-chevron-down" style="color: #64748b; font-size: 12px;"></i>
-            </div>
+            </a>
 
             <a href="@Url.Action("Logout", "Account")" class="text-danger" style="text-decoration: none; font-size: 20px;">
                 <i class="fas fa-sign-out-alt"></i>
