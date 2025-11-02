@@ -300,7 +300,8 @@
             margin-left: 0;
         }
 
-        }</style>
+        }
+    </style>
 </head>
 <body>
     <!-- Sidebar -->
@@ -361,10 +362,19 @@
                 <span class="nav-text">FINANCIAL</span>
             </div>
 
+            <!-- NEW: Expenses -->
             <li class="nav-item">
-                <a href="@Url.Action("Index", "Transaction")" class="nav-link">
-                    <i class="fas fa-exchange-alt"></i>
-                    <span class="nav-text">Transactions</span>
+                <a href="@Url.Action("Index", "Expenses", new { businessId = 1 })" class="nav-link">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span class="nav-text">Expenses</span>
+                </a>
+            </li>
+
+            <!-- NEW: Payments -->
+            <li class="nav-item">
+                <a href="@Url.Action("Index", "Payments", new { businessId = 1 })" class="nav-link">
+                    <i class="fas fa-credit-card"></i>
+                    <span class="nav-text">Payments</span>
                 </a>
             </li>
 

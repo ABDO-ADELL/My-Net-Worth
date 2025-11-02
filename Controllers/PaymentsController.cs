@@ -1,75 +1,137 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using PRISM.Models;
 
 namespace PRISM.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [Authorize(Roles = "Admin,Owner,Accountant")]
-    public class PaymentsController : ControllerBase
+    //[Authorize(Roles = "Admin,Owner,Accountant")]
+    public class PaymentsController : Controller
     {
         private readonly PaymentBL _paymentBL;
+        private readonly AppDbContext _context;
 
         public PaymentsController(AppDbContext context)
         {
             _paymentBL = new PaymentBL(context);
+            _context = context;
         }
 
-        // POST /api/payments
-        [HttpPost]
-        public async Task<IActionResult> CreatePayment([FromBody] Payment payment)
+        // GET: Payments
+        public async Task<IActionResult> Index(int businessId, int page = 1, int pageSize = 20,
+            DateTime? startDate = null, DateTime? endDate = null)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (businessId == 0)
+                return BadRequest("Business ID is required");
 
-            var result = await _paymentBL.AddAsync(payment);
-            return CreatedAtAction(nameof(GetPaymentById), new { id = result.PaymentId }, result);
-        }
-
-        // GET /api/payments/{businessId}?page=1&pageSize=20&startDate=2025-01-01&endDate=2025-01-31
-        [HttpGet("{businessId}")]
-        public async Task<IActionResult> GetPaymentsByBusiness(
-            int businessId,
-            int page = 1,
-            int pageSize = 20,
-            DateTime? startDate = null,
-            DateTime? endDate = null)
-        {
             var payments = await _paymentBL.GetByBusinessAsync(businessId, page, pageSize, startDate, endDate);
-            return Ok(payments);
+
+            ViewBag.BusinessId = businessId;
+            ViewBag.Page = page;
+            ViewBag.StartDate = startDate;
+            ViewBag.EndDate = endDate;
+
+            return View(payments);
         }
 
-        // GET /api/payments/details/{id}
-        [HttpGet("details/{id}")]
-        public async Task<IActionResult> GetPaymentById(int id)
+        // GET: Payments/Details/5
+        public async Task<IActionResult> Details(int id)
         {
             var payment = await _paymentBL.GetByIdAsync(id);
-            if (payment == null) return NotFound("Payment not found");
-            return Ok(payment);
+            if (payment == null)
+                return NotFound();
+
+            return View(payment);
         }
 
-        // PUT /api/payments/{id}
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePayment(int id, [FromBody] Payment payment)
+        // GET: Payments/Create
+        public async Task<IActionResult> Create(int businessId)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (businessId == 0)
+                return BadRequest("Business ID is required");
 
-            var success = await _paymentBL.UpdateAsync(id, payment);
-            if (!success) return NotFound("Payment not found or deleted");
+            ViewBag.BusinessId = businessId;
+            ViewBag.Orders = new SelectList(await _context.Orders.Where(o => o.business_id == businessId).ToListAsync(), "OrderId", "OrderId");
 
-            return NoContent();
+            return View();
         }
 
-        // DELETE /api/payments/{id}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletePayment(int id)
+        // POST: Payments/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Payment payment, int businessId)
         {
+            if (ModelState.IsValid)
+            {
+                await _paymentBL.AddAsync(payment);
+                return RedirectToAction(nameof(Index), new { businessId });
+            }
+
+            ViewBag.BusinessId = businessId;
+            ViewBag.Orders = new SelectList(await _context.Orders.Where(o => o.business_id == businessId).ToListAsync(), "OrderId", "OrderId", payment.OrderId);
+
+            return View(payment);
+        }
+
+        // GET: Payments/Edit/5
+        public async Task<IActionResult> Edit(int id)
+        {
+            var payment = await _paymentBL.GetByIdAsync(id);
+            if (payment == null)
+                return NotFound();
+
+            ViewBag.Orders = new SelectList(await _context.Orders.Where(o => o.business_id == payment.Order.business_id).ToListAsync(), "OrderId", "OrderId", payment.OrderId);
+
+            return View(payment);
+        }
+
+        // POST: Payments/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Payment payment)
+        {
+            if (id != payment.PaymentId)
+                return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                var success = await _paymentBL.UpdateAsync(id, payment);
+                if (!success)
+                    return NotFound();
+
+                return RedirectToAction(nameof(Index), new { businessId = payment.Order.business_id });
+            }
+
+            ViewBag.Orders = new SelectList(await _context.Orders.Where(o => o.business_id == payment.Order.business_id).ToListAsync(), "OrderId", "OrderId", payment.OrderId);
+
+            return View(payment);
+        }
+
+        // GET: Payments/Delete/5
+        public async Task<IActionResult> Delete(int id)
+        {
+            var payment = await _paymentBL.GetByIdAsync(id);
+            if (payment == null)
+                return NotFound();
+
+            return View(payment);
+        }
+
+        // POST: Payments/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var payment = await _paymentBL.GetByIdAsync(id);
+            if (payment == null)
+                return NotFound();
+
             var success = await _paymentBL.SoftDeleteAsync(id);
-            if (!success) return NotFound("Payment not found or already deleted");
+            if (!success)
+                return NotFound();
 
-            return Ok("Payment archived successfully");
+            return RedirectToAction(nameof(Index), new { businessId = payment.Order.business_id });
         }
     }
 }
