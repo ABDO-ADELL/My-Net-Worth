@@ -15,7 +15,7 @@ namespace PRISM.Models
         public decimal TotalPrice { get; set; }
         [ForeignKey("Item")]
         public int ItemId { get; set; }
-        public Item Item { get; set; }
+        public Items Item { get; set; }
 
         public int Quantity { get; set; }
         public decimal Price { get; set; }

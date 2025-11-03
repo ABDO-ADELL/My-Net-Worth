@@ -14,7 +14,7 @@ namespace PRISM
         }
 
         public DbSet<ItemCategory> ItemCategories { get; set; }
-        public DbSet<Item> Items { get; set; }
+        public DbSet<Items> Items { get; set; }
         public DbSet<Inventory> Inventories { get; set; }
 
         public DbSet<Order> Orders { get; set; }
@@ -35,11 +35,11 @@ namespace PRISM
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Configure decimal precision
-            modelBuilder.Entity<Item>()
+            modelBuilder.Entity<Items>()
                 .Property(i => i.CostPrice)
                 .HasPrecision(18, 2);
 
-            modelBuilder.Entity<Item>()
+            modelBuilder.Entity<Items>()
                 .Property(i => i.SellPrice)
                 .HasPrecision(18, 2);
 
@@ -75,13 +75,13 @@ namespace PRISM
                 .OnDelete(DeleteBehavior.Cascade); // Branch should cascade with Business
 
             // Fix Item relationships
-            modelBuilder.Entity<Item>()
+            modelBuilder.Entity<Items>()
                 .HasOne(i => i.ItemCategory)
                 .WithMany()
                 .HasForeignKey(i => i.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Item>()
+            modelBuilder.Entity<Items>()
                 .HasOne(i => i.Branch)
                 .WithMany(b => b.Items)
                 .HasForeignKey(i => i.BranchId)

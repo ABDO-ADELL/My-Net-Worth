@@ -22,7 +22,7 @@ namespace PRISM
         [ForeignKey("Business")]
         public int BusinessId { get; set; }
         public Business Business { get; set; }
-        public ICollection<Item> Items { get; set; }
+        public ICollection<Items> Items { get; set; }
         public ICollection<Inventory> Inventories { get; set; }
     }
 

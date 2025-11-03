@@ -1,15 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using PRISM;
+using PRISM.Models;
+using System.Linq;
+using System.Threading.Tasks;
 using PRISM.Models;
 
 namespace PRISM.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     [AllowAnonymous]
-    public class ItemsController : ControllerBase
+    public class ItemsController : Controller
     {
         private readonly AppDbContext _context;
 
@@ -18,134 +19,162 @@ namespace PRISM.Controllers
             _context = context;
         }
 
-        // ✅ POST /api/items → Add new item
-        [HttpPost]
-        public async Task<IActionResult> CreateItem([FromBody] Item item)
+        // ✅ GET: Items (Index)
+        public async Task<IActionResult> Index()
         {
-            // ✅ Basic model validation
+            var items = await _context.Items
+                .Include(i => i.ItemCategory)
+                .Include(i => i.Branch)
+                .Where(i => !i.IsDeleted)
+                .ToListAsync();
+            return View(items);
+        }
+
+        // ✅ GET: Archived Items
+        [HttpGet]
+        public async Task<IActionResult> Archived()
+        {
+            var archived = await _context.Items
+                .Include(i => i.ItemCategory)
+                .Include(i => i.Branch)
+                .Where(i => i.IsDeleted)
+                .ToListAsync();
+            return View(archived);
+        }
+
+        // ✅ GET: Search
+        [HttpGet]
+        public async Task<IActionResult> Search(string? query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return View(new List<Items>());
+
+            var results = await _context.Items
+                .Include(i => i.ItemCategory)
+                .Include(i => i.Branch)
+                .Where(i => i.Name.Contains(query) || i.Sku.Contains(query))
+                .ToListAsync();
+
+            return View(results);
+        }
+
+        // ✅ GET: Create
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            await PopulateDropdowns();
+            return View();
+        }
+
+        // ✅ POST: Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Items item)
+        {
             if (!ModelState.IsValid)
-                return BadRequest(new { message = "Invalid input data", errors = ModelState });
+            {
+                await PopulateDropdowns(item);
+                return View(item);
+            }
 
-            // ✅ Check foreign keys
-            if (!await _context.Branches.AnyAsync(b => b.BranchId == item.BranchId))
-                return BadRequest(new { message = $"Branch with ID {item.BranchId} not found." });
+            _context.Items.Add(item);
+            await _context.SaveChangesAsync();
 
-            if (!await _context.ItemCategories.AnyAsync(c => c.CategoryId == item.CategoryId))
-                return BadRequest(new { message = $"Category with ID {item.CategoryId} not found." });
+            TempData["SuccessMessage"] = "Item added successfully!";
+            return RedirectToAction(nameof(Index));
+        }
 
-            if (!await _context.Businesses.AnyAsync(b => b.BusinessId == item.BusinessId))
-                return BadRequest(new { message = $"Business with ID {item.BusinessId} not found." });
+        // ✅ GET: Edit
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var item = await _context.Items.FindAsync(id);
+            if (item == null) return NotFound();
+
+            await PopulateDropdowns(item);
+            return View(item);
+        }
+
+        // ✅ POST: Edit
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Items item)
+        {
+            if (id != item.ItemId) return NotFound();
+
+            if (!ModelState.IsValid)
+            {
+                await PopulateDropdowns(item);
+                return View(item);
+            }
 
             try
             {
-                _context.Items.Add(item);
+                _context.Update(item);
                 await _context.SaveChangesAsync();
-                return Ok(new { message = "Item created successfully", item });
+                TempData["SuccessMessage"] = "Item updated successfully!";
+                return RedirectToAction(nameof(Index));
             }
-            catch (Exception ex)
+            catch (DbUpdateConcurrencyException)
             {
-                return StatusCode(500, new { message = "Error while saving item", error = ex.Message });
+                if (!_context.Items.Any(e => e.ItemId == id))
+                    return NotFound();
+                throw;
             }
         }
 
-        // ✅ GET /api/items/{businessId}?type=product&page=1&pageSize=10
-        [HttpGet("{businessId}")]
-        public async Task<IActionResult> GetItems(int businessId, string? type = null, int page = 1, int pageSize = 10)
-        {
-            var businessExists = await _context.Businesses.AnyAsync(b => b.BusinessId == businessId);
-            if (!businessExists)
-                return NotFound(new { message = $"Business with ID {businessId} not found." });
-
-            var query = _context.Items
-                .Where(i => i.BusinessId == businessId && !i.IsDeleted)
-                .Include(i => i.ItemCategory)
-                .AsQueryable();
-
-            if (!string.IsNullOrEmpty(type))
-                query = query.Where(i => i.ItemCategory.Name.ToLower().Contains(type.ToLower()));
-
-            var totalCount = await query.CountAsync();
-            var items = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            return Ok(new { totalCount, currentPage = page, pageSize, data = items });
-        }
-
-        // ✅ GET /api/items/details/{id} → Get item details
-        [HttpGet("details/{id}")]
-        public async Task<IActionResult> GetItem(int id)
+        // ✅ GET: Delete (Confirmation)
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
         {
             var item = await _context.Items
                 .Include(i => i.ItemCategory)
                 .Include(i => i.Branch)
-                .FirstOrDefaultAsync(i => i.ItemId == id && !i.IsDeleted);
+                .FirstOrDefaultAsync(i => i.ItemId == id);
 
-            if (item == null)
-                return NotFound(new { message = $"Item with ID {id} not found." });
+            if (item == null) return NotFound();
 
-            return Ok(item);
+            return View(item);
         }
 
-        // ✅ PUT /api/items/{id} → Update item
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateItem(int id, [FromBody] Item updatedItem)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(new { message = "Invalid input data", errors = ModelState });
-
-            var item = await _context.Items.FindAsync(id);
-            if (item == null || item.IsDeleted)
-                return NotFound(new { message = $"Item with ID {id} not found." });
-
-            // ✅ Validate foreign keys before saving
-            if (!await _context.Branches.AnyAsync(b => b.BranchId == updatedItem.BranchId))
-                return BadRequest(new { message = $"Branch with ID {updatedItem.BranchId} not found." });
-
-            if (!await _context.ItemCategories.AnyAsync(c => c.CategoryId == updatedItem.CategoryId))
-                return BadRequest(new { message = $"Category with ID {updatedItem.CategoryId} not found." });
-
-            try
-            {
-                item.Name = updatedItem.Name;
-                item.Sku = updatedItem.Sku;
-                item.CostPrice = updatedItem.CostPrice;
-                item.SellPrice = updatedItem.SellPrice;
-                item.Description = updatedItem.Description;
-                item.CategoryId = updatedItem.CategoryId;
-                item.DurationMinutes = updatedItem.DurationMinutes;
-                item.BranchId = updatedItem.BranchId;
-
-                _context.Items.Update(item);
-                await _context.SaveChangesAsync();
-
-                return Ok(new { message = "Item updated successfully", item });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error while updating item", error = ex.Message });
-            }
-        }
-
-        // ✅ DELETE /api/items/{id} → Soft delete
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> ArchiveItem(int id)
+        // ✅ POST: Delete (Soft Delete)
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var item = await _context.Items.FindAsync(id);
-            if (item == null)
-                return NotFound(new { message = $"Item with ID {id} not found." });
-
-            try
+            if (item != null)
             {
                 item.IsDeleted = true;
+                _context.Items.Update(item);
                 await _context.SaveChangesAsync();
-                return Ok(new { message = "Item archived successfully" });
+                TempData["SuccessMessage"] = "Item deleted successfully!";
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error while archiving item", error = ex.Message });
-            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var item = await _context.Items
+                .Include(i => i.ItemCategory)
+                .Include(i => i.Branch)
+                .FirstOrDefaultAsync(c => c.ItemId == id);
+
+            if (item == null)
+                return NotFound();
+
+            return View(item);
+        }
+
+
+        // ✅ Helper: Populate Dropdowns
+        private async Task PopulateDropdowns(Items? item = null)
+        {
+            ViewBag.Categories = new SelectList(await _context.ItemCategories.Where(c => !c.IsArchived).ToListAsync(), "CategoryId", "Name", item?.CategoryId);
+            ViewBag.Branches = new SelectList(await _context.Branches.Where(b => !b.IsDeleted).ToListAsync(), "BranchId", "Name", item?.BranchId);
+            ViewBag.Businesses = new SelectList(await _context.Businesses.ToListAsync(), "BusinessId", "Name", item?.BusinessId);
         }
     }
 }

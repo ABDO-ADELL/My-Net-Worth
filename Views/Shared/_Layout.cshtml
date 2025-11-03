@@ -345,11 +345,19 @@
             </li>
 
             <li class="nav-item">
-                <a href="@Url.Action("Index", "Item")" class="nav-link">
+                <a href="@Url.Action("Index", "Items")" class="nav-link">
                     <i class="fas fa-box"></i>
                     <span class="nav-text">Items</span>
                 </a>
             </li>
+
+            <li class="nav-item">
+    <a class="nav-link" asp-controller="ItemCategories" asp-action="Index">
+                    <i class="fas fa-tags"></i>
+        <span>Item Categories</span>
+    </a>
+</li>
+
 
             <li class="nav-item">
                 <a href="@Url.Action("Index", "Customer")" class="nav-link">

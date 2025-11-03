@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PRISM
 {
-    public class Item
+    public class Items
     {
         [Key]
         public int ItemId { get; set; }

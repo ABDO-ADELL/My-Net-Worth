@@ -19,7 +19,7 @@ namespace PRISM
 
         // Relations
         public ICollection<Branch> Branches { get; set; }
-        public ICollection<Item> Items { get; set; }
+        public ICollection<Items> Items { get; set; }
     }
 
 }

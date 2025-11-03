@@ -21,6 +21,6 @@ namespace PRISM.Models
 
         // Navigation properties
         public Business? Business { get; set; }
-        public ICollection<Item>? Items { get; set; }
+        public ICollection<Items>? Items { get; set; }
     }
 }

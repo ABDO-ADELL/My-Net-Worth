@@ -1,0 +1,91 @@
+﻿@model PRISM.Items
+
+@{
+    ViewData["Title"] = "Add Item";
+}
+
+<h2>Add New Item</h2>
+
+<form asp-action="Create" method="post">
+    <!-- Business Dropdown -->
+    <div class="form-group mt-2">
+        <label asp-for="BusinessId">Business</label>
+        <select asp-for="BusinessId" asp-items="ViewBag.Businesses" class="form-control">
+            <option value="">-- Select Business --</option>
+        </select>
+        <span asp-validation-for="BusinessId" class="text-danger"></span>
+    </div>
+
+    <!-- Branch Dropdown -->
+    <div class="form-group mt-2">
+        <label asp-for="BranchId">Branch</label>
+        <select asp-for="BranchId" asp-items="ViewBag.Branches" class="form-control">
+            <option value="">-- Select Branch --</option>
+        </select>
+        <span asp-validation-for="BranchId" class="text-danger"></span>
+    </div>
+
+    <!-- Category Dropdown -->
+    <div class="form-group mt-2">
+        <label asp-for="CategoryId">Category</label>
+        <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-control">
+            <option value="">-- Select Category --</option>
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+
+    <!-- Item Name -->
+    <div class="form-group mt-2">
+        <label asp-for="Name">Item Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <!-- SKU -->
+    <div class="form-group mt-2">
+        <label asp-for="Sku">SKU</label>
+        <input asp-for="Sku" class="form-control" />
+        <span asp-validation-for="Sku" class="text-danger"></span>
+    </div>
+
+    <!-- Cost Price -->
+    <div class="form-group mt-2">
+        <label asp-for="CostPrice">Cost Price</label>
+        <input asp-for="CostPrice" class="form-control" />
+        <span asp-validation-for="CostPrice" class="text-danger"></span>
+    </div>
+
+    <!-- Sell Price -->
+    <div class="form-group mt-2">
+        <label asp-for="SellPrice">Sell Price</label>
+        <input asp-for="SellPrice" class="form-control" />
+        <span asp-validation-for="SellPrice" class="text-danger"></span>
+    </div>
+
+    <!-- Duration (Optional) -->
+    <div class="form-group mt-2">
+        <label asp-for="DurationMinutes">Duration (Minutes)</label>
+        <input asp-for="DurationMinutes" class="form-control" />
+        <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+    </div>
+
+    <!-- Description (Optional) -->
+    <div class="form-group mt-2">
+        <label asp-for="Description">Description</label>
+        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Add Item</button>
+</form>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success mt-3">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

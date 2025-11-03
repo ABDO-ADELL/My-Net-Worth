@@ -20,7 +20,7 @@ namespace PRISM
         public Branch Branch { get; set; }
         [ForeignKey("Item")]
         public int ItemId { get; set; }
-        public Item Item { get; set; }
+        public Items Item { get; set; }
 
         public int Quantity { get; set; }
     }

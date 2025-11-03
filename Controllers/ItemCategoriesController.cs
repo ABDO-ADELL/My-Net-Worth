@@ -1,15 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PRISM.Models;
 
 namespace PRISM.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    //[Authorize(Roles = "Admin,Owner,Accountant")]
     [AllowAnonymous]
-    public class ItemCategoriesController : ControllerBase
+    public class ItemCategoriesController : Controller
     {
         private readonly AppDbContext _context;
 
@@ -18,96 +16,173 @@ namespace PRISM.Controllers
             _context = context;
         }
 
-        // ✅ POST /api/itemcategories → Add new category
+        // ✅ GET: Create (عرض صفحة إضافة كاتيجوري)
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            // بنبعت لليو ViewBag فيه أسماء الـ Businesses كلها
+            ViewBag.Businesses = new SelectList(await _context.Businesses.ToListAsync(), "BusinessId", "Name");
+            return View();
+        }
+
+        // ✅ POST: Create (حفظ البيانات)
         [HttpPost]
-        public async Task<IActionResult> CreateCategory([FromBody] ItemCategory category)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(ItemCategory category)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            {
+                ViewBag.Businesses = new SelectList(await _context.Businesses.ToListAsync(), "BusinessId", "Name");
+                return View(category);
+            }
 
-            // ✅ Check if BusinessId exists
+            // تأكد أن الـ BusinessId صحيح
             var businessExists = await _context.Businesses.AnyAsync(b => b.BusinessId == category.BusinessId);
             if (!businessExists)
-                return BadRequest(new { message = "Invalid BusinessId" });
-
-            // ✅ Check if category name already exists for the same business
-            var exists = await _context.ItemCategories
-                .AnyAsync(c => c.BusinessId == category.BusinessId &&
-                               c.Name.ToLower() == category.Name.ToLower() &&
-                               !c.IsArchived);
-
-            if (exists)
-                return Conflict(new { message = "Category name already exists for this business" });
+            {
+                ModelState.AddModelError("BusinessId", "Please select a valid Business.");
+                ViewBag.Businesses = new SelectList(await _context.Businesses.ToListAsync(), "BusinessId", "Name");
+                return View(category);
+            }
 
             _context.ItemCategories.Add(category);
             await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Category created successfully", category });
+            TempData["SuccessMessage"] = "Category added successfully!";
+            return RedirectToAction(nameof(Index));
         }
 
-        // ✅ GET /api/itemcategories/{businessId} → Get categories of a business
-        [HttpGet("{businessId}")]
-        public async Task<IActionResult> GetCategories(int businessId)
+        // ✅ عرض كل الكاتيجوريز
+        public async Task<IActionResult> Index()
         {
-            var businessExists = await _context.Businesses.AnyAsync(b => b.BusinessId == businessId);
-            if (!businessExists)
-                return BadRequest(new { message = "Invalid BusinessId" });
-
             var categories = await _context.ItemCategories
-                .Where(c => c.BusinessId == businessId && !c.IsArchived)
-                .Include(c => c.Items)
+                .Include(c => c.Business)
+                .Where(c => !c.IsArchived)
+                .ToListAsync();
+            return View(categories);
+        }
+
+        // ✅ عرض المؤرشفين
+        [HttpGet]
+        public async Task<IActionResult> Archived()
+        {
+            var archived = await _context.ItemCategories
+                .Include(c => c.Business)
+                .Where(c => c.IsArchived)
                 .ToListAsync();
 
-            if (categories.Count == 0)
-                return NotFound(new { message = "No categories found for this business" });
-
-            return Ok(categories);
+            return View(archived);
         }
 
-        // ✅ PUT /api/itemcategories/{id} → Update category
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCategory(int id, [FromBody] ItemCategory updated)
+        // ✅ البحث
+        [HttpGet]
+        public async Task<IActionResult> Search(string? query)
         {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                // لو البحث فاضي، رجّعي الصفحة فاضية أو كل الكاتيجوريز حسب رغبتك
+                return View(new List<ItemCategory>());
+            }
+
+            var results = await _context.ItemCategories
+                .Include(c => c.Business)
+                .Where(c => c.Name.Contains(query))
+                .ToListAsync();
+
+            return View(results);
+        }
+
+        // ✅ GET: Edit (عرض صفحة التعديل)
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var category = await _context.ItemCategories.FindAsync(id);
+            if (category == null)
+                return NotFound();
+
+            // بنبعت ليست البزنس عشان تظهر في الدروب داون
+            ViewBag.Businesses = new SelectList(await _context.Businesses.ToListAsync(), "BusinessId", "Name", category.BusinessId);
+
+            return View(category);
+        }
+
+        // ✅ POST: Edit (تعديل الكاتيجوري)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, ItemCategory category)
+        {
+            if (id != category.CategoryId)
+                return NotFound();
+
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            {
+                ViewBag.Businesses = new SelectList(await _context.Businesses.ToListAsync(), "BusinessId", "Name", category.BusinessId);
+                return View(category);
+            }
 
-            var category = await _context.ItemCategories.FindAsync(id);
+            try
+            {
+                _context.Update(category);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Category updated successfully!";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.ItemCategories.Any(e => e.CategoryId == id))
+                    return NotFound();
+                throw;
+            }
+        }
+        // ✅ GET: Details
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var category = await _context.ItemCategories
+                .Include(c => c.Business)
+                .FirstOrDefaultAsync(c => c.CategoryId == id);
+
             if (category == null)
-                return NotFound(new { message = "Category not found" });
+                return NotFound();
 
-            // ✅ Check duplicate name within same business
-            var duplicate = await _context.ItemCategories
-                .AnyAsync(c => c.BusinessId == category.BusinessId &&
-                               c.Name.ToLower() == updated.Name.ToLower() &&
-                               c.CategoryId != id &&
-                               !c.IsArchived);
-
-            if (duplicate)
-                return Conflict(new { message = "Category name already exists" });
-
-            category.Name = updated.Name.Trim();
-            _context.ItemCategories.Update(category);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { message = "Category updated successfully", category });
+            return View(category);
         }
 
-        // ✅ DELETE /api/itemcategories/{id} → Archive category
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> ArchiveCategory(int id)
+        // ✅ GET: Delete (عرض صفحة تأكيد الحذف)
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var category = await _context.ItemCategories
+                .Include(c => c.Business)
+                .FirstOrDefaultAsync(c => c.CategoryId == id);
+
+            if (category == null)
+                return NotFound();
+
+            return View(category);
+        }
+
+        // ✅ POST: Delete (تنفيذ الحذف فعليًا)
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var category = await _context.ItemCategories.FindAsync(id);
             if (category == null)
-                return NotFound(new { message = "Category not found" });
+                return NotFound();
 
-            if (category.IsArchived)
-                return BadRequest(new { message = "Category is already archived" });
+            // لو عايزة تمسحيه نهائيًا:
+            //_context.ItemCategories.Remove(category);
 
+            // أو لو عايزة تعمليه Archive بدل حذف:
             category.IsArchived = true;
             _context.ItemCategories.Update(category);
-            await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Category archived successfully" });
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Category deleted successfully!";
+            return RedirectToAction(nameof(Index));
         }
+
+
     }
 }
