@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PRISM.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class S1Update : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -63,7 +63,8 @@ namespace PRISM.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Industry = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Timezone = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -238,6 +239,7 @@ namespace PRISM.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     BusinessId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -276,14 +278,15 @@ namespace PRISM.Migrations
                 name: "ItemCategories",
                 columns: table => new
                 {
-                    ProductCategoryId = table.Column<int>(type: "int", nullable: false)
+                    CategoryId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     BusinessId = table.Column<int>(type: "int", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    IsArchived = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ItemCategories", x => x.ProductCategoryId);
+                    table.PrimaryKey("PK_ItemCategories", x => x.CategoryId);
                     table.ForeignKey(
                         name: "FK_ItemCategories_Businesses_BusinessId",
                         column: x => x.BusinessId,
@@ -351,6 +354,7 @@ namespace PRISM.Migrations
                     ExpenseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     PaymentMethod = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     ExpenseCategoryId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -388,16 +392,16 @@ namespace PRISM.Migrations
                     ItemId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BusinessId = table.Column<int>(type: "int", nullable: false),
-                    BranchId = table.Column<int>(type: "int", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Sku = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BranchId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Sku = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     CostPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     SellPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     DurationMinutes = table.Column<int>(type: "int", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
-                    ItemCategoryProductCategoryId = table.Column<int>(type: "int", nullable: true)
+                    ItemCategoryCategoryId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -418,13 +422,13 @@ namespace PRISM.Migrations
                         name: "FK_Items_ItemCategories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "ItemCategories",
-                        principalColumn: "ProductCategoryId",
+                        principalColumn: "CategoryId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Items_ItemCategories_ItemCategoryProductCategoryId",
-                        column: x => x.ItemCategoryProductCategoryId,
+                        name: "FK_Items_ItemCategories_ItemCategoryCategoryId",
+                        column: x => x.ItemCategoryCategoryId,
                         principalTable: "ItemCategories",
-                        principalColumn: "ProductCategoryId");
+                        principalColumn: "CategoryId");
                 });
 
             migrationBuilder.CreateTable(
@@ -484,7 +488,7 @@ namespace PRISM.Migrations
                     ItemId = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     BranchId1 = table.Column<int>(type: "int", nullable: true),
-                    ItemId1 = table.Column<int>(type: "int", nullable: true)
+                    ItemsItemId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -507,8 +511,8 @@ namespace PRISM.Migrations
                         principalColumn: "ItemId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Inventories_Items_ItemId1",
-                        column: x => x.ItemId1,
+                        name: "FK_Inventories_Items_ItemsItemId",
+                        column: x => x.ItemsItemId,
                         principalTable: "Items",
                         principalColumn: "ItemId");
                 });
@@ -551,6 +555,7 @@ namespace PRISM.Migrations
                     Method = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     datetime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     OrderId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -664,9 +669,9 @@ namespace PRISM.Migrations
                 column: "ItemId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Inventories_ItemId1",
+                name: "IX_Inventories_ItemsItemId",
                 table: "Inventories",
-                column: "ItemId1");
+                column: "ItemsItemId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ItemCategories_BusinessId",
@@ -689,9 +694,9 @@ namespace PRISM.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Items_ItemCategoryProductCategoryId",
+                name: "IX_Items_ItemCategoryCategoryId",
                 table: "Items",
-                column: "ItemCategoryProductCategoryId");
+                column: "ItemCategoryCategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderItems_ItemId",

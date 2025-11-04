@@ -7,6 +7,8 @@ using System.Security.Claims;
 using PRISM.Dto;
 using Microsoft.Build.Framework;
 using Microsoft.DotNet.Scaffolding.Shared.Messaging;
+using System.ComponentModel.DataAnnotations;
+
 
 namespace PRISM.Controllers
 {
@@ -200,10 +202,10 @@ namespace PRISM.Controllers
 
     public class UpdateNameViewModel
     {
-        [Required ]
+        //[Required ]
         public string FirstName { get; set; }
 
-        [Required]
+        //[Required]
         public string LastName { get; set; }
     }
 }
