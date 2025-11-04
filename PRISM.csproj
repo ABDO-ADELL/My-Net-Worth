@@ -31,18 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\Admin\Controllers\" />
-    <Folder Include="Areas\Admin\Models\" />
-    <Folder Include="Areas\Admin\Views\" />
-    <Folder Include="Areas\Employee\Controllers\" />
-    <Folder Include="Areas\Employee\Models\" />
-    <Folder Include="Areas\Employee\Views\" />
-    <Folder Include="Areas\Owner\Controllers\" />
-    <Folder Include="Areas\Owner\Models\" />
-    <Folder Include="Areas\Owner\Views\" />
-    <Folder Include="Areas\Shared\Controllers\" />
-    <Folder Include="Areas\Shared\Models\" />
-    <Folder Include="Areas\Shared\Views\" />
     <Folder Include="DataAccess\" />
   </ItemGroup>
 

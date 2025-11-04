@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PRISM.Areas.Manager.Models;
 
-namespace PRISM.Areas.Manager.Controllers
+namespace PRISM.Controllers
 {
     public class BranchController : Controller
     {
@@ -72,6 +71,21 @@ namespace PRISM.Areas.Manager.Controllers
             _context.Branches.Update(branch);
             _context.SaveChanges();
             return RedirectToAction(nameof(Index));
+        }
+        #endregion
+
+        #region Archive
+        [HttpGet]
+        public async Task<IActionResult> Archived()
+        {
+            var archivedBranches = await _context.Branches
+                .Include(b => b.Business)
+                .Include(b => b.Items)
+                .Include(b => b.Inventories)
+                .Where(b => b.IsDeleted)
+                .ToListAsync();
+
+            return View(archivedBranches);
         }
         #endregion
 

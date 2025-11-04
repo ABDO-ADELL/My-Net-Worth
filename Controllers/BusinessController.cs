@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PRISM.Areas.Manager.Models;
-using PRISM.Controllers;
+using Microsoft.EntityFrameworkCore;
 
-namespace PRISM.Areas.Manager.Controllers
+namespace PRISM.Controllers
 {
     public class BusinessController : Controller
     {
@@ -46,6 +45,7 @@ namespace PRISM.Areas.Manager.Controllers
             return RedirectToAction(nameof(Index));
         }
         #endregion
+
         #region Edit    
         [HttpGet]
         public IActionResult Edit(int id)
@@ -70,6 +70,21 @@ namespace PRISM.Areas.Manager.Controllers
             return RedirectToAction(nameof(Index));
         }
         #endregion
+
+        #region Archive
+        [HttpGet]
+        public async Task<IActionResult> Archived()
+        {
+            var archivedBusinesses = await _context.Businesses
+                .Include(b => b.Branches)
+                .Include(b => b.Items)
+                .Where(b => b.IsDeleted)
+                .ToListAsync();
+
+            return View(archivedBusinesses);
+        }
+        #endregion
+
         #region Delete
         public IActionResult Delete(int id)
         {
