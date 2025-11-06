@@ -1,0 +1,33 @@
+﻿using PRISM.Models.Authmodels;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace PRISM.Models
+{
+    public class Order
+    {
+            public int Id { get; set; }
+            public string OrderName { get; set; }
+
+            // Remove business_id and use BusinessId consistently
+            public int BusinessId { get; set; }
+            public Business business { get; set; }
+
+            public int BranchId { get; set; }
+            public Branch branch { get; set; }
+
+            public string? UserId { get; set; }
+            public AppUser? user { get; set; }
+
+            public DateTime datetime { get; set; }
+            public decimal total_amount { get; set; }
+            public bool status { get; set; }
+
+            [ForeignKey("Customer")]
+            public int CustomerId { get; set; }
+            public Customer Customer { get; set; }
+
+            public ICollection<OrderItem> OrderItems { get; set; }
+            public bool IsDeleted { get; set; }
+        }
+    
+}

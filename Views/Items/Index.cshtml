@@ -1,0 +1,105 @@
+﻿@model IEnumerable<PRISM.Items>
+
+@{
+    ViewData["Title"] = "Items List";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">+ Add New Item</a>
+    <a asp-action="Archived" class="btn btn-outline-secondary">View Archived</a>
+</p>
+
+<!-- ✅ مربع البحث -->
+<div class="d-flex align-items-center mb-3" style="gap: 10px;">
+    <div style="position: relative; width: 300px;">
+        <input type="text"
+               id="searchBox"
+               class="form-control"
+               placeholder="Search by Name or SKU..."
+               oninput="filterTable()" />
+
+        <!-- ❌ زر المسح -->
+        <span id="clearBtn"
+              onclick="clearSearch()"
+              style="position: absolute; right: 10px; top: 8px; cursor: pointer; display: none; color: #888;">
+            ✖
+        </span>
+    </div>
+</div>
+
+<!-- ✅ الجدول -->
+<table class="table table-bordered table-striped" id="itemsTable">
+    <thead>
+        <tr>
+            <th>Item ID</th>
+            <th>Name</th>
+            <th>SKU</th>
+            <th>Cost Price</th>
+            <th>Sell Price</th>
+            <th>Category</th>
+            <th>Branch</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr class="text-center">
+                <td>@item.ItemId</td>
+                <td>@item.Name</td>
+                <td>@item.Sku</td>
+                <td>@item.CostPrice.ToString("C")</td>
+                <td>@item.SellPrice.ToString("C")</td>
+                <td>@item.ItemCategory?.Name</td>
+                <td>@item.Branch?.Name</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ItemId" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.ItemId" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.ItemId" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- ✅ الرسالة عند عدم وجود نتائج -->
+<p id="noResults" style="display:none; color: #888; font-style: italic;">
+    🚫 No items found.
+</p>
+
+<!-- ✅ سكربت البحث -->
+<script>
+    function filterTable() {
+        const input = document.getElementById("searchBox");
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById("itemsTable");
+        const trs = table.getElementsByTagName("tr");
+        const clearBtn = document.getElementById("clearBtn");
+        const noResults = document.getElementById("noResults");
+
+        let visibleCount = 0;
+        clearBtn.style.display = filter ? "block" : "none";
+
+        for (let i = 1; i < trs.length; i++) { // i=1 لتجاهل الـ thead
+            const name = trs[i].getElementsByTagName("td")[1]?.textContent.toLowerCase();
+            const sku = trs[i].getElementsByTagName("td")[2]?.textContent.toLowerCase();
+
+            if (name.includes(filter) || sku.includes(filter)) {
+                trs[i].style.display = "";
+                visibleCount++;
+            } else {
+                trs[i].style.display = "none";
+            }
+        }
+
+        noResults.style.display = visibleCount === 0 ? "block" : "none";
+    }
+
+    function clearSearch() {
+        document.getElementById("searchBox").value = "";
+        document.getElementById("clearBtn").style.display = "none";
+        filterTable();
+    }
+</script>

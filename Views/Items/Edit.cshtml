@@ -1,0 +1,74 @@
+﻿@model PRISM.Items
+
+@{
+    ViewData["Title"] = "Edit Item";
+}
+
+<div class="container mt-4">
+    <h2>@ViewData["Title"]</h2>
+
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="ItemId" />
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Sku" class="form-label">SKU</label>
+            <input asp-for="Sku" class="form-control" />
+            <span asp-validation-for="Sku" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CostPrice" class="form-label">Cost Price</label>
+            <input asp-for="CostPrice" class="form-control" />
+            <span asp-validation-for="CostPrice" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="SellPrice" class="form-label">Sell Price</label>
+            <input asp-for="SellPrice" class="form-control" />
+            <span asp-validation-for="SellPrice" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CategoryId" class="form-label">Category</label>
+            <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories"></select>
+            <span asp-validation-for="CategoryId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="BranchId" class="form-label">Branch</label>
+            <select asp-for="BranchId" class="form-select" asp-items="ViewBag.Branches"></select>
+            <span asp-validation-for="BranchId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="BusinessId" class="form-label">Business</label>
+            <select asp-for="BusinessId" class="form-select" asp-items="ViewBag.Businesses"></select>
+            <span asp-validation-for="BusinessId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="DurationMinutes" class="form-label">Duration (minutes)</label>
+            <input asp-for="DurationMinutes" class="form-control" />
+            <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label">Description</label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,44 @@
+﻿@model PRISM.Dto.ChangeEmailDto
+@{
+    ViewData["Title"] = "Change Email";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <h2>@ViewData["Title"]</h2>
+
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="ChangeEmail" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="NewEmail" class="form-label">New Email Address</label>
+                            <input asp-for="NewEmail" type="email" class="form-control" />
+                            <span asp-validation-for="NewEmail" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label">Current Password</label>
+                            <input asp-for="Password" type="password" class="form-control" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                            <small class="form-text text-muted">Please enter your current password to confirm this change.</small>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex">
+                            <button type="submit" class="btn btn-primary">Change Email</button>
+                            <a asp-action="Profile" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

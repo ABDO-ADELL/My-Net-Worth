@@ -1,0 +1,43 @@
+﻿@model PRISM.Models.Authmodels.AppUser
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2>@ViewData["Title"]</h2>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Profile Information</h5>
+
+                    <dl class="row">
+                        <dt class="col-sm-3">Full Name</dt>
+                        <dd class="col-sm-9">@Model.FirstName @Model.LastName</dd>
+
+                        <dt class="col-sm-3">Email</dt>
+                        <dd class="col-sm-9">@Model.Email</dd>
+
+                        <dt class="col-sm-3">User ID</dt>
+                        <dd class="col-sm-9">@Model.Id</dd>
+                    </dl>
+
+                    <div class="mt-4">
+                        <a asp-action="EditName" class="btn btn-primary">Edit Name</a>
+                        <a asp-action="ChangePassword" class="btn btn-secondary">Change Password</a>
+                        <a asp-action="ChangeEmail" class="btn btn-secondary">Change Email</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

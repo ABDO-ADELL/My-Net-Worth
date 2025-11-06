@@ -1,0 +1,83 @@
+﻿@model IEnumerable<PRISM.Models.Order>
+
+@{
+    ViewData["Title"] = "Orders";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Orders</h2>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Add New Order
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Order Name</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th>Date/Time</th>
+                        <th>Branch Name</th>
+                        <th>Business Name</th>
+                        <th>Customer Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                            <td>@order.Id</td>
+                            <td>@order.OrderName</td>
+                            <td>@order.total_amount.ToString("C")</td>
+                            <td>
+                                @if (order.status == true)
+                                {
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                }
+                                else if (order.status == true)
+                                {
+                                    <span class="badge bg-info text-dark">Shipped</span>
+                                }
+                                else if (order.status == true)
+                                {
+                                    <span class="badge bg-success">Delivered</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">@order.status</span>
+                                }
+                            </td>
+                            <td>@order.datetime.ToString("M/d/yyyy, h:mm:ss tt")</td>
+                            <td>@order.branch?.BranchId</td>
+                            <td>@order.business?.BusinessId</td>
+                            <td>@order.Customer?.CustomerId</td>
+                            <td>
+                                <a asp-action="OrderDetails" asp-route-OrderId="@order.Id"
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="EditOrder" asp-route-id="@order.Id"
+                                   class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form asp-action="DeleteOrderItem" asp-route-itemid="@order.Id"
+                                      method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm"
+                                            onclick="return confirm('Are you sure you want to delete this order?');">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
