@@ -1,0 +1,32 @@
+﻿@model Business
+
+@{
+    ViewData["Title"] = "Business Details";
+}
+
+<div class="container mt-4">
+    <h2>@ViewData["Title"]</h2>
+
+    <div class="card p-3 shadow-sm">
+        <h4>@Model.Name</h4>
+        <p><strong>Industry:</strong> @Model.Industry</p>
+        <p><strong>Timezone:</strong> @Model.Timezone</p>
+        <p><strong>Status:</strong> @Model.Status</p>
+        <p><strong>Deleted:</strong> @(Model.IsDeleted ? "Yes" : "No")</p>
+
+        @if (Model.Branches != null && Model.Branches.Any())
+        {
+            <p><strong>Branches:</strong> @Model.Branches.Count()</p>
+        }
+
+        @if (Model.Items != null && Model.Items.Any())
+        {
+            <p><strong>Items:</strong> @Model.Items.Count()</p>
+        }
+    </div>
+
+    <div class="mt-3">
+        <a asp-action="Edit" asp-route-id="@Model.BusinessId" class="btn btn-warning">Edit</a>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>

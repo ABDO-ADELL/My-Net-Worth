@@ -1,0 +1,39 @@
+﻿@model List<Branch>
+
+@{
+    ViewData["Title"] = "Archived Branches";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<a asp-action="Index" class="btn btn-secondary mb-3">← Back to Active Branches</a>
+
+<table class="table table-striped table-bordered">
+    <thead class="table-dark text-center">
+        <tr>
+            <th>Branch ID</th>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Phone</th>
+            <th>Business</th>
+            <th>Items</th>
+            <th>Inventories</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var branch in Model)
+        {
+            <tr class="text-center">
+                <td>@branch.BranchId</td>
+                <td>@branch.Name</td>
+                <td>@branch.Address</td>
+                <td>@branch.Phone</td>
+                <td>@branch.Business?.Name</td>
+                <td>@(branch.Items?.Count() ?? 0)</td>
+                <td>@(branch.Inventories?.Count() ?? 0)</td>
+                <td><span class="badge bg-danger">Archived</span></td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PRISM
+namespace PRISM.Models
 {
     public class Business
     {
@@ -18,8 +18,8 @@ namespace PRISM
         public bool IsDeleted { get; set; }
 
         // Relations
-        public ICollection<Branch> Branches { get; set; }
-        public ICollection<Items> Items { get; set; }
+        public ICollection<Branch>? Branches { get; set; }
+        public ICollection<Items>? Items { get; set; }
     }
 
 }

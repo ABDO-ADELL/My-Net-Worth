@@ -1,13 +1,18 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using PRISM.Models;
 using PRISM.Models.Authmodels;
 using System.Reflection.Emit;
+
 
 namespace PRISM
 {
     public class AppDbContext : IdentityDbContext<AppUser>
     {
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+            optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=MyNetWorthdemo;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;");
+        }
         public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
         {

@@ -237,7 +237,7 @@ namespace PRISM.Migrations
                     b.Property<int>("ItemId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ItemId1")
+                    b.Property<int?>("ItemsItemId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("LastUpdate")
@@ -257,12 +257,12 @@ namespace PRISM.Migrations
 
                     b.HasIndex("ItemId");
 
-                    b.HasIndex("ItemId1");
+                    b.HasIndex("ItemsItemId");
 
                     b.ToTable("Inventories");
                 });
 
-            modelBuilder.Entity("PRISM.Item", b =>
+            modelBuilder.Entity("PRISM.Items", b =>
                 {
                     b.Property<int>("ItemId")
                         .ValueGeneratedOnAdd()
@@ -805,22 +805,22 @@ namespace PRISM.Migrations
                         .WithMany("Inventories")
                         .HasForeignKey("BranchId1");
 
-                    b.HasOne("PRISM.Item", "Item")
+                    b.HasOne("PRISM.Items", "Item")
                         .WithMany()
                         .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PRISM.Item", null)
+                    b.HasOne("PRISM.Items", null)
                         .WithMany("Inventories")
-                        .HasForeignKey("ItemId1");
+                        .HasForeignKey("ItemsItemId");
 
                     b.Navigation("Branch");
 
                     b.Navigation("Item");
                 });
 
-            modelBuilder.Entity("PRISM.Item", b =>
+            modelBuilder.Entity("PRISM.Items", b =>
                 {
                     b.HasOne("PRISM.Branch", "Branch")
                         .WithMany("Items")
@@ -1004,7 +1004,7 @@ namespace PRISM.Migrations
 
             modelBuilder.Entity("PRISM.Models.OrderItem", b =>
                 {
-                    b.HasOne("PRISM.Item", "Item")
+                    b.HasOne("PRISM.Items", "Item")
                         .WithMany()
                         .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1057,7 +1057,7 @@ namespace PRISM.Migrations
                     b.Navigation("Items");
                 });
 
-            modelBuilder.Entity("PRISM.Item", b =>
+            modelBuilder.Entity("PRISM.Items", b =>
                 {
                     b.Navigation("Inventories");
                 });

@@ -1,68 +1,102 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace PRISM.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class BusinessController : ControllerBase
+    public class BusinessController : Controller
     {
         private readonly AppDbContext _context;
-
-
+        public BusinessController(AppDbContext context)
+        {
+            _context = context;
+        }
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Business>>> GetBusinesses()
+        public IActionResult Index()
         {
-            return await _context.Businesses.Include(b => b.Branches).ToListAsync();
+            var businesses = _context.Businesses.OrderBy(b => b.Name);
+            return View(businesses.ToList());
         }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Business>> GetBusiness(int id)
+        [HttpGet]
+        public IActionResult Details(int id)
         {
-            var business = await _context.Businesses
-                .Include(b => b.Branches)
-                .FirstOrDefaultAsync(b => b.BusinessId == id);
-
-            if (business == null)
-                return NotFound();
-
-            return business;
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<Business>> CreateBusiness(Business business)
-        {
-            _context.Businesses.Add(business);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetBusiness), new { id = business.BusinessId }, business);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBusiness(int id, Business business)
-        {
-            if (id != business.BusinessId)
-                return BadRequest();
-
-            _context.Entry(business).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBusiness(int id)
-        {
-            var business = await _context.Businesses.FindAsync(id);
-            if (business != null)
+            var business = _context.Businesses.FirstOrDefault(b => b.BusinessId == id);
+            if (business is null)
             {
-                // Soft delete
-                business.IsDeleted = true;
-                _context.Update(business);
-                await _context.SaveChangesAsync();
+                return NotFound();
+                //RedirectToAction(SD.NotFoundPage,controllerName: SD.HomeController);
             }
-            return NoContent();
+            return View(business);
         }
+        #region Create  
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult Create(Business business)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(business);
+            }
+            _context.Businesses.Add(business);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Index));
+        }
+        #endregion
+
+        #region Edit    
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            var business = _context.Businesses.FirstOrDefault(b => b.BusinessId == id);
+            if (business is null)
+            {
+                return NotFound();
+                //RedirectToAction(SD.NotFoundPage,controllerName: SD.HomeController);
+            }
+            return View(business);
+        }
+        [HttpPost]
+        public IActionResult Edit(Business business)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(business);
+            }
+            _context.Businesses.Update(business);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Index));
+        }
+        #endregion
+
+        #region Archive
+        [HttpGet]
+        public async Task<IActionResult> Archived()
+        {
+            var archivedBusinesses = await _context.Businesses
+                .Include(b => b.Branches)
+                .Include(b => b.Items)
+                .Where(b => b.IsDeleted)
+                .ToListAsync();
+
+            return View(archivedBusinesses);
+        }
+        #endregion
+
+        #region Delete
+        public IActionResult Delete(int id)
+        {
+            var business = _context.Businesses.FirstOrDefault(m => m.BusinessId == id);
+            if (business is null)
+            {
+                return NotFound();
+            }
+            _context.Businesses.Remove(business);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Index));
+        }
+        #endregion
     }
 }
