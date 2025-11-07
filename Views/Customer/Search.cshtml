@@ -1,0 +1,173 @@
+﻿@model IEnumerable<PRISM.Models.Customer>
+
+@{
+    ViewData["Title"] = "Customers";
+}
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <!-- Header Section -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold mb-1">
+                        <i class="fas fa-users text-primary me-2"></i>Customer Management
+                    </h2>
+                    <p class="text-muted mb-0">View, search, and manage all customers</p>
+                </div>
+                <a asp-action="Create" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>Add New Customer
+                </a>
+            </div>
+
+            <!-- Search Bar -->
+            <form asp-action="Search" method="get" class="mb-4">
+                <div class="input-group shadow-sm">
+                    <input type="text" name="query" value="@ViewBag.SearchQuery"
+                           class="form-control form-control-lg"
+                           placeholder="Search by name, email, or phone..."
+                           aria-label="Search" />
+                    <button class="btn btn-primary px-4" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Success Message -->
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <!-- Customers Table Card -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-gradient-primary text-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>All Customers
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="px-4 py-3"><i class="fas fa-user me-2 text-primary"></i>Full Name</th>
+                                        <th class="py-3"><i class="fas fa-envelope me-2 text-primary"></i>Email</th>
+                                        <th class="py-3"><i class="fas fa-phone me-2 text-primary"></i>Phone</th>
+                                        <th class="py-3"><i class="fas fa-code-branch me-2 text-primary"></i>Branch</th>
+                                        <th class="py-3 text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var customer in Model)
+                                    {
+                                        <tr>
+                                            <td class="px-4 py-3 fw-semibold">@customer.FullName</td>
+                                            <td class="py-3">@customer.Email</td>
+                                            <td class="py-3">@customer.Phone</td>
+                                            <td class="py-3">@customer.Branch?.Name</td>
+                                            <td class="py-3 text-center">
+                                                <div class="btn-group" role="group">
+                                                    <a asp-action="Details" asp-route-id="@customer.CustomerId"
+                                                       class="btn btn-sm btn-info text-white" title="View Details">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a asp-action="Edit" asp-route-id="@customer.CustomerId"
+                                                       class="btn btn-sm btn-warning text-white" title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a asp-action="Delete" asp-route-id="@customer.CustomerId"
+                                                       class="btn btn-sm btn-danger" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-users fa-4x text-muted mb-3 opacity-25"></i>
+                            <h5 class="text-muted">No Customers Found</h5>
+                            <p class="text-muted mb-3">Try adjusting your search or add a new customer</p>
+                            <a asp-action="Create" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Add New Customer
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .card {
+        border-radius: 15px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .table {
+        font-size: 0.95rem;
+    }
+
+        .table thead th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s;
+        }
+
+            .table tbody tr:hover {
+                background-color: #f8f9ff;
+                transform: scale(1.01);
+            }
+
+    .btn-group .btn {
+        transition: all 0.3s;
+    }
+
+        .btn-group .btn:hover {
+            transform: translateY(-2px);
+        }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+    .input-group input {
+        border: none;
+        border-top-left-radius: 15px;
+        border-bottom-left-radius: 15px;
+    }
+
+    .input-group .btn {
+        border-top-right-radius: 15px;
+        border-bottom-right-radius: 15px;
+    }
+</style>
