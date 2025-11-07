@@ -38,7 +38,6 @@
             <th>Address</th>
             <th>Phone</th>
             <th>Business Name</th>
-            <th>Deleted?</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -51,7 +50,6 @@
                 <td>@item.Address</td>
                 <td>@item.Phone</td>
                 <td>@item.Business?.Name</td>
-                <td>@item.IsDeleted</td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.BranchId" class="btn btn-sm btn-warning">Edit</a>
                     <a asp-action="Details" asp-route-id="@item.BranchId" class="btn btn-sm btn-info">Details</a>

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PRISM;
 
@@ -11,9 +12,11 @@ using PRISM;
 namespace PRISM.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251106213644_FixOrders")]
+    partial class FixOrders
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -919,7 +922,6 @@ namespace PRISM.Migrations
 
             modelBuilder.Entity("PRISM.Models.Expense", b =>
                 {
-
                     b.HasOne("PRISM.Models.Branch", "Branch")
                         .WithMany()
                         .HasForeignKey("BranchId")
