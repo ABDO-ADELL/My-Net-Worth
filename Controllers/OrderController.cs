@@ -71,17 +71,18 @@ namespace PRISM.Controllers
         }
 
         // POST: Order/Create
+        // POST: Order/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Order order, List<int> itemIds, List<int> quantities)
         {
             try
             {
-                // Get current user (if logged in)
+                // Get current user and set the UserId (FK)
                 var user = await _userManager.GetUserAsync(User);
                 if (user != null)
                 {
-                    order.user = user;
+                    order.UserId = user.Id;  // Set FK, not navigation property
                 }
 
                 order.datetime = DateTime.Now;
@@ -130,6 +131,7 @@ namespace PRISM.Controllers
                     order.total_amount = totalAmount;
                     order.OrderItems = orderItems;
 
+                    // Add order to context
                     _context.Orders.Add(order);
                     await _context.SaveChangesAsync();
 
@@ -149,6 +151,7 @@ namespace PRISM.Controllers
                 TempData["Error"] = "Error: " + ex.Message + " - " + ex.InnerException?.Message;
             }
 
+            // Reload dropdown data
             ViewData["business_id"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.BusinessId);
             ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name", order.BranchId);
             ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId);
@@ -158,9 +161,7 @@ namespace PRISM.Controllers
                 .ToList();
 
             return View(order);
-        }
-
-        // GET: Order/Edit/5
+        }        // GET: Order/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)

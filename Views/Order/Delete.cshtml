@@ -120,88 +120,31 @@
                                 </label>
                                 <p class="mb-0">
                                     
-@if
- 
-(
-Model
-.
-status
-)
-
-                                    
+@if(Model.status)                              
 {
+                                        <div class="col-md-6 mb-3">
+                                            <div class="info-box p-3 bg-light rounded">
+                                                <label class="text-muted small mb-1">
+                                                    <i class="fas fa-info-circle text-danger me-2"></i>Status
+                                                </label>
+                                                <p class="mb-0">
+                                                    @if (Model.status)
+                                                    {
+                                                        <span class="badge bg-success px-3 py-2">
+                                                            <i class="fas fa-check me-1"></i> Active
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-secondary px-3 py-2">
+                                                            <i class="fas fa-times me-1"></i> Inactive
+                                                        </span>
+                                                    }
+                                                </p>
+                                            </div>
+                                        </div>
 
-                                        
-<
-span
- 
-class
-=
-"
-badge bg-success px-3 py-2
-"
->
-
-                                            
-<
-i
- 
-class
-=
-"
-fas fa-check me-1
-"
->
-</
-i
->
-Active
-                                        
-</
-span
->
-
-                                    
-}
-
-                                    
-else
-
-                                    
-{
-
-                                        
-<
-span
- 
-class
-=
-"
-badge bg-secondary px-3 py-2
-"
->
-
-                                            
-<
-i
- 
-class
-=
-"
-fas fa-times me-1
-"
->
-</
-i
->
-Inactive
-                                        
-</
-span
->
-
-                                    
-}
+                                    }
 
                                 </p>
                             </div>
