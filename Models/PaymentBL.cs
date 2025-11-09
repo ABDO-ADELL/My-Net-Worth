@@ -24,7 +24,7 @@ namespace PRISM.Models
         {
             var query = _context.Payments
                 .Include(p => p.Order)
-                .Where(p => !p.IsDeleted && p.Order.business_id == businessId);
+                .Where(p => !p.IsDeleted && p.Order.BusinessId == businessId);
 
             if (startDate.HasValue)
                 query = query.Where(p => p.datetime >= startDate.Value); // Fix: Corrected property name to match the Payment class definition  
