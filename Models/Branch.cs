@@ -1,8 +1,5 @@
 ﻿using System;
-<<<<<<< HEAD
-=======
 using System.Collections;
->>>>>>> 3f671f8 (fix)
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -16,18 +13,6 @@ namespace PRISM.Models
     {
         [Key]
         public int BranchId { get; set; }
-<<<<<<< HEAD
-        public string Name { get; set; } = string.Empty;
-        public string Address { get; set; } = string.Empty;
-        public string Phone { get; set; } = string.Empty;
-        public bool IsDeleted { get; set; }
-
-
-        // Navigation
-        [ForeignKey("Business")]
-        public int BusinessId { get; set; }
-        public Business Business { get; set; }  
-=======
 
         [Required(ErrorMessage = "Branch name is required")]
         [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters")]
@@ -50,7 +35,6 @@ namespace PRISM.Models
 
         // Navigation property
         public Business? Business { get; set; }
->>>>>>> 3f671f8 (fix)
         public ICollection<Items> Items { get; set; }
         public ICollection<Inventory> Inventories { get; set; }
     }

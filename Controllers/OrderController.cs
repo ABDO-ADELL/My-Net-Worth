@@ -77,17 +77,6 @@ namespace PRISM.Controllers
         {
             try
             {
-<<<<<<< HEAD
-                if (ModelState.IsValid)
-                {
-                    // Get current user
-                    var user = await _userManager.GetUserAsync(User);
-                    order.user = user;
-                    order.datetime = DateTime.Now;
-                    order.IsDeleted = false;
-                    order.status = true;
-
-=======
                 // Get current user (if logged in)
                 var user = await _userManager.GetUserAsync(User);
                 if (user != null)
@@ -114,7 +103,6 @@ namespace PRISM.Controllers
 
                 if (ModelState.IsValid)
                 {
->>>>>>> 3f671f8 (fix)
                     // Calculate total amount and create order items
                     decimal totalAmount = 0;
                     var orderItems = new List<OrderItem>();
@@ -148,29 +136,20 @@ namespace PRISM.Controllers
                     TempData["Success"] = "Order created successfully!";
                     return RedirectToAction(nameof(Index));
                 }
-<<<<<<< HEAD
-=======
                 else
                 {
                     // Log validation errors for debugging
                     var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
                     TempData["Error"] = "Validation failed: " + string.Join(", ", errors);
                 }
->>>>>>> 3f671f8 (fix)
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "Error creating order: " + ex.Message);
-<<<<<<< HEAD
-            }
-
-            ViewData["business_id"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.business_id);
-=======
                 TempData["Error"] = "Error: " + ex.Message + " - " + ex.InnerException?.Message;
             }
 
             ViewData["business_id"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.BusinessId);
->>>>>>> 3f671f8 (fix)
             ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name", order.BranchId);
             ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId);
             ViewData["Items"] = _context.Items
@@ -198,11 +177,7 @@ namespace PRISM.Controllers
                 return NotFound();
             }
 
-<<<<<<< HEAD
-            ViewData["business_id"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.business_id);
-=======
             ViewData["business_id"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.BusinessId);
->>>>>>> 3f671f8 (fix)
             ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name", order.BranchId);
             ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId);
 
@@ -241,11 +216,7 @@ namespace PRISM.Controllers
                 }
             }
 
-<<<<<<< HEAD
-            ViewData["business_id"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.business_id);
-=======
             ViewData["business_id"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.business);
->>>>>>> 3f671f8 (fix)
             ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name", order.BranchId);
             ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId);
 
@@ -276,7 +247,7 @@ namespace PRISM.Controllers
         }
 
         // POST: Order/Delete/5
-        [HttpPost , ActionName("Delete")]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {

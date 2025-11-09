@@ -52,12 +52,8 @@ namespace PRISM.Controllers
                 return BadRequest("Business ID is required");
 
             ViewBag.BusinessId = businessId;
-<<<<<<< HEAD
-            ViewBag.Orders = new SelectList(await _context.Orders.Where(o => o.business_id == businessId).ToListAsync(), "OrderId", "OrderId");
-=======
-            ViewBag.Orders = new SelectList(await _context.Orders.Where(o => o.BusinessId == businessId).ToListAsync(), "OrderId", "OrderId");
->>>>>>> 3f671f8 (fix)
 
+            ViewBag.Orders = new SelectList(await _context.Orders.Where(o => o.BusinessId == businessId).ToListAsync(), "OrderId", "OrderId");
             return View();
         }
 
@@ -73,11 +69,7 @@ namespace PRISM.Controllers
             }
 
             ViewBag.BusinessId = businessId;
-<<<<<<< HEAD
-            ViewBag.Orders = new SelectList(await _context.Orders.Where(o => o.business_id == businessId).ToListAsync(), "OrderId", "OrderId", payment.OrderId);
-=======
             ViewBag.Orders = new SelectList(await _context.Orders.Where(o => o.BusinessId == businessId).ToListAsync(), "OrderId", "OrderId", payment.OrderId);
->>>>>>> 3f671f8 (fix)
 
             return View(payment);
         }
@@ -89,12 +81,7 @@ namespace PRISM.Controllers
             if (payment == null)
                 return NotFound();
 
-<<<<<<< HEAD
-            ViewBag.Orders = new SelectList(await _context.Orders.Where(o => o.business_id == payment.Order.business_id).ToListAsync(), "OrderId", "OrderId", payment.OrderId);
-=======
             ViewBag.Orders = new SelectList(await _context.Orders.Where(o => o.BusinessId == payment.Order.BusinessId).ToListAsync(), "OrderId", "OrderId", payment.OrderId);
->>>>>>> 3f671f8 (fix)
-
             return View(payment);
         }
 
@@ -112,18 +99,10 @@ namespace PRISM.Controllers
                 if (!success)
                     return NotFound();
 
-<<<<<<< HEAD
-                return RedirectToAction(nameof(Index), new { businessId = payment.Order.business_id });
-            }
-
-            ViewBag.Orders = new SelectList(await _context.Orders.Where(o => o.business_id == payment.Order.business_id).ToListAsync(), "OrderId", "OrderId", payment.OrderId);
-=======
                 return RedirectToAction(nameof(Index), new { businessId = payment.Order.BusinessId });
             }
 
             ViewBag.Orders = new SelectList(await _context.Orders.Where(o => o.BusinessId == payment.Order.BusinessId).ToListAsync(), "OrderId", "OrderId", payment.OrderId);
->>>>>>> 3f671f8 (fix)
-
             return View(payment);
         }
 
@@ -150,11 +129,7 @@ namespace PRISM.Controllers
             if (!success)
                 return NotFound();
 
-<<<<<<< HEAD
-            return RedirectToAction(nameof(Index), new { businessId = payment.Order.business_id });
-=======
             return RedirectToAction(nameof(Index), new { businessId = payment.Order.BusinessId });
->>>>>>> 3f671f8 (fix)
         }
     }
 }

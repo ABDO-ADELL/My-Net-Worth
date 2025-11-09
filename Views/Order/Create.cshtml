@@ -20,12 +20,7 @@
                 </a>
             </div>
 
-<<<<<<< HEAD
-            <form asp-action="Create" id="orderForm">
-=======
             <form asp-action="Create" asp-controller="Order" method="post">
-
->>>>>>> 3f671f8 (fix)
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
                 <!-- Order Information Card -->
@@ -46,15 +41,6 @@
                             </div>
 
                             <div class="col-md-6">
-<<<<<<< HEAD
-                                <label asp-for="business_id" class="form-label fw-semibold">
-                                    <i class="fas fa-building text-primary me-2"></i>Business
-                                </label>
-                                <select asp-for="business_id" class="form-select form-select-lg" asp-items="ViewBag.business_id" id="businessSelect">
-                                    <option value="">-- Select Business --</option>
-                                </select>
-                                <span asp-validation-for="business_id" class="text-danger small"></span>
-=======
                                 <label asp-for="BusinessId" class="form-label fw-semibold">
                                     <i class="fas fa-building text-primary me-2"></i>Business
                                 </label>
@@ -62,7 +48,6 @@
                                     <option value="">-- Select Business --</option>
                                 </select>
                                 <span asp-validation-for="BusinessId" class="text-danger small"></span>
->>>>>>> 3f671f8 (fix)
                             </div>
 
                             <div class="col-md-6">
@@ -147,11 +132,7 @@
 
     <script>
         let itemCounter = 0;
-<<<<<<< HEAD
-        let availableItems = @Html.Raw(Json.Serialize(ViewBag.Items));
-=======
         let availableItems = @Html.Raw(Json.Serialize(ViewBag.Items))
->>>>>>> 3f671f8 (fix)
 
         $(document).ready(function() {
             // Load branches when business is selected
@@ -231,11 +212,7 @@
                             </label>
                             <select name="itemIds" class="form-select item-select" data-row="${itemCounter}" required>
                                 <option value="">-- Select Item --</option>
-<<<<<<< HEAD
-                                ${availableItems.map(item => `<option value="${item.id}" data-price="${item.sellPrice}">${item.name} - $${item.sellPrice.toFixed(2)}</option>`).join('')}
-=======
                                 ${availableItems.map(item => `<option value="${item.itemId}" data-price="${item.sellPrice}">${item.name} - $${item.sellPrice.toFixed(2)}</option>`).join('')}
->>>>>>> 3f671f8 (fix)
                             </select>
                         </div>
                         <div class="col-md-2">
