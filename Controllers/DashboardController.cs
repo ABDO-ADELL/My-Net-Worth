@@ -17,149 +17,103 @@ namespace PRISM.Controllers
 
         public async Task<IActionResult> Index(int? businessId)
         {
-            // Check if "All Businesses" option is selected (businessId = 0)
-            bool showAllBusinesses = businessId.HasValue && businessId.Value == 0;
+            // Get all active businesses for dropdown
+            var businesses = await _context.Businesses
+                .Where(b => !b.IsDeleted)
+                .Select(b => new { b.BusinessId, b.Name })
+                .ToListAsync();
 
-            // If no business selected, get the first one or allow selection
+            // Check if any businesses exist
+            if (!businesses.Any())
+            {
+                ViewBag.NoBusiness = true;
+                ViewBag.Businesses = new List<dynamic>();
+                return View(new DashboardViewModel());
+            }
+
+            // If no business selected, get the first one
             if (!businessId.HasValue)
             {
-                var firstBusiness = await _context.Businesses
-                    .Where(b => !b.IsDeleted)
-                    .FirstOrDefaultAsync();
+                businessId = businesses.First().BusinessId;
+            }
 
-                if (firstBusiness != null)
-                {
-                    businessId = firstBusiness.BusinessId;
-                }
-                else
-                {
-                    // No businesses exist
-                    ViewBag.NoBusiness = true;
-                    return View();
-                }
+            // Verify the selected business exists
+            if (!businesses.Any(b => b.BusinessId == businessId.Value))
+            {
+                businessId = businesses.First().BusinessId;
             }
 
             var viewModel = new DashboardViewModel
             {
                 BusinessId = businessId.Value,
-                IsAllBusinesses = showAllBusinesses,
 
                 // Total Revenue (from completed orders)
-                TotalRevenue = showAllBusinesses
-                    ? await _context.Orders
-                        .Where(o => !o.IsDeleted && o.status)
-                        .SumAsync(o => o.total_amount)
-                    : await _context.Orders
-                        .Where(o => o.BusinessId == businessId.Value && !o.IsDeleted && o.status)
-                        .SumAsync(o => o.total_amount),
+                TotalRevenue = await _context.Orders
+                    .Where(o => o.BusinessId == businessId.Value && !o.IsDeleted && o.status)
+                    .SumAsync(o => o.total_amount),
 
                 // Total Expenses
-                TotalExpenses = showAllBusinesses
-                    ? await _context.Expenses
-                        .Where(e => !e.IsDeleted)
-                        .SumAsync(e => e.Amount)
-                    : await _context.Expenses
-                        .Where(e => e.BusinessId == businessId.Value && !e.IsDeleted)
-                        .SumAsync(e => e.Amount),
+                TotalExpenses = await _context.Expenses
+                    .Where(e => e.BusinessId == businessId.Value && !e.IsDeleted)
+                    .SumAsync(e => e.Amount),
 
                 // Total Orders Count
-                TotalOrders = showAllBusinesses
-                    ? await _context.Orders
-                        .Where(o => !o.IsDeleted)
-                        .CountAsync()
-                    : await _context.Orders
-                        .Where(o => o.BusinessId == businessId.Value && !o.IsDeleted)
-                        .CountAsync(),
+                TotalOrders = await _context.Orders
+                    .Where(o => o.BusinessId == businessId.Value && !o.IsDeleted)
+                    .CountAsync(),
 
                 // Total Customers Count
-                TotalCustomers = showAllBusinesses
-                    ? await _context.Customers.CountAsync()
-                    : await _context.Customers
-                        .Include(c => c.Branch)
-                        .Where(c => c.Branch.BusinessId == businessId.Value)
-                        .CountAsync(),
+                TotalCustomers = await _context.Customers
+                    .Include(c => c.Branch)
+                    .Where(c => c.Branch.BusinessId == businessId.Value)
+                    .CountAsync(),
 
                 // Total Active Items
-                TotalItems = showAllBusinesses
-                    ? await _context.Items
-                        .Where(i => !i.IsDeleted)
-                        .CountAsync()
-                    : await _context.Items
-                        .Where(i => i.BusinessId == businessId.Value && !i.IsDeleted)
-                        .CountAsync(),
+                TotalItems = await _context.Items
+                    .Where(i => i.BusinessId == businessId.Value && !i.IsDeleted)
+                    .CountAsync(),
 
                 // Total Branches
-                TotalBranches = showAllBusinesses
-                    ? await _context.Branches
-                        .Where(b => !b.IsDeleted)
-                        .CountAsync()
-                    : await _context.Branches
-                        .Where(b => b.BusinessId == businessId.Value && !b.IsDeleted)
-                        .CountAsync(),
+                TotalBranches = await _context.Branches
+                    .Where(b => b.BusinessId == businessId.Value && !b.IsDeleted)
+                    .CountAsync(),
 
                 // Recent Orders (Last 5)
-                RecentOrders = showAllBusinesses
-                    ? await _context.Orders
-                        .Include(o => o.Customer)
-                        .Include(o => o.branch)
-                        .Include(o => o.business)
-                        .Where(o => !o.IsDeleted)
-                        .OrderByDescending(o => o.datetime)
-                        .Take(5)
-                        .ToListAsync()
-                    : await _context.Orders
-                        .Include(o => o.Customer)
-                        .Include(o => o.branch)
-                        .Where(o => o.BusinessId == businessId.Value && !o.IsDeleted)
-                        .OrderByDescending(o => o.datetime)
-                        .Take(5)
-                        .ToListAsync(),
+                RecentOrders = await _context.Orders
+                    .Include(o => o.Customer)
+                    .Include(o => o.branch)
+                    .Where(o => o.BusinessId == businessId.Value && !o.IsDeleted)
+                    .OrderByDescending(o => o.datetime)
+                    .Take(5)
+                    .ToListAsync(),
 
                 // Monthly Revenue (Last 6 months)
-                MonthlyRevenue = await GetMonthlyRevenue(showAllBusinesses ? null : businessId.Value),
+                MonthlyRevenue = await GetMonthlyRevenue(businessId.Value),
 
                 // Monthly Expenses (Last 6 months)
-                MonthlyExpenses = await GetMonthlyExpenses(showAllBusinesses ? null : businessId.Value),
+                MonthlyExpenses = await GetMonthlyExpenses(businessId.Value),
 
                 // Top Selling Items (Top 5)
-                TopSellingItems = await GetTopSellingItems(showAllBusinesses ? null : businessId.Value),
+                TopSellingItems = await GetTopSellingItems(businessId.Value),
 
                 // Recent Expenses (Last 5)
-                RecentExpenses = showAllBusinesses
-                    ? await _context.Expenses
-                        .Include(e => e.ExpenseCategorys)
-                        .Include(e => e.Branch)
-                        .Include(e => e.Business)
-                        .Where(e => !e.IsDeleted)
-                        .OrderByDescending(e => e.ExpenseDate)
-                        .Take(5)
-                        .ToListAsync()
-                    : await _context.Expenses
-                        .Include(e => e.ExpenseCategorys)
-                        .Include(e => e.Branch)
-                        .Where(e => e.BusinessId == businessId.Value && !e.IsDeleted)
-                        .OrderByDescending(e => e.ExpenseDate)
-                        .Take(5)
-                        .ToListAsync(),
+                RecentExpenses = await _context.Expenses
+                    .Include(e => e.ExpenseCategorys)
+                    .Include(e => e.Branch)
+                    .Where(e => e.BusinessId == businessId.Value && !e.IsDeleted)
+                    .OrderByDescending(e => e.ExpenseDate)
+                    .Take(5)
+                    .ToListAsync(),
 
                 // Low Stock Items (if quantity < MinStockLevel)
-                LowStockItems = showAllBusinesses
-                    ? await _context.Inventories
-                        .Include(i => i.Item)
-                        .Include(i => i.Branch)
-                            .ThenInclude(b => b.Business)
-                        .Where(i => i.Quantity < i.MinStockLevel)
-                        .OrderBy(i => i.Quantity)
-                        .Take(5)
-                        .ToListAsync()
-                    : await _context.Inventories
-                        .Include(i => i.Item)
-                        .Include(i => i.Branch)
-                        .Where(i => i.Branch.BusinessId == businessId.Value
-                               && i.Quantity < i.MinStockLevel)
-                        .OrderBy(i => i.Quantity)
-                        .Take(5)
-                        .ToListAsync()
+                LowStockItems = await _context.Inventories
+                    .Include(i => i.Item)
+                    .Include(i => i.Branch)
+                    .Where(i => i.Branch.BusinessId == businessId.Value
+                           && i.Quantity < i.MinStockLevel)
+                    .OrderBy(i => i.Quantity)
+                    .Take(5)
+                    .ToListAsync()
             };
 
             // Calculate profit
@@ -176,22 +130,15 @@ namespace PRISM.Controllers
             return View(viewModel);
         }
 
-        private async Task<List<MonthlyData>> GetMonthlyRevenue(int? businessId)
+        private async Task<List<MonthlyData>> GetMonthlyRevenue(int businessId)
         {
             var sixMonthsAgo = DateTime.Now.AddMonths(-6);
 
-            var query = _context.Orders
-                .Where(o => !o.IsDeleted
+            var monthlyData = await _context.Orders
+                .Where(o => o.BusinessId == businessId
+                       && !o.IsDeleted
                        && o.status
-                       && o.datetime >= sixMonthsAgo);
-
-            // Apply business filter if specified
-            if (businessId.HasValue)
-            {
-                query = query.Where(o => o.BusinessId == businessId.Value);
-            }
-
-            var monthlyData = await query
+                       && o.datetime >= sixMonthsAgo)
                 .GroupBy(o => new { o.datetime.Year, o.datetime.Month })
                 .Select(g => new MonthlyData
                 {
@@ -206,21 +153,14 @@ namespace PRISM.Controllers
             return monthlyData;
         }
 
-        private async Task<List<MonthlyData>> GetMonthlyExpenses(int? businessId)
+        private async Task<List<MonthlyData>> GetMonthlyExpenses(int businessId)
         {
             var sixMonthsAgo = DateTime.Now.AddMonths(-6);
 
-            var query = _context.Expenses
-                .Where(e => !e.IsDeleted
-                       && e.ExpenseDate >= sixMonthsAgo);
-
-            // Apply business filter if specified
-            if (businessId.HasValue)
-            {
-                query = query.Where(e => e.BusinessId == businessId.Value);
-            }
-
-            var monthlyData = await query
+            var monthlyData = await _context.Expenses
+                .Where(e => e.BusinessId == businessId
+                       && !e.IsDeleted
+                       && e.ExpenseDate >= sixMonthsAgo)
                 .GroupBy(e => new { e.ExpenseDate.Year, e.ExpenseDate.Month })
                 .Select(g => new MonthlyData
                 {
@@ -235,20 +175,14 @@ namespace PRISM.Controllers
             return monthlyData;
         }
 
-        private async Task<List<TopSellingItem>> GetTopSellingItems(int? businessId)
+        private async Task<List<TopSellingItem>> GetTopSellingItems(int businessId)
         {
-            var query = _context.OrderItems
+            var topItems = await _context.OrderItems
                 .Include(oi => oi.Item)
                 .Include(oi => oi.order)
-                .Where(oi => !oi.order.IsDeleted && oi.order.status);
-
-            // Apply business filter if specified
-            if (businessId.HasValue)
-            {
-                query = query.Where(oi => oi.order.BusinessId == businessId.Value);
-            }
-
-            var topItems = await query
+                .Where(oi => oi.order.BusinessId == businessId
+                        && !oi.order.IsDeleted
+                        && oi.order.status)
                 .GroupBy(oi => new { oi.ItemId, oi.Item.Name })
                 .Select(g => new TopSellingItem
                 {

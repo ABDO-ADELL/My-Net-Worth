@@ -59,7 +59,7 @@ namespace PRISM.Controllers
 
             ViewBag.BusinessId = businessId;
             ViewBag.Branches = new SelectList(await _context.Branches.Where(b => b.BusinessId == businessId).ToListAsync(), "BranchId", "Name");
-            ViewBag.Categories = new SelectList(await _context.ExpenseCategories.Where(c => c.BusinessId == businessId).ToListAsync(), "ExpenseCategoryId", "Name");
+            ViewBag.Categories = new SelectList(await _context.ItemCategories.Where(c => c.BusinessId == businessId).ToListAsync(), "ExpenseCategoryId", "Name");
 
             return View();
         }

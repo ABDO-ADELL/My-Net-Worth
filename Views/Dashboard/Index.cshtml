@@ -5,43 +5,21 @@
 }
 
 <!-- Business Selector -->
-<!-- Business Selector -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold">
         <i class="fas fa-chart-line text-primary me-2"></i>Dashboard
-        @if (Model?.IsAllBusinesses == true)
-        {
-            <span class="badge bg-primary ms-2">All Businesses</span>
-        }
     </h2>
 
     <div class="dropdown">
         <button class="btn btn-outline-primary dropdown-toggle" type="button" id="businessDropdown"
                 data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-building me-2"></i>
-            @if (Model?.IsAllBusinesses == true)
-            {
-                <span>All Businesses</span>
-            }
-            else
-            {
-                <span>Select Business</span>
-            }
+            <i class="fas fa-building me-2"></i>Select Business
         </button>
         <ul class="dropdown-menu" aria-labelledby="businessDropdown">
-            <!-- All Businesses Option -->
-            <li>
-                <a class="dropdown-item @(Model?.IsAllBusinesses == true ? "active" : "")"
-                   href="@Url.Action("Index", "Dashboard", new { businessId = 0 })">
-                    <i class="fas fa-globe me-2"></i><strong>All Businesses</strong>
-                </a>
-            </li>
-            <li><hr class="dropdown-divider"></li>
-            <!-- Individual Businesses -->
             @foreach (var business in ViewBag.Businesses)
             {
                 <li>
-                    <a class="dropdown-item @(business.BusinessId == ViewBag.SelectedBusinessId && Model?.IsAllBusinesses != true ? "active" : "")"
+                    <a class="dropdown-item @(business.BusinessId == ViewBag.SelectedBusinessId ? "active" : "")"
                        href="@Url.Action("Index", "Dashboard", new { businessId = business.BusinessId })">
                         @business.Name
                     </a>
@@ -50,14 +28,63 @@
         </ul>
     </div>
 </div>
+
 @if (ViewBag.NoBusiness == true)
 {
-    <div class="alert alert-warning">
-        <i class="fas fa-exclamation-triangle me-2"></i>
-        <strong>No Business Found!</strong> Please create a business first.
-        <a asp-controller="Business" asp-action="Create" class="btn btn-sm btn-primary ms-3">
-            <i class="fas fa-plus me-2"></i>Create Business
-        </a>
+    <div class="alert alert-warning border-0 shadow-sm">
+        <div class="d-flex align-items-start">
+            <i class="fas fa-exclamation-triangle fa-2x text-warning me-3"></i>
+            <div>
+                <h5 class="alert-heading mb-2">No Business Found!</h5>
+                <p class="mb-3">You need to create a business first before you can use the dashboard and manage your operations.</p>
+                <a asp-controller="Business" asp-action="Create" class="btn btn-warning">
+                    <i class="fas fa-plus me-2"></i>Create Your First Business
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State Illustration -->
+    <div class="text-center py-5">
+        <i class="fas fa-building fa-5x text-muted opacity-25 mb-4"></i>
+        <h4 class="text-muted mb-2">Get Started with PRISM</h4>
+        <p class="text-muted mb-4">Create a business to start managing your orders, inventory, and finances.</p>
+
+        <div class="row g-4 mt-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box bg-primary-light mb-3 mx-auto" style="width: 64px; height: 64px;">
+                            <i class="fas fa-building text-primary fa-2x"></i>
+                        </div>
+                        <h6 class="fw-bold">Step 1: Create Business</h6>
+                        <p class="text-muted small mb-0">Set up your business profile</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box bg-success-light mb-3 mx-auto" style="width: 64px; height: 64px;">
+                            <i class="fas fa-store text-success fa-2x"></i>
+                        </div>
+                        <h6 class="fw-bold">Step 2: Add Branches</h6>
+                        <p class="text-muted small mb-0">Create your locations</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-box bg-info-light mb-3 mx-auto" style="width: 64px; height: 64px;">
+                            <i class="fas fa-rocket text-info fa-2x"></i>
+                        </div>
+                        <h6 class="fw-bold">Step 3: Start Managing</h6>
+                        <p class="text-muted small mb-0">Add items, customers & orders</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 }
 else
@@ -281,10 +308,6 @@ else
                                 <thead class="bg-light">
                                     <tr>
                                         <th class="px-3 py-2 small">Order</th>
-                                        @if (Model.IsAllBusinesses)
-                                        {
-                                            <th class="py-2 small">Business</th>
-                                        }
                                         <th class="py-2 small">Customer</th>
                                         <th class="py-2 small">Date</th>
                                         <th class="py-2 text-end small">Amount</th>
@@ -300,12 +323,6 @@ else
                                                     #@order.Id
                                                 </a>
                                             </td>
-                                            @if (Model.IsAllBusinesses)
-                                            {
-                                                <td class="py-2 small">
-                                                    <span class="badge bg-info-light text-info">@order.business?.Name</span>
-                                                </td>
-                                            }
                                             <td class="py-2 small">@order.Customer?.FullName</td>
                                             <td class="py-2 small text-muted">@order.datetime.ToString("MMM dd, yyyy")</td>
                                             <td class="py-2 text-end fw-bold text-success">$@order.total_amount.ToString("N2")</td>
@@ -343,10 +360,6 @@ else
                                 <thead class="bg-light">
                                     <tr>
                                         <th class="px-3 py-2 small">Category</th>
-                                        @if (Model.IsAllBusinesses)
-                                        {
-                                            <th class="py-2 small">Business</th>
-                                        }
                                         <th class="py-2 small">Date</th>
                                         <th class="py-2 small">Method</th>
                                         <th class="py-2 text-end small">Amount</th>
@@ -357,12 +370,6 @@ else
                                     {
                                         <tr>
                                             <td class="px-3 py-2 fw-semibold">@expense.ExpenseCategorys?.Name</td>
-                                            @if (Model.IsAllBusinesses)
-                                            {
-                                                <td class="py-2 small">
-                                                    <span class="badge bg-info-light text-info">@expense.Business?.Name</span>
-                                                </td>
-                                            }
                                             <td class="py-2 small text-muted">@expense.ExpenseDate.ToString("MMM dd, yyyy")</td>
                                             <td class="py-2 small">@expense.PaymentMethod</td>
                                             <td class="py-2 text-end fw-bold text-danger">$@expense.Amount.ToString("N2")</td>
@@ -398,13 +405,9 @@ else
                             {
                                 <div class="col-md-4">
                                     <div class="alert alert-warning mb-0">
-                                        <div class="d-flex justify-content-between align-items-start">
+                                        <div class="d-flex justify-content-between align-items-center">
                                             <div>
                                                 <h6 class="mb-1">@item.Item?.Name</h6>
-                                                @if (Model.IsAllBusinesses)
-                                                {
-                                                    <small class="d-block">Business: <strong>@item.Branch?.Business?.Name</strong></small>
-                                                }
                                                 <small>Branch: @item.Branch?.Name</small>
                                             </div>
                                             <div class="text-end">
@@ -421,7 +424,6 @@ else
             </div>
         </div>
     }
-
 }
 
 @section Scripts {
