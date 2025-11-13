@@ -96,14 +96,6 @@ namespace PRISM.Controllers
                 // Top Selling Items (Top 5)
                 TopSellingItems = await GetTopSellingItems(businessId.Value),
 
-                // Recent Expenses (Last 5)
-                RecentExpenses = await _context.Expenses
-                    .Include(e => e.ExpenseCategorys)
-                    .Include(e => e.Branch)
-                    .Where(e => e.BusinessId == businessId.Value && !e.IsDeleted)
-                    .OrderByDescending(e => e.ExpenseDate)
-                    .Take(5)
-                    .ToListAsync(),
 
                 // Low Stock Items (if quantity < MinStockLevel)
                 LowStockItems = await _context.Inventories

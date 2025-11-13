@@ -12,8 +12,8 @@ using PRISM;
 namespace PRISM.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251106213644_FixOrders")]
-    partial class FixOrders
+    [Migration("20251112182629_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

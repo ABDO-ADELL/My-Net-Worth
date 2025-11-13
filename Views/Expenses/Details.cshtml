@@ -30,7 +30,7 @@
                         <div class="col-md-6">
                             <div class="border-start border-success border-4 ps-3 mb-3">
                                 <small class="text-muted">Category</small>
-                                <h6>@Model.ExpenseCategorys?.Name</h6>
+                                <h6>@(string.IsNullOrWhiteSpace(Model.Category) ? "N/A" : Model.Category)</h6>
                             </div>
                             <div class="border-start border-warning border-4 ps-3 mb-3">
                                 <small class="text-muted">Branch</small>

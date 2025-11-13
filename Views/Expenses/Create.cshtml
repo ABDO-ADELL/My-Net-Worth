@@ -26,12 +26,22 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label asp-for="CategoryId" class="form-label">Category <span class="text-danger">*</span></label>
-                                <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories">
-                                    <option value="">-- Select Category --</option>
-                                </select>
-                                <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                                <label asp-for="Category" class="form-label">Category</label>
+                                <input asp-for="Category" class="form-control" list="categories" placeholder="Enter or select category..." />
+
+                                <datalist id="categories">
+                                    <option value="Utilities"></option>
+                                    <option value="Salaries"></option>
+                                    <option value="Office Supplies"></option>
+                                    <option value="Maintenance"></option>
+                                    <option value="Marketing"></option>
+                                    <option value="Transportation"></option>
+                                    <option value="Insurance"></option>
+                                </datalist>
+
+                                <span asp-validation-for="Category" class="text-danger small"></span>
                             </div>
+
                         </div>
 
                         <div class="row">

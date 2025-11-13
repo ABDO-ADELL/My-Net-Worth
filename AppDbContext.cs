@@ -27,7 +27,6 @@ namespace PRISM
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Payment> Payments { get; set; }
 
-        public DbSet<ExpenseCategory> ExpenseCategories { get; set; }
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<Target> Targets { get; set; }
 
@@ -103,13 +102,6 @@ namespace PRISM
                 .HasOne(inv => inv.Branch)
                 .WithMany()
                 .HasForeignKey(inv => inv.BranchId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Expense relationships
-            modelBuilder.Entity<Expense>()
-                .HasOne(e => e.ExpenseCategorys)
-                .WithMany()
-                .HasForeignKey(e => e.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Expense>()

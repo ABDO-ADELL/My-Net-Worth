@@ -34,7 +34,7 @@
                                 </tr>
                                 <tr>
                                     <th>Category</th>
-                                    <td>@Model.ExpenseCategorys?.Name</td>
+                                    <td>@(string.IsNullOrWhiteSpace(Model.Category) ? "N/A" : Model.Category)</td>
                                 </tr>
                                 <tr>
                                     <th>Branch</th>

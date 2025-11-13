@@ -19,20 +19,25 @@ namespace PRISM.Models
             return expense;
         }
 
-        public async Task<IEnumerable<Expense>> GetByBusinessAsync(int businessId,
-            int page = 1, int pageSize = 20, DateTime? startDate = null, DateTime? endDate = null,
-            int? branchId = null, int? categoryId = null)
+        public async Task<IEnumerable<Expense>> GetByBusinessAsync(
+            int businessId,
+            int page = 1,
+            int pageSize = 20,
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            int? branchId = null,
+            string? category = null)  // ✅ بقت string
         {
             var query = _context.Expenses
-                .Include(e => e.ExpenseCategorys)
                 .Include(e => e.Branch)
                 .Where(e => !e.IsDeleted && e.BusinessId == businessId);
 
             if (branchId.HasValue)
                 query = query.Where(e => e.BranchId == branchId.Value);
 
-            if (categoryId.HasValue)
-                query = query.Where(e => e.CategoryId == categoryId.Value);
+            // ✅ فلترة حسب الاسم النصي
+            if (!string.IsNullOrEmpty(category))
+                query = query.Where(e => e.Category != null && e.Category == category);
 
             if (startDate.HasValue)
                 query = query.Where(e => e.ExpenseDate >= startDate.Value);
@@ -50,7 +55,6 @@ namespace PRISM.Models
         public async Task<Expense?> GetByIdAsync(int id)
         {
             return await _context.Expenses
-                .Include(e => e.ExpenseCategorys)
                 .Include(e => e.Branch)
                 .FirstOrDefaultAsync(e => e.ExpenseId == id && !e.IsDeleted);
         }
@@ -58,7 +62,8 @@ namespace PRISM.Models
         public async Task<bool> SoftDeleteAsync(int id)
         {
             var expense = await _context.Expenses.FindAsync(id);
-            if (expense == null || expense.IsDeleted) return false;
+            if (expense == null || expense.IsDeleted)
+                return false;
 
             expense.IsDeleted = true;
             await _context.SaveChangesAsync();
@@ -67,13 +72,16 @@ namespace PRISM.Models
 
         public async Task<bool> UpdateAsync(int id, Expense updated)
         {
-            var expense = await _context.Expenses.FirstOrDefaultAsync(e => e.ExpenseId == id && !e.IsDeleted);
-            if (expense == null) return false;
+            var expense = await _context.Expenses
+                .FirstOrDefaultAsync(e => e.ExpenseId == id && !e.IsDeleted);
+
+            if (expense == null)
+                return false;
 
             expense.Amount = updated.Amount;
             expense.PaymentMethod = updated.PaymentMethod;
             expense.Description = updated.Description;
-            expense.CategoryId = updated.CategoryId;
+            expense.Category = updated.Category; // ✅ بقت string
             expense.BranchId = updated.BranchId;
             expense.ExpenseDate = DateTime.UtcNow;
 

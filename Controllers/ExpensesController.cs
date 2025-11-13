@@ -25,18 +25,17 @@ namespace PRISM.Controllers
             if (businessId == 0)
                 return BadRequest("Business ID is required");
 
-            var expenses = await _expenseBL.GetByBusinessAsync(businessId, page, pageSize, startDate, endDate, branchId, categoryId);
+            var expenses = await _expenseBL.GetByBusinessAsync(businessId, page, pageSize, startDate, endDate, branchId);
 
             ViewBag.BusinessId = businessId;
             ViewBag.Page = page;
             ViewBag.StartDate = startDate;
             ViewBag.EndDate = endDate;
             ViewBag.BranchId = branchId;
-            ViewBag.CategoryId = categoryId;
 
             // For filters
             ViewBag.Branches = new SelectList(await _context.Branches.Where(b => b.BusinessId == businessId).ToListAsync(), "BranchId", "Name");
-            ViewBag.Categories = new SelectList(await _context.ExpenseCategories.Where(c => c.BusinessId == businessId).ToListAsync(), "ExpenseCategoryId", "Name");
+
 
             return View(expenses);
         }
@@ -58,8 +57,13 @@ namespace PRISM.Controllers
                 return BadRequest("Business ID is required");
 
             ViewBag.BusinessId = businessId;
-            ViewBag.Branches = new SelectList(await _context.Branches.Where(b => b.BusinessId == businessId).ToListAsync(), "BranchId", "Name");
-            ViewBag.Categories = new SelectList(await _context.ItemCategories.Where(c => c.BusinessId == businessId).ToListAsync(), "ExpenseCategoryId", "Name");
+            ViewBag.Branches = new SelectList(
+                await _context.Branches
+                    .Where(b => b.BusinessId == businessId)
+                    .ToListAsync(),
+                "BranchId",
+                "Name"
+            );
 
             return View();
         }
@@ -77,7 +81,6 @@ namespace PRISM.Controllers
 
             ViewBag.BusinessId = expense.BusinessId;
             ViewBag.Branches = new SelectList(await _context.Branches.Where(b => b.BusinessId == expense.BusinessId).ToListAsync(), "BranchId", "Name", expense.BranchId);
-            ViewBag.Categories = new SelectList(await _context.ExpenseCategories.Where(c => c.BusinessId == expense.BusinessId).ToListAsync(), "ExpenseCategoryId", "Name", expense.CategoryId);
 
             return View(expense);
         }
@@ -90,7 +93,6 @@ namespace PRISM.Controllers
                 return NotFound();
 
             ViewBag.Branches = new SelectList(await _context.Branches.Where(b => b.BusinessId == expense.BusinessId).ToListAsync(), "BranchId", "Name", expense.BranchId);
-            ViewBag.Categories = new SelectList(await _context.ExpenseCategories.Where(c => c.BusinessId == expense.BusinessId).ToListAsync(), "ExpenseCategoryId", "Name", expense.CategoryId);
 
             return View(expense);
         }
@@ -113,8 +115,7 @@ namespace PRISM.Controllers
             }
 
             ViewBag.Branches = new SelectList(await _context.Branches.Where(b => b.BusinessId == expense.BusinessId).ToListAsync(), "BranchId", "Name", expense.BranchId);
-            ViewBag.Categories = new SelectList(await _context.ExpenseCategories.Where(c => c.BusinessId == expense.BusinessId).ToListAsync(), "ExpenseCategoryId", "Name", expense.CategoryId);
-
+ 
             return View(expense);
         }
 

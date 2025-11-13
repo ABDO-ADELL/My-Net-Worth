@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PRISM.Models;
+using static NuGet.Packaging.PackagingConstants;
 
 namespace PRISM.Controllers
 {
@@ -53,9 +54,26 @@ namespace PRISM.Controllers
 
             ViewBag.BusinessId = businessId;
 
-            ViewBag.Orders = new SelectList(await _context.Orders.Where(o => o.BusinessId == businessId).ToListAsync(), "OrderId", "OrderId");
+            var orders = await _context.Orders
+                .Where(o => o.BusinessId == businessId)
+                .ToListAsync();
+
+
+            ViewBag.Orders = new SelectList(
+    orders.Select(o => new
+    {
+        o.Id,
+        DisplayText = $"Order {o.OrderName} - {o.total_amount} EGP ({o.datetime:MMM dd, yyyy})"
+    }),
+    "Id",
+    "DisplayText"
+);
+
+
             return View();
         }
+
+
 
         // POST: Payments/Create
         [HttpPost]
@@ -69,7 +87,20 @@ namespace PRISM.Controllers
             }
 
             ViewBag.BusinessId = businessId;
-            ViewBag.Orders = new SelectList(await _context.Orders.Where(o => o.BusinessId == businessId).ToListAsync(), "OrderId", "OrderId", payment.OrderId);
+            var orders = await _context.Orders
+                .Where(o => o.BusinessId == businessId)
+                .ToListAsync();
+
+
+            ViewBag.Orders = new SelectList(
+    orders.Select(o => new
+    {
+        o.Id,
+        DisplayText = $"Order {o.OrderName} - {o.total_amount} EGP ({o.datetime:MMM dd, yyyy})"
+    }),
+    "Id",
+    "DisplayText"
+);
 
             return View(payment);
         }
@@ -78,12 +109,29 @@ namespace PRISM.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var payment = await _paymentBL.GetByIdAsync(id);
+
             if (payment == null)
                 return NotFound();
 
-            ViewBag.Orders = new SelectList(await _context.Orders.Where(o => o.BusinessId == payment.Order.BusinessId).ToListAsync(), "OrderId", "OrderId", payment.OrderId);
+            var businessId = await _context.Orders
+                .Where(o => o.Id == payment.OrderId)
+                .Select(o => o.BusinessId)
+                .FirstOrDefaultAsync();
+
+            var orders = await _context.Orders
+                .Where(o => o.BusinessId == businessId)
+                .Select(o => new
+                {
+                    o.Id,
+                    DisplayText = $"Order {o.OrderName} - {o.total_amount} EGP ({o.datetime:MMM dd, yyyy})"
+                })
+                .ToListAsync();
+
+            ViewBag.Orders = new SelectList(orders, "Id", "DisplayText", payment.OrderId);
+
             return View(payment);
         }
+
 
         // POST: Payments/Edit/5
         [HttpPost]
@@ -93,18 +141,39 @@ namespace PRISM.Controllers
             if (id != payment.PaymentId)
                 return NotFound();
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var success = await _paymentBL.UpdateAsync(id, payment);
-                if (!success)
-                    return NotFound();
+                var businessId = await _context.Orders
+                    .Where(o => o.Id == payment.OrderId)
+                    .Select(o => o.BusinessId)
+                    .FirstOrDefaultAsync();
 
-                return RedirectToAction(nameof(Index), new { businessId = payment.Order.BusinessId });
+                var orders = await _context.Orders
+                    .Where(o => o.BusinessId == businessId)
+                    .Select(o => new
+                    {
+                        o.Id,
+                        DisplayText = $"Order {o.OrderName} - {o.total_amount} EGP ({o.datetime:MMM dd, yyyy})"
+                    })
+                    .ToListAsync();
+
+                ViewBag.Orders = new SelectList(orders, "Id", "DisplayText", payment.OrderId);
+
+                return View(payment);
             }
 
-            ViewBag.Orders = new SelectList(await _context.Orders.Where(o => o.BusinessId == payment.Order.BusinessId).ToListAsync(), "OrderId", "OrderId", payment.OrderId);
-            return View(payment);
+            var success = await _paymentBL.UpdateAsync(id, payment);
+            if (!success)
+                return NotFound();
+
+            var businessIdFinal = await _context.Orders
+                .Where(o => o.Id == payment.OrderId)
+                .Select(o => o.BusinessId)
+                .FirstOrDefaultAsync();
+
+            return RedirectToAction(nameof(Index), new { businessId = businessIdFinal });
         }
+
 
         // GET: Payments/Delete/5
         public async Task<IActionResult> Delete(int id)

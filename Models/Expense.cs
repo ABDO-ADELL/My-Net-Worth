@@ -11,7 +11,8 @@ namespace PRISM.Models
 
         public int? BranchId { get; set; }
 
-        public int CategoryId { get; set; }
+        [MaxLength(100)]
+        public string? Category { get; set; }
 
         [Column(TypeName = "decimal(10,2)")]
         public decimal Amount { get; set; }
@@ -28,12 +29,8 @@ namespace PRISM.Models
         
         public bool IsDeleted { get; set; }
 
-
-        [ForeignKey(nameof(CategoryId))]
-        public virtual ExpenseCategory ExpenseCategorys { get; set; }
-
         [ForeignKey(nameof(BusinessId))]
-        public virtual Business Business { get; set; }
+        public virtual Business? Business { get; set; }
         
 
         [ForeignKey(nameof(BranchId))]

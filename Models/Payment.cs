@@ -15,7 +15,7 @@ namespace PRISM.Models
 
         [ForeignKey("Order")]
         public int OrderId { get; set; }
-        public Order Order { get; set; }
+        public Order? Order { get; set; }
 
     }
 }

@@ -12,7 +12,7 @@
         </a>
     </div>
 
-    @* Filters Card *@
+    <!-- Filters -->
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-white">
             <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filters</h5>
@@ -41,13 +41,17 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Category</label>
-                        <select name="categoryId" class="form-select">
-                            <option value="">All Categories</option>
-                            @foreach (var item in ViewBag.Categories as SelectList)
-                            {
-                                <option value="@item.Value" selected="@(item.Value == ViewBag.CategoryId?.ToString())">@item.Text</option>
-                            }
-                        </select>
+                        <input name="category" class="form-control" list="categories" placeholder="All Categories"
+                               value="@ViewBag.Category" />
+                        <datalist id="categories">
+                            <option value="Utilities"></option>
+                            <option value="Salaries"></option>
+                            <option value="Office Supplies"></option>
+                            <option value="Maintenance"></option>
+                            <option value="Marketing"></option>
+                            <option value="Transportation"></option>
+                            <option value="Insurance"></option>
+                        </datalist>
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
                         <button type="submit" class="btn btn-info w-100">
@@ -59,7 +63,7 @@
         </div>
     </div>
 
-    @* Expenses Table *@
+    <!-- Expenses Table -->
     <div class="card shadow-sm">
         <div class="card-body">
             @if (Model.Any())
@@ -86,7 +90,7 @@
                                     <td><span class="badge bg-danger">EGP @item.Amount.ToString("N2")</span></td>
                                     <td>@item.ExpenseDate.ToString("MMM dd, yyyy")</td>
                                     <td>@item.PaymentMethod</td>
-                                    <td>@item.ExpenseCategorys?.Name</td>
+                                    <td>@(string.IsNullOrWhiteSpace(item.Category) ? "N/A" : item.Category)</td>
                                     <td>@(item.Branch?.Name ?? "N/A")</td>
                                     <td>@(item.Description ?? "-")</td>
                                     <td class="text-center">
