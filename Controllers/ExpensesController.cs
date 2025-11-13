@@ -81,7 +81,7 @@ namespace PRISM.Controllers
 
             ViewBag.BusinessId = expense.BusinessId;
             ViewBag.Branches = new SelectList(await _context.Branches.Where(b => b.BusinessId == expense.BusinessId).ToListAsync(), "BranchId", "Name", expense.BranchId);
-
+            await _context.SaveChangesAsync();
             return View(expense);
         }
 

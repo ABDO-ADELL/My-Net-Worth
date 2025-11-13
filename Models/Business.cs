@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using PRISM.Models.Authmodels;
+using System.ComponentModel.DataAnnotations.Schema;
 namespace PRISM.Models
 {
     public class Business
@@ -18,6 +13,9 @@ namespace PRISM.Models
         public bool IsDeleted { get; set; }
 
         // Relations
+        public string UserId { get; set; }
+        [ForeignKey("UserId")]
+        public AppUser? Users { get; set; }
         public ICollection<Branch>? Branches { get; set; }
         public ICollection<Items>? Items { get; set; }
     }

@@ -184,20 +184,17 @@ namespace PRISM.Controllers
                 return NotFound();
             }
 
-            ViewBag.Branches = new SelectList(
-                await _context.Branches
-                    .Include(b => b.Business)
-                    .Where(b => !b.IsDeleted)
-                    .Select(b => new
-                    {
-                        b.BranchId,
-                        DisplayName = b.Name + " - " + b.Business.Name
-                    })
-                    .ToListAsync(),
-                "BranchId",
-                "DisplayName",
-                customer.BranchId
-            );
+            var branches = await _context.Branches
+                .Include(b => b.Business)
+                .Where(b => !b.IsDeleted)
+                .Select(b => new
+                {
+                    b.BranchId,
+                    DisplayName = b.Name + " - " + b.Business.Name
+                })
+                .ToListAsync();
+
+            ViewBag.BranchId = new SelectList(branches, "BranchId", "DisplayName");
 
             return View(customer);
         }

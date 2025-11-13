@@ -2,10 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PRISM.Models;
+using System.Security.Claims;
 
 namespace PRISM.Controllers
 {
-    [AllowAnonymous]
+    [Authorize]
     public class DashboardController : Controller
     {
         private readonly AppDbContext _context;
@@ -18,8 +19,10 @@ namespace PRISM.Controllers
         public async Task<IActionResult> Index(int? businessId)
         {
             // Get all active businesses for dropdown
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var businesses = await _context.Businesses
-                .Where(b => !b.IsDeleted)
+                .Where(b => !b.IsDeleted &&b.UserId==userId )
                 .Select(b => new { b.BusinessId, b.Name })
                 .ToListAsync();
 

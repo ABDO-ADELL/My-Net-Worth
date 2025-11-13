@@ -1,0 +1,305 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Create a new account</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            direction: ltr;
+        }
+
+        .left-section {
+            flex: 1;
+            background: linear-gradient(135deg, rgba(32, 201, 151, 0.7) 0%, rgba(0, 123, 255, 0.7) 100%), url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200') center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .left-section::before {
+                content: '';
+                position: absolute;
+                width: 300px;
+                height: 300px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+                top: -100px;
+                left: -100px;
+            }
+
+            .left-section::after {
+                content: '';
+                position: absolute;
+                width: 200px;
+                height: 200px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+                bottom: -50px;
+                right: -50px;
+            }
+
+        .left-content {
+            text-align: center;
+            color: white;
+            z-index: 1;
+            max-width: 500px;
+        }
+
+            .left-content h1 {
+                font-size: 48px;
+                font-weight: 700;
+                margin-bottom: 20px;
+                text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            }
+
+            .left-content p {
+                font-size: 18px;
+                line-height: 1.6;
+                opacity: 0.95;
+            }
+
+        .right-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: white;
+        }
+
+        .register-container {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .register-header {
+            margin-bottom: 35px;
+        }
+
+            .register-header h2 {
+                font-size: 32px;
+                font-weight: 700;
+                color: #1a1a1a;
+                margin-bottom: 10px;
+            }
+
+            .register-header p {
+                color: #6c757d;
+                font-size: 16px;
+            }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+            .form-row .form-group {
+                flex: 1;
+            }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #344054;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #20c997;
+                box-shadow: 0 0 0 4px rgba(32, 201, 151, 0.1);
+            }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #20c997 0%, #007bff 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(32, 201, 151, 0.3);
+            }
+
+        .footer-links {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+            .footer-links a {
+                color: #20c997;
+                text-decoration: none;
+                font-size: 14px;
+            }
+
+                .footer-links a:hover {
+                    text-decoration: underline;
+                }
+
+        @@media (max-width: 992px) {
+            body {
+                flex-direction: column;
+            }
+
+            .left-section {
+                min-height: 250px;
+            }
+
+            .left-content h1 {
+                font-size: 36px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="left-section">
+        <div class="left-content">
+            <h1>Join PRISM</h1>
+            <p>Start your journey with our comprehensive management system. Create your account and unlock powerful tools for managing your business efficiently</p>
+        </div>
+    </div>
+
+    <div class="right-section">
+        <div class="register-container">
+            <div class="register-header">
+                <h2>Create Account</h2>
+                <p>Fill in your information to get started</p>
+            </div>
+
+            <form onsubmit="event.preventDefault(); register();">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        <input type="text" id="firstName" class="form-control" placeholder="John" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" id="lastName" class="form-control" placeholder="Doe" required />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="email" class="form-control" placeholder="example@company.com" required />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="••••••••" required />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <input type="password" id="confirmPassword" class="form-control" placeholder="••••••••" required />
+                </div>
+
+                <button type="submit" class="btn-primary">Create Account</button>
+            </form>
+
+            <div class="footer-links">
+                <a href="Login">Already have an account? Sign in</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function register() {
+            const model = {
+                FirstName: document.getElementById("firstName").value,
+                LastName: document.getElementById("lastName").value,
+                Email: document.getElementById("email").value,
+                Password: document.getElementById("password").value,
+                ConfirmPassword: document.getElementById("confirmPassword").value
+            };
+
+            // Validate password match
+            if (model.Password !== model.ConfirmPassword) {
+                alert("Password and confirmation do not match!");
+                return;
+            }
+
+            // Validate password length
+            if (model.Password.length < 6) {
+                alert("Password must be at least 6 characters long");
+                return;
+            }
+            //api/Authentication/Register
+            try {
+                const res = await fetch("/Register/Register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(model)
+                });
+
+                const data = await res.json();
+                console.log("Response:", data);
+
+                if (res.ok) {
+                    // Store tokens securely
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('refreshToken', data.refreshToken);
+                    localStorage.setItem('userEmail', data.email);
+                    localStorage.setItem('userName', data.userName);
+
+                    alert("Account created successfully!");
+                    window.location.href = "/Dashboard/Index";
+                } else {
+                    // Handle different error scenarios
+                    const errorMessage = data.message || "Please try again";
+                    alert(" Registration failed: " + errorMessage);
+                }
+            } catch (err) {
+                console.error("Registration error:", err);
+                alert("A server connection error occurred. Please check your connection and try again.");
+            }
+        }
+    </script>
+
+</body>
+</html>

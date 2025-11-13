@@ -25,32 +25,49 @@ namespace PRISM
                 services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-                services.Configure<JWT>(configuration.GetSection("JWT"));
-                services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
 
 
                 services.AddScoped<IAuthService, AuthService>();
-                /*services.AddAuthentication(Options =>
-                {
-                    Options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    Options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                }).AddJwtBearer(o =>
-                {
-                    o.RequireHttpsMetadata = false;
-                    o.SaveToken = false;
-                    o.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidIssuer = configuration["JWT:Issuer"],
-                        ValidAudience = configuration["JWT:Audience"],
-                        IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(configuration["JWT:Key"])),
 
-                    };
+
+                //***
+                services.Configure<JWT>(configuration.GetSection("JWT"));
+
+                services.AddIdentity<AppUser, IdentityRole>(options =>
+                {
+                    // Password settings
+                    options.Password.RequireDigit = true;
+                    options.Password.RequireLowercase = true;
+                    options.Password.RequireUppercase = false;
+                    options.Password.RequireNonAlphanumeric = false;
+                    options.Password.RequiredLength = 6;
+
+                    // Lockout settings
+                    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                    options.Lockout.MaxFailedAccessAttempts = 5;
+                    options.Lockout.AllowedForNewUsers = true;
+
+                    // User settings
+                    options.User.RequireUniqueEmail = true;
+                    options.SignIn.RequireConfirmedEmail = false;
+                })
+                .AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders();
+
+                // Configure cookie authentication for MVC
+                services.ConfigureApplicationCookie(options =>
+                {
+                    options.LoginPath = "/Register/Login";
+                    options.LogoutPath = "/Account/Logout";
+                    options.AccessDeniedPath = "/Account/AccessDenied";
+                    options.ExpireTimeSpan = TimeSpan.FromDays(30);
+                    options.SlidingExpiration = true;
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
                 });
-                 */
+
+
+
             }
 
 
@@ -72,15 +89,14 @@ namespace PRISM
                 app.UseHsts();
             }
 
-
             app.UseHttpsRedirection();
             app.UseRouting();
-            //app.UseAuthentication();
-            //app.UseAuthorization();
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Dashboard}/{action=Index}/{id?}")
+                pattern: "{controller=Register}/{action=Login}/{id?}")
                 .WithStaticAssets();
             app.MapControllers();
 

@@ -435,27 +435,39 @@
             <i class="fas fa-bars"></i>
         </button>
 
-        <div class="top-nav-right">
-            <div class="notification-icon">
-                <i class="fas fa-bell"></i>
-                <span class="notification-badge">3</span>
-            </div>
+@if (User.Identity?.IsAuthenticated == true)
+            {
+                @inject Microsoft.AspNetCore.Identity.UserManager<PRISM.Models.Authmodels.AppUser> UserManager
+                {
+                    var currentUser = await UserManager.GetUserAsync(User);
+                    var userRoles = currentUser != null ? await UserManager.GetRolesAsync(currentUser) : new List<string>();
+                    var displayName = currentUser != null ? $"{currentUser.FirstName} {currentUser.LastName}" : "User";
+                    var userInitials = currentUser != null ? $"{currentUser.FirstName?.FirstOrDefault()}{currentUser.LastName?.FirstOrDefault()}" : "U";
+                    var primaryRole = userRoles.FirstOrDefault() ?? "User";
+                
 
-            <a href="@Url.Action("Profile", "Account")" class="user-menu" style="text-decoration: none;">
-                <div class="user-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="user-info">
-                    <div class="user-name">Admin User</div>
-                    <div class="user-role">Administrator</div>
-                </div>
-                <i class="fas fa-chevron-down" style="color: #64748b; font-size: 12px;"></i>
-            </a>
+                <a href="@Url.Action("Profile", "Account")" class="user-menu" style="text-decoration: none;">
+                    <div class="user-avatar" title="@displayName">
+                        @userInitials
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">@displayName</div>
+                        <div class="user-role">@primaryRole</div>
+                    </div>
+                    <i class="fas fa-chevron-down" style="color: #64748b; font-size: 12px;"></i>
+                </a>
 
-            <a href="@Url.Action("Logout", "Account")" class="text-danger" style="text-decoration: none; font-size: 20px;">
-                <i class="fas fa-sign-out-alt"></i>
-            </a>
-        </div>
+                <a href="@Url.Action("Logout", "Account")" class="text-danger" style="text-decoration: none; font-size: 20px;" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            }
+            }
+            else
+            {
+                <a href="@Url.Action("Login", "Register")" class="btn btn-primary btn-sm">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </a>
+            }
     </nav>
 
     <!-- Main Content -->

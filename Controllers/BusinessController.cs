@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace PRISM.Controllers
 {
-    public class BusinessController : Controller
+    public class BusinessController : BaseController
     {
         private readonly AppDbContext _context;
         public BusinessController(AppDbContext context)
@@ -13,13 +14,16 @@ namespace PRISM.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            var businesses = _context.Businesses.OrderBy(b => b.Name);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var businesses = _context.Businesses.Where(o=>o.UserId==userId)
+                .OrderBy(b => b.Name);
             return View(businesses.ToList());
         }
         [HttpGet]
         public IActionResult Details(int id)
         {
-            var business = _context.Businesses.FirstOrDefault(b => b.BusinessId == id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var business = _context.Businesses.FirstOrDefault(b => b.BusinessId == id &&b.UserId==userId);
             if (business is null)
             {
                 return NotFound();
@@ -36,8 +40,19 @@ namespace PRISM.Controllers
         [HttpPost]
         public IActionResult Create(Business business)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            SetUserId(business);
+
+            ModelState.Remove("UserId");
+
             if (!ModelState.IsValid)
             {
+                var errors = ModelState.Values.SelectMany(v => v.Errors);
+                foreach (var error in errors)
+                {
+                    Console.WriteLine(error.ErrorMessage);
+                }
+
                 return View(business);
             }
             _context.Businesses.Add(business);

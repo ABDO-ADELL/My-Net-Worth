@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PRISM.Models;
 using PRISM.Models.Authmodels;
+using System.Security.Claims;
 
 namespace PRISM.Controllers
 {
@@ -20,12 +21,13 @@ namespace PRISM.Controllers
         // GET: Order
         public async Task<IActionResult> Index()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var orders = await _context.Orders
                 .Include(o => o.business)
                 .Include(o => o.branch)
                 .Include(o => o.Customer)
                 .Include(o => o.user)
-                .Where(o => !o.IsDeleted)
+                .Where(o => !o.IsDeleted && o.UserId == userId)
                 .OrderByDescending(o => o.datetime)
                 .ToListAsync();
 
@@ -89,13 +91,6 @@ namespace PRISM.Controllers
                 order.IsDeleted = false;
                 order.status = true;
 
-                // Remove ModelState validation for navigation properties
-                ModelState.Remove("user");
-                ModelState.Remove("business");
-                ModelState.Remove("branch");
-                ModelState.Remove("Customer");
-                ModelState.Remove("OrderItems");
-
                 // Check if items were added
                 if (itemIds == null || itemIds.Count == 0 || quantities == null || quantities.Count == 0)
                 {
@@ -105,6 +100,7 @@ namespace PRISM.Controllers
                 if (ModelState.IsValid)
                 {
                     // Calculate total amount and create order items
+
                     decimal totalAmount = 0;
                     var orderItems = new List<OrderItem>();
 

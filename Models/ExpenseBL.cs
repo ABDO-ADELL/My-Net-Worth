@@ -15,7 +15,7 @@ namespace PRISM.Models
         {
             expense.ExpenseDate = DateTime.UtcNow;
             _context.Expenses.Add(expense);
-            await _context.SaveChangesAsync();
+
             return expense;
         }
 
@@ -26,7 +26,7 @@ namespace PRISM.Models
             DateTime? startDate = null,
             DateTime? endDate = null,
             int? branchId = null,
-            string? category = null)  // ✅ بقت string
+            string? category = null)  
         {
             var query = _context.Expenses
                 .Include(e => e.Branch)

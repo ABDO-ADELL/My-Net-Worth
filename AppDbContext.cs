@@ -78,6 +78,15 @@ namespace PRISM
                 .HasForeignKey(b => b.BusinessId)
                 .OnDelete(DeleteBehavior.Cascade); // Branch should cascade with Business
 
+
+            modelBuilder.Entity<AppUser>()
+                .HasMany(b => b.Business)
+                .WithOne(u => u.Users)
+                .HasForeignKey(b => b.UserId)
+                .HasPrincipalKey(b => b.Id)
+                .OnDelete(DeleteBehavior.NoAction); 
+            // Branch should cascade with Business
+
             // Fix Item relationships
             modelBuilder.Entity<Items>()
                 .HasOne(i => i.ItemCategory)
