@@ -8,8 +8,8 @@ namespace PRISM.Models
         public int ExpenseId { get; set; }
 
         public int BusinessId { get; set; }
-        [Required]
-        public int? BranchId { get; set; }
+
+        public int BranchId { get; set; }
 
         [MaxLength(100)]
         public string? Category { get; set; }
@@ -32,7 +32,6 @@ namespace PRISM.Models
         [ForeignKey(nameof(BusinessId))]
         public virtual Business? Business { get; set; }
 
-        [Required]
         [ForeignKey(nameof(BranchId))]
         public virtual Branch? Branch { get; set; }
     }

@@ -12,8 +12,8 @@ using PRISM;
 namespace PRISM.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251113182556_expense")]
-    partial class expense
+    [Migration("20251114102844_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -307,6 +307,9 @@ namespace PRISM.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -443,7 +446,13 @@ namespace PRISM.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("BusinessId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Businesses");
                 });
@@ -492,7 +501,7 @@ namespace PRISM.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(10,2)");
 
-                    b.Property<int?>("BranchId")
+                    b.Property<int>("BranchId")
                         .HasColumnType("int");
 
                     b.Property<int>("BusinessId")
@@ -878,6 +887,17 @@ namespace PRISM.Migrations
                     b.Navigation("Business");
                 });
 
+            modelBuilder.Entity("PRISM.Models.Business", b =>
+                {
+                    b.HasOne("PRISM.Models.Authmodels.AppUser", "Users")
+                        .WithMany("Business")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Users");
+                });
+
             modelBuilder.Entity("PRISM.Models.Customer", b =>
                 {
                     b.HasOne("PRISM.Models.Branch", "Branch")
@@ -894,7 +914,8 @@ namespace PRISM.Migrations
                     b.HasOne("PRISM.Models.Branch", "Branch")
                         .WithMany()
                         .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("PRISM.Models.Business", "Business")
                         .WithMany()
@@ -995,6 +1016,11 @@ namespace PRISM.Migrations
             modelBuilder.Entity("PRISM.Items", b =>
                 {
                     b.Navigation("Inventories");
+                });
+
+            modelBuilder.Entity("PRISM.Models.Authmodels.AppUser", b =>
+                {
+                    b.Navigation("Business");
                 });
 
             modelBuilder.Entity("PRISM.Models.Branch", b =>

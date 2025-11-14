@@ -34,6 +34,7 @@ namespace PRISM.Migrations
                     LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    BusinessId = table.Column<int>(type: "int", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -52,23 +53,6 @@ namespace PRISM.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Businesses",
-                columns: table => new
-                {
-                    BusinessId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Industry = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Timezone = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Businesses", x => x.BusinessId);
                 });
 
             migrationBuilder.CreateTable(
@@ -178,6 +162,29 @@ namespace PRISM.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Businesses",
+                columns: table => new
+                {
+                    BusinessId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Industry = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Timezone = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Businesses", x => x.BusinessId);
+                    table.ForeignKey(
+                        name: "FK_Businesses_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RefreshTokens",
                 columns: table => new
                 {
@@ -247,27 +254,6 @@ namespace PRISM.Migrations
                     table.PrimaryKey("PK_Branches", x => x.BranchId);
                     table.ForeignKey(
                         name: "FK_Branches_Businesses_BusinessId",
-                        column: x => x.BusinessId,
-                        principalTable: "Businesses",
-                        principalColumn: "BusinessId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ExpenseCategories",
-                columns: table => new
-                {
-                    ExpenseCategoryId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    BusinessId = table.Column<int>(type: "int", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ExpenseCategories", x => x.ExpenseCategoryId);
-                    table.ForeignKey(
-                        name: "FK_ExpenseCategories_Businesses_BusinessId",
                         column: x => x.BusinessId,
                         principalTable: "Businesses",
                         principalColumn: "BusinessId",
@@ -348,14 +334,13 @@ namespace PRISM.Migrations
                     ExpenseId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BusinessId = table.Column<int>(type: "int", nullable: false),
-                    BranchId = table.Column<int>(type: "int", nullable: true),
-                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    BranchId = table.Column<int>(type: "int", nullable: false),
+                    Category = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Amount = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
                     ExpenseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     PaymentMethod = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    ExpenseCategoryId = table.Column<int>(type: "int", nullable: true)
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -372,17 +357,6 @@ namespace PRISM.Migrations
                         principalTable: "Businesses",
                         principalColumn: "BusinessId",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Expenses_ExpenseCategories_CategoryId",
-                        column: x => x.CategoryId,
-                        principalTable: "ExpenseCategories",
-                        principalColumn: "ExpenseCategoryId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Expenses_ExpenseCategories_ExpenseCategoryId",
-                        column: x => x.ExpenseCategoryId,
-                        principalTable: "ExpenseCategories",
-                        principalColumn: "ExpenseCategoryId");
                 });
 
             migrationBuilder.CreateTable(
@@ -623,14 +597,14 @@ namespace PRISM.Migrations
                 column: "BusinessId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Businesses_UserId",
+                table: "Businesses",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Customers_BranchId",
                 table: "Customers",
                 column: "BranchId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ExpenseCategories_BusinessId",
-                table: "ExpenseCategories",
-                column: "BusinessId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Expenses_BranchId",
@@ -641,16 +615,6 @@ namespace PRISM.Migrations
                 name: "IX_Expenses_BusinessId",
                 table: "Expenses",
                 column: "BusinessId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Expenses_CategoryId",
-                table: "Expenses",
-                column: "CategoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Expenses_ExpenseCategoryId",
-                table: "Expenses",
-                column: "ExpenseCategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Inventories_BranchId",
@@ -781,9 +745,6 @@ namespace PRISM.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "ExpenseCategories");
-
-            migrationBuilder.DropTable(
                 name: "Items");
 
             migrationBuilder.DropTable(
@@ -793,9 +754,6 @@ namespace PRISM.Migrations
                 name: "ItemCategories");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
                 name: "Customers");
 
             migrationBuilder.DropTable(
@@ -803,6 +761,9 @@ namespace PRISM.Migrations
 
             migrationBuilder.DropTable(
                 name: "Businesses");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
         }
     }
 }

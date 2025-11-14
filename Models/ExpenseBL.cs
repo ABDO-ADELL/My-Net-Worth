@@ -16,6 +16,7 @@ namespace PRISM.Models
             expense.ExpenseDate = DateTime.UtcNow;
             _context.Expenses.Add(expense);
 
+            await _context.SaveChangesAsync();
             return expense;
         }
 

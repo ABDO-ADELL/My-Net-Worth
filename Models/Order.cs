@@ -10,10 +10,10 @@ namespace PRISM.Models
 
             // Remove business_id and use BusinessId consistently
             public int BusinessId { get; set; }
-            public Business business { get; set; }
+            public Business? business { get; set; }
 
             public int BranchId { get; set; }
-            public Branch branch { get; set; }
+            public Branch? branch { get; set; }
 
             public string? UserId { get; set; }
             public AppUser? user { get; set; }
@@ -24,9 +24,9 @@ namespace PRISM.Models
 
             [ForeignKey("Customer")]
             public int CustomerId { get; set; }
-            public Customer Customer { get; set; }
+            public Customer? Customer { get; set; }
 
-            public ICollection<OrderItem> OrderItems { get; set; }
+            public ICollection<OrderItem>? OrderItems { get; set; }
             public bool IsDeleted { get; set; }
         }
     
