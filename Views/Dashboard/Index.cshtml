@@ -347,10 +347,16 @@ else
                     <h5 class="mb-0 fw-bold">
                         <i class="fas fa-receipt text-danger me-2"></i>Recent Expenses
                     </h5>
-                    <a asp-controller="Expenses" asp-action="Index" asp-route-businessId="@Model.BusinessId"
-                       class="btn btn-sm btn-outline-danger">
-                        View All
-                    </a>
+                    <div class="d-flex gap-2">
+                        <a asp-controller="Expenses" asp-action="Create" asp-route-businessId="@Model.BusinessId"
+                           class="btn btn-sm btn-success">
+                            <i class="fas fa-plus me-1"></i>Add Expense
+                        </a>
+                        <a asp-controller="Expenses" asp-action="Index" asp-route-businessId="@Model.BusinessId"
+                           class="btn btn-sm btn-outline-danger">
+                            View All
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     @if (Model.RecentExpenses.Any())

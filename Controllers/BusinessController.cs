@@ -31,6 +31,7 @@ namespace PRISM.Controllers
             }
             return View(business);
         }
+
         #region Create  
         [HttpGet]
         public IActionResult Create()
@@ -101,17 +102,61 @@ namespace PRISM.Controllers
         #endregion
 
         #region Delete
+        [HttpPost]
+        [HttpPost]
         public IActionResult Delete(int id)
         {
-            var business = _context.Businesses.FirstOrDefault(m => m.BusinessId == id);
+            var business = _context.Businesses
+                .Include(b => b.Branches)
+                .Include(b => b.Items)
+                .FirstOrDefault(m => m.BusinessId == id);
+
             if (business is null)
-            {
                 return NotFound();
+
+
+            bool hasRelations =
+                (business.Branches != null && business.Branches.Any()) ||
+                (business.Items != null && business.Items.Any());
+
+            if (hasRelations)
+            {
+                TempData["ErrorMessage"] = "This business cannot be deleted because it has related records (branches or items).";
+                return RedirectToAction(nameof(Index));
             }
-            _context.Businesses.Remove(business);
-            _context.SaveChanges();
+
+            try
+            {
+
+                business.IsDeleted = true;
+
+                business.Status = "Inactive";
+
+                _context.Businesses.Update(business);
+                _context.SaveChanges();
+
+                TempData["SuccessMessage"] = "Business deactivated successfully.";
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "An unexpected error occurred while deleting this business.";
+            }
+
             return RedirectToAction(nameof(Index));
         }
+
+
+        //public IActionResult Delete(int id)
+        //{
+        //    var business = _context.Businesses.FirstOrDefault(m => m.BusinessId == id);
+        //    if (business is null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    _context.Businesses.Remove(business);
+        //    _context.SaveChanges();
+        //    return RedirectToAction(nameof(Index));
+        //}
         #endregion
     }
 }

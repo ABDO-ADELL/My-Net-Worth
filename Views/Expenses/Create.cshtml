@@ -13,9 +13,16 @@
                 </div>
                 <div class="card-body">
                     <form asp-action="Create" method="post">
-                        <input type="hidden" asp-for="BusinessId" value="@ViewBag.BusinessId" />
 
                         <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="BusinessId" class="form-label">Business <span class="text-danger">*</span></label>
+                                <select asp-for="BusinessId" class="form-select" asp-items="ViewBag.Businesses" id="businessSelect">
+                                    <option value="">-- Select Business --</option>
+                                </select>
+                                <span asp-validation-for="BusinessId" class="text-danger small"></span>
+                            </div>
+
                             <div class="col-md-6 mb-3">
                                 <label asp-for="Amount" class="form-label">Amount <span class="text-danger">*</span></label>
                                 <div class="input-group">
@@ -24,7 +31,9 @@
                                 </div>
                                 <span asp-validation-for="Amount" class="text-danger small"></span>
                             </div>
+                        </div>
 
+                        <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label asp-for="Category" class="form-label">Category</label>
                                 <input asp-for="Category" class="form-control" list="categories" placeholder="Enter or select category..." />
@@ -42,17 +51,16 @@
                                 <span asp-validation-for="Category" class="text-danger small"></span>
                             </div>
 
-                        </div>
-
-                        <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label asp-for="BranchId" class="form-label">Branch</label>
-                                <select asp-for="BranchId" class="form-select" asp-items="ViewBag.Branches">
+                                <select asp-for="BranchId" class="form-select" asp-items="ViewBag.Branches" id="branchSelect">
                                     <option value="">-- Select Branch --</option>
                                 </select>
                                 <span asp-validation-for="BranchId" class="text-danger small"></span>
                             </div>
+                        </div>
 
+                        <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label asp-for="PaymentMethod" class="form-label">Payment Method <span class="text-danger">*</span></label>
                                 <select asp-for="PaymentMethod" class="form-select">
@@ -76,7 +84,7 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save me-2"></i>Save Expense
                             </button>
-                            <a asp-action="Index" asp-route-businessId="@ViewBag.BusinessId" class="btn btn-secondary">
+                            <a href="javascript:history.back()" class="btn btn-secondary">
                                 <i class="fas fa-times me-2"></i>Cancel
                             </a>
                         </div>
@@ -91,4 +99,42 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        $(document).ready(function () {
+            // When business is selected, load its branches
+            $('#businessSelect').change(function () {
+                var businessId = $(this).val();
+                var branchSelect = $('#branchSelect');
+
+                // Clear current branches
+                branchSelect.empty();
+                branchSelect.append('<option value="">-- Select Branch --</option>');
+
+                if (businessId) {
+                    // Load branches for selected business
+                    $.ajax({
+                        url: '@Url.Action("GetBranchesByBusiness", "Expenses")',
+                        type: 'GET',
+                        data: { businessId: businessId },
+                        success: function (data) {
+                            $.each(data, function (i, branch) {
+                                branchSelect.append($('<option></option>')
+                                    .attr('value', branch.value)
+                                    .text(branch.text));
+                            });
+                        },
+                        error: function () {
+                            alert('Error loading branches');
+                        }
+                    });
+                }
+            });
+
+            // Trigger change if business is already selected
+            if ($('#businessSelect').val()) {
+                $('#businessSelect').trigger('change');
+            }
+        });
+    </script>
 }

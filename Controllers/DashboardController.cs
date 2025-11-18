@@ -22,7 +22,7 @@ namespace PRISM.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var businesses = await _context.Businesses
-                .Where(b => !b.IsDeleted &&b.UserId==userId )
+                .Where(b => !b.IsDeleted && b.UserId == userId)
                 .Select(b => new { b.BusinessId, b.Name })
                 .ToListAsync();
 
@@ -45,6 +45,10 @@ namespace PRISM.Controllers
             {
                 businessId = businesses.First().BusinessId;
             }
+
+            // Store selected business in TempData for other pages to use
+            TempData["SelectedBusinessId"] = businessId.Value;
+            TempData.Keep("SelectedBusinessId");
 
             var viewModel = new DashboardViewModel
             {
@@ -90,6 +94,14 @@ namespace PRISM.Controllers
                     .Take(5)
                     .ToListAsync(),
 
+                // Recent Expenses (Last 5) - Added this
+                RecentExpenses = await _context.Expenses
+                    .Include(e => e.Branch)
+                    .Where(e => e.BusinessId == businessId.Value && !e.IsDeleted)
+                    .OrderByDescending(e => e.ExpenseDate)
+                    .Take(5)
+                    .ToListAsync(),
+
                 // Monthly Revenue (Last 6 months)
                 MonthlyRevenue = await GetMonthlyRevenue(businessId.Value),
 
@@ -98,7 +110,6 @@ namespace PRISM.Controllers
 
                 // Top Selling Items (Top 5)
                 TopSellingItems = await GetTopSellingItems(businessId.Value),
-
 
                 // Low Stock Items (if quantity < MinStockLevel)
                 LowStockItems = await _context.Inventories
@@ -116,7 +127,7 @@ namespace PRISM.Controllers
 
             // Get business list for dropdown
             ViewBag.Businesses = await _context.Businesses
-                .Where(b => !b.IsDeleted)
+                .Where(b => !b.IsDeleted && b.UserId == userId)
                 .Select(b => new { b.BusinessId, b.Name })
                 .ToListAsync();
 

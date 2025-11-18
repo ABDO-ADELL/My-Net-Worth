@@ -31,12 +31,12 @@ namespace PRISM.Models
         {
             var query = _context.Expenses
                 .Include(e => e.Branch)
-                .Where(e => !e.IsDeleted && e.BusinessId == businessId);
+                .Where(e => !e.IsDeleted && e.BusinessId == businessId && !e.Branch.IsDeleted);
 
             if (branchId.HasValue)
                 query = query.Where(e => e.BranchId == branchId.Value);
 
-            // ✅ فلترة حسب الاسم النصي
+          
             if (!string.IsNullOrEmpty(category))
                 query = query.Where(e => e.Category != null && e.Category == category);
 
