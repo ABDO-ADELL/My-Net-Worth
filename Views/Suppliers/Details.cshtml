@@ -1,0 +1,264 @@
+﻿
+@model Supplier
+@{
+    ViewData["Title"] = "Supplier Details";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>@ViewData["Title"]</h2>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.SupplierId" class="btn btn-warning">
+                <i class="bi bi-pencil-square"></i> Edit
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <!-- Supplier Information Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="bi bi-person-badge"></i> Supplier Information</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <strong><i class="bi bi-person"></i> Name:</strong>
+                        <span>@Model.Name</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <strong><i class="bi bi-envelope"></i> Email:</strong>
+                        <span>
+                            @if (!string.IsNullOrEmpty(Model.Email))
+                            {
+                                <a href="mailto:@Model.Email">@Model.Email</a>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Not provided</span>
+                            }
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <strong><i class="bi bi-telephone"></i> Phone:</strong>
+                        <span>
+                            @if (!string.IsNullOrEmpty(Model.Phone))
+                            {
+                                <a href="tel:@Model.Phone">@Model.Phone</a>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Not provided</span>
+                            }
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-item">
+                        <strong><i class="bi bi-info-circle"></i> Status:</strong>
+                        <span>
+                            @if (Model.IsDeleted)
+                            {
+                                <span class="badge bg-danger">Deleted</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supplier Items Card -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0"><i class="bi bi-box-seam"></i> Supplier Items</h4>
+        </div>
+        <div class="card-body">
+            @if (Model.SupplierItems != null && Model.SupplierItems.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th><i class="bi bi-box"></i> Item Name</th>
+                                <th><i class="bi bi-cash-stack"></i> Purchase Price</th>
+                                <th><i class="bi bi-credit-card"></i> Payment Method</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var index = 1;
+                            }
+                            @foreach (var item in Model.SupplierItems)
+                            {
+                                <tr>
+                                    <td>@index</td>
+                                    <td>
+                                        <strong>@item.Item?.Name</strong>
+                                        @if (!string.IsNullOrEmpty(item.Item?.Sku))
+                                        {
+                                            <br />
+                                            <small class="text-muted">SKU: @item.Item.Sku</small>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info text-dark">
+                                            @item.PurchasePrice.ToString("C")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge" style="background-color: @GetPaymentMethodColor(item.PaymentMethod)">
+                                            @GetPaymentMethodIcon(item.PaymentMethod) @item.PaymentMethod
+                                        </span>
+                                    </td>
+                                </tr>
+                                index++;
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-light">
+                                <td colspan="2" class="text-end"><strong>Total Items:</strong></td>
+                                <td colspan="2"><strong>@Model.SupplierItems.Count item(s)</strong></td>
+                            </tr>
+                            <tr class="table-light">
+                                <td colspan="2" class="text-end"><strong>Total Purchase Value:</strong></td>
+                                <td colspan="2">
+                                    <strong class="text-primary">
+                                        @Model.SupplierItems.Sum(x => x.PurchasePrice).ToString("C")
+                                    </strong>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info text-center" role="alert">
+                    <i class="bi bi-info-circle fs-1"></i>
+                    <p class="mt-2 mb-0">No items associated with this supplier yet.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mt-4 mb-4">
+        <a asp-action="Edit" asp-route-id="@Model.SupplierId" class="btn btn-warning btn-lg">
+            <i class="bi bi-pencil-square"></i> Edit Supplier
+        </a>
+        <a asp-action="Delete" asp-route-id="@Model.SupplierId" class="btn btn-danger btn-lg">
+            <i class="bi bi-trash"></i> Delete Supplier
+        </a>
+        <a asp-action="Index" class="btn btn-secondary btn-lg">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+</div>
+
+@functions {
+    string GetPaymentMethodColor(string method)
+    {
+        return method switch
+        {
+            "Cash" => "#28a745",
+            "Credit Card" => "#007bff",
+            "Debit Card" => "#17a2b8",
+            "Bank Transfer" => "#6610f2",
+            "E-Wallet" => "#fd7e14",
+            "Check" => "#6c757d",
+            _ => "#6c757d"
+        };
+    }
+
+    string GetPaymentMethodIcon(string method)
+    {
+        return method switch
+        {
+            "Cash" => "💵",
+            "Credit Card" => "💳",
+            "Debit Card" => "💳",
+            "Bank Transfer" => "🏦",
+            "E-Wallet" => "📱",
+            "Check" => "📝",
+            _ => "💰"
+        };
+    }
+}
+
+<style>
+    .detail-item {
+        padding: 12px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+
+    .detail-item strong {
+        color: #495057;
+        display: inline-block;
+        min-width: 120px;
+    }
+
+    .detail-item span {
+        color: #212529;
+        font-weight: 500;
+    }
+
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+        padding: 15px 20px;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    .badge {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .btn-lg {
+        padding: 10px 25px;
+        font-size: 1rem;
+        border-radius: 8px;
+    }
+
+    .alert {
+        border-radius: 10px;
+    }
+
+    a[href^="mailto:"], a[href^="tel:"] {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    a[href^="mailto:"]:hover, a[href^="tel:"]:hover {
+        text-decoration: underline;
+    }
+</style>

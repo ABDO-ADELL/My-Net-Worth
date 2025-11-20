@@ -13,7 +13,7 @@ namespace PRISM.Models
         public bool IsDeleted { get; set; }
 
         // Relations
-        public string UserId { get; set; }
+        public string ?UserId { get; set; }
         [ForeignKey("UserId")]
         public AppUser? Users { get; set; }
         public ICollection<Branch>? Branches { get; set; }

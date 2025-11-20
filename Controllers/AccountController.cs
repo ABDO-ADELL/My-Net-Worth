@@ -9,7 +9,7 @@ using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace PRISM.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class AccountController : Controller
     {
         private readonly AppDbContext _context;

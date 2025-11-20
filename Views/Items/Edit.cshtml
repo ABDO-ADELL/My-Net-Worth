@@ -1,74 +1,151 @@
-﻿@model PRISM.Items
+﻿@using PRISM.Models
+@model Supplier
+@using Microsoft.AspNetCore.Mvc.Rendering
 
 @{
-    ViewData["Title"] = "Edit Item";
+    ViewData["Title"] = "Edit Supplier";
+    var allItems = ViewBag.Items as List<SelectListItem> ?? new List<SelectListItem>();
 }
 
 <div class="container mt-4">
     <h2>@ViewData["Title"]</h2>
 
     <form asp-action="Edit" method="post">
-        <input type="hidden" asp-for="ItemId" />
+        <input type="hidden" asp-for="SupplierId" />
 
         <div class="mb-3">
-            <label asp-for="Name" class="form-label"></label>
+            <label asp-for="Name" class="form-label">Supplier Name</label>
             <input asp-for="Name" class="form-control" />
             <span asp-validation-for="Name" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Sku" class="form-label">SKU</label>
-            <input asp-for="Sku" class="form-control" />
-            <span asp-validation-for="Sku" class="text-danger"></span>
+            <label asp-for="Email" class="form-label">Email</label>
+            <input asp-for="Email" type="email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="CostPrice" class="form-label">Cost Price</label>
-            <input asp-for="CostPrice" class="form-control" />
-            <span asp-validation-for="CostPrice" class="text-danger"></span>
+            <label asp-for="Phone" class="form-label">Phone</label>
+            <input asp-for="Phone" class="form-control" />
+            <span asp-validation-for="Phone" class="text-danger"></span>
         </div>
+
+        <hr />
+        <h4>Supplier Items</h4>
+
+        <div id="itemsContainer">
+            @if (Model.SupplierItems != null && Model.SupplierItems.Any())
+            {
+                var index = 0;
+                foreach (var item in Model.SupplierItems)
+                {
+                    <div class="row mb-3">
+                        <input type="hidden" asp-for="@item.SupplierItemId" name="SupplierItems[@index].SupplierItemId" />
+
+                        <div class="col-md-4">
+                            <label class="form-label">Item</label>
+                            <select asp-for="@item.ItemId" name="SupplierItems[@index].ItemId" class="form-select">
+                                <option value="">-- Select Item --</option>
+                                @foreach (var it in allItems)
+                                {
+                                    <option value="@it.Value" selected="@(item.ItemId.ToString() == it.Value ? "selected" : "")">@it.Text</option>
+                                }
+                            </select>
+                            <span class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Purchase Price</label>
+                            <input asp-for="@item.PurchasePrice" name="SupplierItems[@index].PurchasePrice" class="form-control" />
+                            <span class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Payment Method</label>
+                            <select asp-for="@item.PaymentMethod" name="SupplierItems[@index].PaymentMethod" class="form-select">
+                                <option value="">-- Select Method --</option>
+                                <option value="Cash" selected="@(item.PaymentMethod == "Cash" ? "selected" : "")">Cash</option>
+                                <option value="Credit Card" selected="@(item.PaymentMethod == "Credit Card" ? "selected" : "")">Credit Card</option>
+                                <option value="Debit Card" selected="@(item.PaymentMethod == "Debit Card" ? "selected" : "")">Debit Card</option>
+                                <option value="Bank Transfer" selected="@(item.PaymentMethod == "Bank Transfer" ? "selected" : "")">Bank Transfer</option>
+                                <option value="E-Wallet" selected="@(item.PaymentMethod == "E-Wallet" ? "selected" : "")">E-Wallet</option>
+                                <option value="Check" selected="@(item.PaymentMethod == "Check" ? "selected" : "")">Check</option>
+                            </select>
+                            <span class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="button" class="btn btn-danger w-100 removeItemBtn">Remove</button>
+                        </div>
+                    </div>
+                    index++;
+                }
+            }
+            else
+            {
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Item</label>
+                        <select name="SupplierItems[0].ItemId" class="form-select">
+                            <option value="">-- Select Item --</option>
+                            @foreach (var it in allItems)
+                            {
+                                <option value="@it.Value">@it.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Purchase Price</label>
+                        <input name="SupplierItems[0].PurchasePrice" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Payment Method</label>
+                        <select name="SupplierItems[0].PaymentMethod" class="form-select">
+                            <option value="">-- Select Method --</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Credit Card">Credit Card</option>
+                            <option value="Debit Card">Debit Card</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="E-Wallet">E-Wallet</option>
+                            <option value="Check">Check</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-danger w-100 removeItemBtn">Remove</button>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <button type="button" class="btn btn-secondary mb-3" id="addItemBtn">Add Item</button>
 
         <div class="mb-3">
-            <label asp-for="SellPrice" class="form-label">Sell Price</label>
-            <input asp-for="SellPrice" class="form-control" />
-            <span asp-validation-for="SellPrice" class="text-danger"></span>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
         </div>
-
-        <div class="mb-3">
-            <label asp-for="CategoryId" class="form-label">Category</label>
-            <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories"></select>
-            <span asp-validation-for="CategoryId" class="text-danger"></span>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="BranchId" class="form-label">Branch</label>
-            <select asp-for="BranchId" class="form-select" asp-items="ViewBag.Branches"></select>
-            <span asp-validation-for="BranchId" class="text-danger"></span>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="BusinessId" class="form-label">Business</label>
-            <select asp-for="BusinessId" class="form-select" asp-items="ViewBag.Businesses"></select>
-            <span asp-validation-for="BusinessId" class="text-danger"></span>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="DurationMinutes" class="form-label">Duration (minutes)</label>
-            <input asp-for="DurationMinutes" class="form-control" />
-            <span asp-validation-for="DurationMinutes" class="text-danger"></span>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="Description" class="form-label">Description</label>
-            <textarea asp-for="Description" class="form-control"></textarea>
-            <span asp-validation-for="Description" class="text-danger"></span>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Save</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function(){
+            var container = $('#itemsContainer');
+            $('#addItemBtn').click(function(){
+                var lastRow = container.find('.row').last();
+                var newRow = lastRow.clone();
+                newRow.find('input, select').val('');
+                container.append(newRow);
+            });
+
+            container.on('click', '.removeItemBtn', function(){
+                if(container.find('.row').length > 1){
+                    $(this).closest('.row').remove();
+                } else {
+                    alert('At least one item required');
+                }
+            });
+        });
+    </script>
 }

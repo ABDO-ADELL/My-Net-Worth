@@ -1,0 +1,151 @@
+﻿@using PRISM.Models
+@model Supplier
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "Add Supplier";
+}
+
+<h2>Add New Supplier</h2>
+
+<form asp-action="Create" method="post">
+    <!-- Supplier Info -->
+    <div class="form-group mt-2">
+        <label asp-for="Name">Supplier Name</label>
+        <input asp-for="Name" class="form-control" required />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mt-2">
+        <label asp-for="Email">Email</label>
+        <input asp-for="Email" class="form-control" required />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mt-2">
+        <label asp-for="Phone">Phone</label>
+        <input asp-for="Phone" class="form-control" required />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+
+    <!-- Items Section -->
+    <h4 class="mt-4">Supplier Items</h4>
+    <div id="itemsContainer">
+        <div class="item-row row mt-2">
+
+            <!-- Item DropDown -->
+            <div class="col-md-4">
+                <select name="SupplierItems[0].ItemId" class="form-control" required>
+                    <option value="">-- Select Item --</option>
+                    @foreach (var item in (List<SelectListItem>)ViewBag.Items)
+                    {
+                        <option value="@item.Value">@item.Text</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Purchase Price -->
+            <div class="col-md-3">
+                <input type="number" step="0.01" name="SupplierItems[0].PurchasePrice" placeholder="Purchase Price" class="form-control" required />
+            </div>
+
+            <!-- Payment Method -->
+            <div class="col-md-3">
+                <select name="SupplierItems[0].PaymentMethod" class="form-select" required>
+                    <option value="">-- Select Method --</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="Debit Card">Debit Card</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="E-Wallet">E-Wallet</option>
+                    <option value="Check">Check</option>
+                </select>
+            </div>
+
+            <!-- Remove Button -->
+            <div class="col-md-2">
+                <button type="button" class="btn btn-danger removeItemBtn">Remove</button>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" class="btn btn-secondary mt-2" id="addItemBtn">+ Add Item</button>
+    <button type="submit" class="btn btn-primary mt-3">Add Supplier</button>
+</form>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success mt-3">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+        $(document).ready(function () {
+
+            function updateIndexes() {
+                $('#itemsContainer .item-row').each(function (index) {
+                    $(this).find('input, select').each(function () {
+                        var name = $(this).attr('name');
+                        if (name.includes('SupplierItems')) {
+                            var newName = name.replace(/\[\d+\]/, '[' + index + ']');
+                            $(this).attr('name', newName);
+                        }
+                    });
+                });
+            }
+
+            // Add new row
+            $('#addItemBtn').click(function () {
+                let index = $('#itemsContainer .item-row').length;
+
+                var newRow = `
+                <div class="item-row row mt-2">
+                    <div class="col-md-4">
+                        <select name="SupplierItems[${index}].ItemId" class="form-control" required>
+                            <option value="">-- Select Item --</option>
+                            @foreach (var item in (List<SelectListItem>)ViewBag.Items)
+                            {
+                                    <option value="@item.Value">@item.Text</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <input type="number" step="0.01" name="SupplierItems[${index}].PurchasePrice" placeholder="Purchase Price" class="form-control" required />
+                    </div>
+
+                    <div class="col-md-3">
+                        <select name="SupplierItems[${index}].PaymentMethod" class="form-select" required>
+                            <option value="">-- Select Method --</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Credit Card">Credit Card</option>
+                            <option value="Debit Card">Debit Card</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="E-Wallet">E-Wallet</option>
+                            <option value="Check">Check</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-danger removeItemBtn">Remove</button>
+                    </div>
+                </div>`;
+
+                $('#itemsContainer').append(newRow);
+            });
+
+            // Remove row
+            $(document).on('click', '.removeItemBtn', function () {
+                if ($('#itemsContainer .item-row').length > 1) {
+                    $(this).closest('.item-row').remove();
+                    updateIndexes();
+                }
+            });
+
+        });
+    </script>
+}

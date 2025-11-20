@@ -1,0 +1,178 @@
+﻿@using PRISM.Models
+@model Supplier
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "Edit Supplier";
+}
+
+<h2>Edit Supplier</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="SupplierId" />
+
+    <!-- Supplier Info -->
+    <div class="form-group mt-2">
+        <label asp-for="Name">Supplier Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mt-2">
+        <label asp-for="Email">Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mt-2">
+        <label asp-for="Phone">Phone</label>
+        <input asp-for="Phone" class="form-control" />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+
+    <!-- Items Section -->
+    <h4 class="mt-4">Supplier Items</h4>
+
+    <div id="itemsContainer">
+
+        @for (int i = 0; i < Model.SupplierItems.Count; i++)
+        {
+            <div class="item-row row mt-2">
+
+                <!-- Hidden ID -->
+                <input type="hidden" name="SupplierItems[@i].SupplierItemId" value="@Model.SupplierItems.ElementAt(i).SupplierItemId" />
+
+                <!-- Hidden SupplierId -->
+                <input type="hidden" name="SupplierItems[@i].SupplierId" value="@Model.SupplierId" />
+
+                <!-- Item DropDown -->
+                @{
+                    var supplierItem = Model.SupplierItems[i];
+                }
+
+                <div class="col-md-4">
+                    <select name="SupplierItems[@i].ItemId" class="form-control">
+                        <option value="">-- Select Item --</option>
+                        @foreach (var item in (List<SelectListItem>)ViewBag.Items)
+                        {
+                            if (supplierItem.ItemId.ToString() == item.Value)
+                            {
+                                <option value="@item.Value" selected>@item.Text</option>
+                            }
+                            else
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        }
+                    </select>
+
+
+                </div>
+
+
+
+
+                <!-- Purchase Price -->
+                <div class="col-md-3">
+                    <input type="number" step="0.01"
+                           name="SupplierItems[@i].PurchasePrice"
+                           value="@Model.SupplierItems.ElementAt(i).PurchasePrice"
+                           placeholder="Purchase Price"
+                           class="form-control" />
+                </div>
+
+                <!-- Payment Method -->
+                <div class="col-md-3">
+                    <select name="SupplierItems[@i].PaymentMethod" class="form-select">
+                        <option value="">-- Select Method --</option>
+                        @{
+                            string pm = Model.SupplierItems.ElementAt(i).PaymentMethod;
+                        }
+                        <option value="Cash" selected="@(pm == "Cash" ? "selected" : null)">Cash</option>
+                        <option value="Credit Card" selected="@(pm == "Credit Card" ? "selected" : null)">Credit Card</option>
+                        <option value="Debit Card" selected="@(pm == "Debit Card" ? "selected" : null)">Debit Card</option>
+                        <option value="Bank Transfer" selected="@(pm == "Bank Transfer" ? "selected" : null)">Bank Transfer</option>
+                        <option value="E-Wallet" selected="@(pm == "E-Wallet" ? "selected" : null)">E-Wallet</option>
+                        <option value="Check" selected="@(pm == "Check" ? "selected" : null)">Check</option>
+                    </select>
+                </div>
+
+                <!-- Remove -->
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-danger removeItemBtn">Remove</button>
+                </div>
+            </div>
+        }
+    </div>
+
+    <button type="button" id="addItemBtn" class="btn btn-secondary mt-2">
+        + Add Item
+    </button>
+
+    <button type="submit" class="btn btn-primary mt-3">
+        Save Changes
+    </button>
+</form>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+        $(document).ready(function () {
+
+            let index = @Model.SupplierItems.Count;
+
+            // Add new item row
+            $('#addItemBtn').click(function () {
+
+                var newRow = `
+                <div class="item-row row mt-2">
+
+                    <input type="hidden" name="SupplierItems[${index}].SupplierItemId" value="0" />
+                    <input type="hidden" name="SupplierItems[${index}].SupplierId" value="@Model.SupplierId" />
+
+                    <div class="col-md-4">
+                        <select name="SupplierItems[${index}].ItemId" class="form-control">
+                            <option value="">-- Select Item --</option>
+                            @foreach (var item in (List<SelectListItem>)ViewBag.Items)
+                            {
+                                    <option value="@item.Value">@item.Text</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <input type="number" step="0.01" name="SupplierItems[${index}].PurchasePrice" class="form-control" placeholder="Purchase Price" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <select name="SupplierItems[${index}].PaymentMethod" class="form-select">
+                            <option value="">-- Select Method --</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Credit Card">Credit Card</option>
+                            <option value="Debit Card">Debit Card</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="E-Wallet">E-Wallet</option>
+                            <option value="Check">Check</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-danger removeItemBtn">Remove</button>
+                    </div>
+                </div>`;
+
+                $('#itemsContainer').append(newRow);
+                index++;
+            });
+
+            // Remove row
+            $(document).on('click', '.removeItemBtn', function () {
+                if ($('.item-row').length > 1) {
+                    $(this).closest('.item-row').remove();
+                }
+            });
+
+        });
+    </script>
+}

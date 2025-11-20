@@ -20,6 +20,8 @@ namespace PRISM
 
         public DbSet<ItemCategory> ItemCategories { get; set; }
         public DbSet<Items> Items { get; set; }
+        public DbSet<Supplier> Suppliers { get; set; }
+        public DbSet<SupplierItem> SupplierItems { get; set; }
         public DbSet<Inventory> Inventories { get; set; }
 
         public DbSet<Order> Orders { get; set; }
@@ -147,6 +149,19 @@ namespace PRISM
                 .OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(modelBuilder);
+
+            // Supplier relationships
+            modelBuilder.Entity<Supplier>()
+                .HasMany(s => s.SupplierItems)
+                .WithOne(si => si.Supplier)
+                .HasForeignKey(si => si.SupplierId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<SupplierItem>()
+                .HasOne(si => si.Item)
+                .WithMany() // لو مش عايز تربطه بالـ Items navigation property
+                .HasForeignKey(si => si.ItemId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
     }

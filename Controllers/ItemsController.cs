@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using PRISM.Models;
 using System.Linq;
 using System.Threading.Tasks;
-using PRISM.Models;
 
 namespace PRISM.Controllers
 {
