@@ -96,6 +96,7 @@ namespace PRISM
             app.MapStaticAssets();
             app.MapControllerRoute(
                 name: "default",
+<<<<<<< HEAD
                pattern: "{controller=Register}/{action=Login}/{id?}")
                .WithStaticAssets();
            // app.MapControllerRoute(
@@ -103,6 +104,12 @@ namespace PRISM
    //pattern: "{controller=Home}/{action=Index}/{id?}");
             //app.MapControllers()
             //.WithStaticAssets();
+=======
+                pattern: "{controller=Dashboard}/{action=index}/{id?}")
+                .WithStaticAssets();
+            app.MapControllers();
+
+>>>>>>> ba28e1e28b2ab9ac859f69cab00ca586fa874075
             app.Run();
 
         }
