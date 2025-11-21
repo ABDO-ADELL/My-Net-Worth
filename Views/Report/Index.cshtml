@@ -1,0 +1,510 @@
+﻿@model ReportViewModel
+
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="fas fa-chart-bar text-primary me-2"></i>Reports & Analytics
+            </h2>
+            <p class="text-muted mb-0">Generate comprehensive business reports</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-outline-secondary">
+                <i class="fas fa-print me-2"></i>Print Report
+            </button>
+            <a asp-action="ExportToExcel"
+               asp-route-businessId="@Model.BusinessId"
+               asp-route-startDate="@Model.StartDate.ToString("yyyy-MM-dd")"
+               asp-route-endDate="@Model.EndDate.ToString("yyyy-MM-dd")"
+               class="btn btn-success">
+                <i class="fas fa-file-excel me-2"></i>Export to Excel
+            </a>
+        </div>
+    </div>
+
+    @if (ViewBag.NoBusiness == true)
+    {
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            No business found. Please create a business first.
+        </div>
+    }
+    else
+    {
+        <!-- Filters Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0">
+                    <i class="fas fa-filter me-2"></i>Report Filters
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Index" method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Business</label>
+                        <select name="businessId" class="form-select">
+                            <option value="">All Businesses</option>
+                            @foreach (var business in ViewBag.Businesses)
+                            {
+                                <option value="@business.BusinessId" selected="@(business.BusinessId == ViewBag.SelectedBusinessId)">
+                                    @business.Name
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Start Date</label>
+                        <input type="date" name="startDate" class="form-control" value="@Model.StartDate.ToString("yyyy-MM-dd")" required />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">End Date</label>
+                        <input type="date" name="endDate" class="form-control" value="@Model.EndDate.ToString("yyyy-MM-dd")" required />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Report Type</label>
+                        <select name="reportType" class="form-select">
+                            <option value="summary" selected="@(Model.ReportType == "summary")">Summary</option>
+                            <option value="detailed" selected="@(Model.ReportType == "detailed")">Detailed</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-sync me-2"></i>Generate Report
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-redo me-2"></i>Reset Filters
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Report Period Info -->
+        <div class="alert alert-info border-0 shadow-sm mb-4">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-info-circle fa-2x me-3"></i>
+                <div>
+                    <strong>Report Period:</strong> @Model.StartDate.ToString("MMM dd, yyyy") - @Model.EndDate.ToString("MMM dd, yyyy")
+                    @if (Model.BusinessId.HasValue)
+                    {
+                        var selectedBusiness = ((List<Business>)ViewBag.Businesses).FirstOrDefault(b => b.BusinessId == Model.BusinessId.Value);
+                        if (selectedBusiness != null)
+                        {
+                            <span class="ms-3">| <strong>Business:</strong> @selectedBusiness.Name</span>
+                        }
+                    }
+                    else
+                    {
+                        <span class="ms-3">| <strong>Showing:</strong> All Businesses</span>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="card stat-card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted mb-1 small">Total Revenue</p>
+                                <h3 class="fw-bold mb-0 text-success">$@Model.TotalRevenue.ToString("N2")</h3>
+                            </div>
+                            <div class="icon-box bg-success-light">
+                                <i class="fas fa-dollar-sign text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card stat-card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted mb-1 small">Total Expenses</p>
+                                <h3 class="fw-bold mb-0 text-danger">$@Model.TotalExpenses.ToString("N2")</h3>
+                            </div>
+                            <div class="icon-box bg-danger-light">
+                                <i class="fas fa-money-bill-wave text-danger"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card stat-card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted mb-1 small">Net Profit</p>
+                                <h3 class="fw-bold mb-0 @(Model.TotalProfit >= 0 ? "text-primary" : "text-danger")">
+                                    $@Model.TotalProfit.ToString("N2")
+                                </h3>
+                            </div>
+                            <div class="icon-box bg-primary-light">
+                                <i class="fas fa-chart-line text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card stat-card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="text-muted mb-1 small">Total Orders</p>
+                                <h3 class="fw-bold mb-0 text-info">@Model.TotalOrders</h3>
+                            </div>
+                            <div class="icon-box bg-info-light">
+                                <i class="fas fa-shopping-cart text-info"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Performance -->
+        @if (Model.BusinessPerformance.Any())
+        {
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-building me-2 text-primary"></i>Business Performance
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Business Name</th>
+                                    <th class="text-center">Total Orders</th>
+                                    <th class="text-end">Revenue</th>
+                                    <th class="text-end">Expenses</th>
+                                    <th class="text-end">Profit</th>
+                                    <th class="text-end">Avg Order Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var perf in Model.BusinessPerformance)
+                                {
+                                    var profit = perf.TotalRevenue - perf.TotalExpenses;
+                                    <tr>
+                                        <td class="fw-semibold">@perf.BusinessName</td>
+                                        <td class="text-center">
+                                            <span class="badge bg-info">@perf.TotalOrders</span>
+                                        </td>
+                                        <td class="text-end text-success fw-bold">$@perf.TotalRevenue.ToString("N2")</td>
+                                        <td class="text-end text-danger">$@perf.TotalExpenses.ToString("N2")</td>
+                                        <td class="text-end fw-bold @(profit >= 0 ? "text-primary" : "text-danger")">
+                                            $@profit.ToString("N2")
+                                        </td>
+                                        <td class="text-end">$@perf.AverageOrderValue.ToString("N2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Charts Row -->
+        <div class="row g-4 mb-4">
+            <!-- Top Selling Items -->
+            @if (Model.TopSellingItems.Any())
+            {
+                <div class="col-lg-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-white border-0 py-3">
+                            <h5 class="mb-0">
+                                <i class="fas fa-fire me-2 text-danger"></i>Top Selling Items
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Item Name</th>
+                                            <th class="text-center">Qty Sold</th>
+                                            <th class="text-end">Revenue</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            int rank = 1;
+                                        }
+                                        @foreach (var item in Model.TopSellingItems)
+                                        {
+                                            <tr>
+                                                <td class="fw-bold">@rank</td>
+                                                <td>@item.ItemName</td>
+                                                <td class="text-center">
+                                                    <span class="badge bg-info">@item.TotalQuantitySold</span>
+                                                </td>
+                                                <td class="text-end text-success fw-bold">$@item.TotalRevenue.ToString("N2")</td>
+                                            </tr>
+                                            rank++;
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Expense Breakdown -->
+            @if (Model.ExpensesByCategory.Any())
+            {
+                <div class="col-lg-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-white border-0 py-3">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-pie me-2 text-warning"></i>Expenses by Category
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Category</th>
+                                            <th class="text-center">Count</th>
+                                            <th class="text-end">Amount</th>
+                                            <th class="text-end">%</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var cat in Model.ExpensesByCategory)
+                                        {
+                                            var percentage = (cat.TotalAmount / Model.TotalExpenses * 100);
+                                            <tr>
+                                                <td class="fw-semibold">@cat.Category</td>
+                                                <td class="text-center">
+                                                    <span class="badge bg-secondary">@cat.Count</span>
+                                                </td>
+                                                <td class="text-end text-danger fw-bold">$@cat.TotalAmount.ToString("N2")</td>
+                                                <td class="text-end">@percentage.ToString("N1")%</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Top Customers -->
+        @if (Model.TopCustomers.Any())
+        {
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users me-2 text-primary"></i>Top Customers
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Customer Name</th>
+                                    <th class="text-center">Total Orders</th>
+                                    <th class="text-end">Total Spent</th>
+                                    <th class="text-end">Avg Order</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    int custRank = 1;
+                                }
+                                @foreach (var customer in Model.TopCustomers)
+                                {
+                                    var avgOrder = customer.TotalOrders > 0 ? customer.TotalSpent / customer.TotalOrders : 0;
+                                    <tr>
+                                        <td class="fw-bold">@custRank</td>
+                                        <td>@customer.CustomerName</td>
+                                        <td class="text-center">
+                                            <span class="badge bg-info">@customer.TotalOrders</span>
+                                        </td>
+                                        <td class="text-end text-success fw-bold">$@customer.TotalSpent.ToString("N2")</td>
+                                        <td class="text-end">$@avgOrder.ToString("N2")</td>
+                                    </tr>
+                                    custRank++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Detailed Tables (if reportType is detailed) -->
+        @if (Model.ReportType == "detailed")
+        {
+            <!-- Orders Table -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shopping-cart me-2 text-primary"></i>All Orders (@Model.Orders.Count)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Orders.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Order Name</th>
+                                        <th>Business</th>
+                                        <th>Customer</th>
+                                        <th>Date</th>
+                                        <th class="text-end">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in Model.Orders)
+                                    {
+                                        <tr>
+                                            <td>#@order.Id</td>
+                                            <td>@order.OrderName</td>
+                                            <td>@order.business?.Name</td>
+                                            <td>@order.Customer?.FullName</td>
+                                            <td>@order.datetime.ToString("MMM dd, yyyy")</td>
+                                            <td class="text-end text-success fw-bold">$@order.total_amount.ToString("N2")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Expenses Table -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-money-bill-wave me-2 text-danger"></i>All Expenses (@Model.Expenses.Count)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Expenses.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Business</th>
+                                        <th>Category</th>
+                                        <th>Date</th>
+                                        <th>Payment Method</th>
+                                        <th class="text-end">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var expense in Model.Expenses)
+                                    {
+                                        <tr>
+                                            <td>@expense.Business?.Name</td>
+                                            <td>
+                                                <span class="badge bg-secondary">@(expense.Category ?? "Uncategorized")</span>
+                                            </td>
+                                            <td>@expense.ExpenseDate.ToString("MMM dd, yyyy")</td>
+                                            <td>@expense.PaymentMethod</td>
+                                            <td class="text-end text-danger fw-bold">$@expense.Amount.ToString("N2")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<style>
+    .stat-card {
+        transition: transform 0.3s, box-shadow 0.3s;
+        border-radius: 12px;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+        }
+
+    .icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+
+    .bg-success-light {
+        background-color: rgba(17, 153, 142, 0.1);
+    }
+
+    .bg-danger-light {
+        background-color: rgba(239, 68, 68, 0.1);
+    }
+
+    .bg-primary-light {
+        background-color: rgba(102, 126, 234, 0.1);
+    }
+
+    .bg-info-light {
+        background-color: rgba(79, 172, 254, 0.1);
+    }
+
+    .card {
+        border-radius: 12px;
+    }
+
+    .table th {
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    @@media print {
+        .btn, .card-header .fas, .no-print {
+            display: none !important;
+        }
+
+        .card {
+            page-break-inside: avoid;
+            box-shadow: none !important;
+        }
+    }
+</style>

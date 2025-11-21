@@ -71,8 +71,6 @@ namespace PRISM.Controllers
 
             return View();
         }
-
-        // POST: Order/Create
         // POST: Order/Create
         [HttpPost]
         [ValidateAntiForgeryToken]

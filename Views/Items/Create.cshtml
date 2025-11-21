@@ -88,4 +88,50 @@
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+        $("#BusinessId").change(function () {
+            var businessId = $(this).val();
+
+            // Reset Branch dropdown
+            $("#BranchId").empty();
+            $("#BranchId").append('<option value="">-- Select Branch --</option>');
+
+            // Reset Category dropdown
+            $("#CategoryId").empty();
+            $("#CategoryId").append('<option value="">-- Select Category --</option>');
+
+            if (businessId) {
+
+                // Load Branches
+                $.ajax({
+                    url: '/Items/GetBranches',
+                    type: 'GET',
+                    data: { businessId: businessId },
+                    success: function (branches) {
+                        $.each(branches, function (i, branch) {
+                            $("#BranchId").append(
+                                `<option value="${branch.branchId}">${branch.branchName}</option>`
+                            );
+                        });
+                    }
+                });
+
+                // Load Categories
+                $.ajax({
+                    url: '/Items/GetCategories',
+                    type: 'GET',
+                    data: { businessId: businessId },
+                    success: function (categories) {
+                        $.each(categories, function (i, category) {
+                            $("#CategoryId").append(
+                                `<option value="${category.categoryId}">${category.categoryName}</option>`
+                            );
+                        });
+                    }
+                });
+
+            }
+        });
+    </script>
 }

@@ -166,12 +166,39 @@ namespace PRISM.Controllers
 
             return View(item);
         }
+        [HttpGet]
+        public JsonResult GetBranches(int businessId)
+        {
+            var branches = _context.Branches
+                .Where(b => b.BusinessId == businessId)
+                .Select(b => new {
+                    branchId = b.BranchId,
+                    branchName = b.Name
+                })
+                .ToList();
+
+            return Json(branches);
+        }
+        [HttpGet]
+        public JsonResult GetCategories(int businessId)
+        {
+            var categories = _context.ItemCategories
+                .Where(c => c.BusinessId == businessId)
+                .Select(c => new {
+                    categoryId = c.CategoryId,
+                    categoryName = c.Name
+                })
+                .ToList();
+
+            return Json(categories);
+        }
+
 
 
         // ✅ Helper: Populate Dropdowns
         private async Task PopulateDropdowns(Items? item = null)
         {
-            ViewBag.Categories = new SelectList(await _context.ItemCategories.Where(c => !c.IsArchived).ToListAsync(), "CategoryId", "Name", item?.CategoryId);
+            ViewBag.Categories = new SelectList(await _context.ItemCategories.Where(c => !c.IsArchived ).ToListAsync(), "CategoryId", "Name", item?.CategoryId);
             ViewBag.Branches = new SelectList(await _context.Branches.Where(b => !b.IsDeleted).ToListAsync(), "BranchId", "Name", item?.BranchId);
             ViewBag.Businesses = new SelectList(await _context.Businesses.ToListAsync(), "BusinessId", "Name", item?.BusinessId);
         }
