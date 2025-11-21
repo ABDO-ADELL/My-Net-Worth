@@ -61,7 +61,7 @@ namespace PRISM.Controllers
         // GET: Order/Create
         public IActionResult Create()
         {
-            ViewData["business_id"] = new SelectList(_context.Businesses, "BusinessId", "Name");
+            ViewData["BusinessId"] = new SelectList(_context.Businesses, "BusinessId", "Name");
             ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name");
             ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName");
             ViewData["Items"] = _context.Items
@@ -76,18 +76,26 @@ namespace PRISM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Order order, List<int> itemIds, List<int> quantities)
         {
+            using var transaction = await _context.Database.BeginTransactionAsync(); 
             try
             {
-                // Get current user and set the UserId (FK)
-                var user = await _userManager.GetUserAsync(User);
-                if (user != null)
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
                 {
-                    order.UserId = user.Id;  // Set FK, not navigation property
+                    TempData["Error"] = "User not authenticated.";
+                    return RedirectToAction("Login", "Register");
                 }
-
+                order.UserId = userId;
+                order.user = null; 
                 order.datetime = DateTime.Now;
                 order.IsDeleted = false;
                 order.status = true;
+
+                ModelState.Remove("user");
+                ModelState.Remove("business");
+                ModelState.Remove("branch");
+                ModelState.Remove("Customer");
+                ModelState.Remove("OrderItems");
 
                 // Check if items were added
                 if (itemIds == null || itemIds.Count == 0 || quantities == null || quantities.Count == 0)
@@ -129,11 +137,13 @@ namespace PRISM.Controllers
                     _context.Orders.Add(order);
                     await _context.SaveChangesAsync();
 
+                    await transaction.CommitAsync(); 
                     TempData["Success"] = "Order created successfully!";
                     return RedirectToAction(nameof(Index));
                 }
                 else
                 {
+                    await transaction.RollbackAsync(); 
                     // Log validation errors for debugging
                     var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
                     TempData["Error"] = "Validation failed: " + string.Join(", ", errors);
@@ -146,7 +156,7 @@ namespace PRISM.Controllers
             }
 
             // Reload dropdown data
-            ViewData["business_id"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.BusinessId);
+            ViewData["BusinessId"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.BusinessId);
             ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name", order.BranchId);
             ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId);
             ViewData["Items"] = _context.Items
@@ -172,7 +182,7 @@ namespace PRISM.Controllers
                 return NotFound();
             }
 
-            ViewData["business_id"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.BusinessId);
+            ViewData["BusinessId"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.BusinessId);
             ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name", order.BranchId);
             ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId);
 
@@ -211,7 +221,7 @@ namespace PRISM.Controllers
                 }
             }
 
-            ViewData["business_id"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.business);
+            ViewData["BusinessId"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.business);
             ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name", order.BranchId);
             ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId);
 

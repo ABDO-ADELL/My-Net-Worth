@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using PRISM.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace PRISM.Controllers
@@ -34,6 +35,15 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ViewBag.Businesses = new SelectList(
+                await _context.Businesses
+                    .Where(b => !b.IsDeleted && b.UserId == userId)
+                    .ToListAsync(),
+                "BusinessId",
+                "Name"
+            );
+
             await PopulateItemsDropdown();
             return View();
         }
@@ -43,6 +53,17 @@ namespace PRISM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Supplier supplier)
         {
+
+            if (supplier.BusinessId <= 0)
+            {
+                ModelState.AddModelError("BusinessId", "Please select a business");
+            }
+
+            ModelState.Remove("SupplierItems");
+            ModelState.Remove("Business"); 
+
+
+
             // إزالة Validation للـ Navigation Properties
             ModelState.Remove("SupplierItems");
             if (supplier.SupplierItems != null)
@@ -56,6 +77,34 @@ namespace PRISM.Controllers
 
             if (!ModelState.IsValid)
             {
+                await PopulateItemsDropdown();
+                return View(supplier);
+            }
+            if (supplier.BusinessId <= 0)
+            {
+                ModelState.AddModelError("BusinessId", "Please select a business.");
+            }
+            // ✅ Verify business belongs to current user
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var businessExists = await _context.Businesses
+                .AnyAsync(b => b.BusinessId == supplier.BusinessId
+                            && !b.IsDeleted
+                            && b.UserId == userId);
+
+            if (!businessExists)
+            {
+                ModelState.AddModelError("BusinessId", "Invalid business selected.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Businesses = new SelectList(
+                    await _context.Businesses
+                        .Where(b => !b.IsDeleted && b.UserId == userId)
+                        .ToListAsync(),
+                    "BusinessId",
+                    "Name"
+                );
                 await PopulateItemsDropdown();
                 return View(supplier);
             }

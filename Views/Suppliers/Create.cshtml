@@ -27,7 +27,20 @@
         <input asp-for="Phone" class="form-control" required />
         <span asp-validation-for="Phone" class="text-danger"></span>
     </div>
-
+    <!--  Business Dropdown -->
+    <div class="form-group mt-2">
+        <label asp-for="BusinessId">Business</label>
+        <select asp-for="BusinessId" asp-items="ViewBag.Businesses" class="form-control" required>
+            <option value="">-- Select Business --</option>
+        </select>
+        <span asp-validation-for="BusinessId" class="text-danger"></span>
+    </div>
+    <!-- Supplier Info -->
+    <div class="form-group mt-2">
+        <label asp-for="Name">Supplier Name</label>
+        <input asp-for="Name" class="form-control" required />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
     <!-- Items Section -->
     <h4 class="mt-4">Supplier Items</h4>
     <div id="itemsContainer">

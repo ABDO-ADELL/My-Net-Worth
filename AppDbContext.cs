@@ -40,6 +40,26 @@ namespace PRISM
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+
+            modelBuilder.Entity<Order>()
+                .HasIndex(o => new { o.BusinessId, o.datetime, o.IsDeleted });
+
+            modelBuilder.Entity<Expense>()
+                .HasIndex(e => new { e.BusinessId, e.ExpenseDate, e.IsDeleted });
+
+            modelBuilder.Entity<Payment>()
+                .HasIndex(p => new { p.OrderId, p.datetime, p.IsDeleted });
+
+            modelBuilder.Entity<OrderItem>()
+                .HasIndex(oi => oi.OrderId);
+
+            modelBuilder.Entity<Items>()
+                .HasIndex(i => new { i.BusinessId, i.BranchId, i.IsDeleted });
+
+            base.OnModelCreating(modelBuilder);
+
+
             // Configure decimal precision
             modelBuilder.Entity<Items>()
                 .Property(i => i.CostPrice)
@@ -80,6 +100,13 @@ namespace PRISM
                 .HasForeignKey(b => b.BusinessId)
                 .OnDelete(DeleteBehavior.Cascade); // Branch should cascade with Business
 
+
+
+            modelBuilder.Entity<Supplier>()
+                .HasOne(s => s.Business)
+                .WithMany()
+                .HasForeignKey(s => s.BusinessId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<AppUser>()
                 .HasMany(b => b.Business)

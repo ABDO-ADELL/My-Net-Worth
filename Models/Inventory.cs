@@ -12,17 +12,24 @@ namespace PRISM
     {
         [Key]
         public int InventoryId { get; set; }
-        public int BranchId { get; set; }
-        public int MinStockLevel { get; set; }
-        public DateTime LastUpdate { get; set; }
 
-        // Navigation
-        public Branch Branch { get; set; }
+        [Required]
+        [ForeignKey("Branch")]
+        public int BranchId { get; set; }
+        public Branch? Branch { get; set; } 
+
+        [Required]
         [ForeignKey("Item")]
         public int ItemId { get; set; }
-        public Items Item { get; set; }
+        public Items? Item { get; set; } 
 
+        [Range(0, int.MaxValue)]
         public int Quantity { get; set; }
+
+        [Range(0, int.MaxValue)]
+        public int MinStockLevel { get; set; }
+
+        public DateTime LastUpdate { get; set; } = DateTime.UtcNow;
     }
 
 }

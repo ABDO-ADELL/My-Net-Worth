@@ -10,7 +10,7 @@ namespace PRISM.Models.Authmodels
         public bool IsExpired => DateTime.UtcNow >= ExpiresOn;
         public DateTime CreatedOn { get; set; }
 
-        public DateTime RevokeOn { get; set; }
+        public DateTime? RevokeOn { get; set; }
         public bool IsActive => RevokeOn == null &&!IsExpired;
 
 

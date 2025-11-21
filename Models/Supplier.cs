@@ -1,4 +1,6 @@
-﻿public class Supplier
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+public class Supplier
 {
     [Key]
     public int SupplierId { get; set; }
@@ -15,4 +17,10 @@
     public bool IsDeleted { get; set; } = false;
 
     public List<SupplierItem> SupplierItems { get; set; } = new List<SupplierItem>();
+    [Required]
+    public int BusinessId { get; set; }
+
+    [ForeignKey("BusinessId")]
+    public Business? Business { get; set; }
+
 }

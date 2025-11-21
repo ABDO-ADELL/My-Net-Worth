@@ -14,7 +14,7 @@ namespace PRISM
         public int BusinessId { get; set; }
 
         [Required(ErrorMessage = "BranchId is required.")]
-        public int? BranchId { get; set; }
+        public int BranchId { get; set; }
 
         [Required(ErrorMessage = "Name is required.")]
         [StringLength(100, ErrorMessage = "Name can't exceed 100 characters.")]

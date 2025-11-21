@@ -7,8 +7,6 @@ namespace PRISM.Models
     {
             public int Id { get; set; }
             public string OrderName { get; set; }
-
-            // Remove business_id and use BusinessId consistently
             public int BusinessId { get; set; }
             public Business? business { get; set; }
 

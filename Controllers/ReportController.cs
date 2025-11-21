@@ -35,6 +35,7 @@ namespace PRISM.Controllers
                 return View(new ReportViewModel());
             }
 
+
             // Set date range defaults
             if (!startDate.HasValue)
                 startDate = DateTime.Now.AddMonths(-1);
@@ -89,6 +90,12 @@ namespace PRISM.Controllers
             var expenses = await expensesQuery.ToListAsync();
             var payments = await paymentsQuery.ToListAsync();
 
+
+            // Add this to get supplier summaries for the report
+            var supplierSummaries = await GetSupplierSummary(userId);
+
+
+
             var viewModel = new ReportViewModel
             {
                 BusinessId = businessId,
@@ -97,6 +104,8 @@ namespace PRISM.Controllers
                 ReportType = reportType,
                 Suppliers = suppliers,
                 TotalSuppliers = suppliers.Count,
+                SupplierSummaries = supplierSummaries,
+
 
                 // Summary Data
                 TotalRevenue = orders.Sum(o => o.total_amount),
@@ -130,7 +139,7 @@ namespace PRISM.Controllers
 
                 // Customer Analysis
                 TopCustomers = await GetTopCustomers(userId, startDate.Value, endDate.Value, businessId)
-            };
+            }; 
 
             viewModel.TotalProfit = viewModel.TotalRevenue - viewModel.TotalExpenses;
 
@@ -178,11 +187,7 @@ namespace PRISM.Controllers
                     && p.datetime >= startDate.Value
                     && p.datetime <= endDate.Value
                     && p.Order.business.UserId == userId);
-            var suppliers = await _context.Suppliers
-                 .Include(s => s.SupplierItems)
-                 .ThenInclude(si => si.Item)
-                 .Where(s => !s.IsDeleted)
-                    .ToListAsync();
+
 
             if (businessId.HasValue && businessId.Value > 0)
             {
@@ -195,16 +200,32 @@ namespace PRISM.Controllers
             var expenses = await expensesQuery.ToListAsync();
             var payments = await paymentsQuery.ToListAsync();
 
+
+            var suppliers = await _context.Suppliers
+                .Include(s => s.SupplierItems)
+                .ThenInclude(si => si.Item)
+                .Where(s => !s.IsDeleted)
+                .ToListAsync();
+
+            var supplierSummaries = await GetSupplierSummary(userId); // ✅ Get summaries
+
             // Create Excel file
             using var workbook = new XLWorkbook();
+
+            var suppliersSheet = workbook.Worksheets.Add("Suppliers");
+            CreateSuppliersSheet(suppliersSheet, suppliers);
+
+            // Add a new sheet for supplier summaries
+            var supplierSummarySheet = workbook.Worksheets.Add("Supplier Summary");
+            CreateSupplierSummarySheet(supplierSummarySheet, supplierSummaries);
+
+
+
 
             // Summary Sheet
             var summarySheet = workbook.Worksheets.Add("Summary");
             CreateSummarySheet(summarySheet, orders, expenses, payments, startDate.Value, endDate.Value);
-            // Suppliers Sheet
-            var suppliersSheet = workbook.Worksheets.Add("Suppliers");
-            CreateSuppliersSheet(suppliersSheet, suppliers);
-
+            
             // Orders Sheet
             var ordersSheet = workbook.Worksheets.Add("Orders");
             CreateOrdersSheet(ordersSheet, orders);
@@ -532,13 +553,34 @@ namespace PRISM.Controllers
                 .ToListAsync();
         }
 
+        private void CreateSupplierSummarySheet(IXLWorksheet sheet, List<SupplierSummary> summaries)
+        {
+            sheet.Cell(1, 1).Value = "Supplier Name";
+            sheet.Cell(1, 2).Value = "Total Items";
+            sheet.Cell(1, 3).Value = "Total Purchase Value";
 
+            sheet.Range(1, 1, 1, 3).Style.Font.Bold = true;
+            sheet.Range(1, 1, 1, 3).Style.Fill.BackgroundColor = XLColor.LightPastelPurple;
+
+            int row = 2;
+            foreach (var summary in summaries)
+            {
+                sheet.Cell(row, 1).Value = summary.SupplierName;
+                sheet.Cell(row, 2).Value = summary.TotalItems;
+                sheet.Cell(row, 3).Value = summary.TotalPurchaseValue;
+                sheet.Cell(row, 3).Style.NumberFormat.Format = "$#,##0.00";
+                row++;
+            }
+
+            sheet.Columns().AdjustToContents();
+        }
         private async Task<List<SupplierSummary>> GetSupplierSummary(string userId)
         {
             return await _context.Suppliers
                 .Include(s => s.SupplierItems)
-                    .ThenInclude(si => si.Item)
-                .Where(s => !s.IsDeleted)
+                .Include(s => s.Business)
+                .ThenInclude(si => si.Items)
+        .Where(s => !s.IsDeleted && s.Business.UserId == userId) // ✅ Filter by user
                 .Select(s => new SupplierSummary
                 {
                     SupplierId = s.SupplierId,

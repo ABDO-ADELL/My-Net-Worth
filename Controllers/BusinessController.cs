@@ -103,8 +103,7 @@ namespace PRISM.Controllers
 
         #region Delete
         [HttpPost]
-        [HttpPost]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id) 
         {
             var business = _context.Businesses
                 .Include(b => b.Branches)
@@ -114,12 +113,11 @@ namespace PRISM.Controllers
             if (business is null)
                 return NotFound();
 
+            bool hasActiveRelations =
+                 (business.Branches != null && business.Branches.Any(b => !b.IsDeleted)) ||
+                 (business.Items != null && business.Items.Any(i => !i.IsDeleted));
 
-            bool hasRelations =
-                (business.Branches != null && business.Branches.Any()) ||
-                (business.Items != null && business.Items.Any());
-
-            if (hasRelations)
+            if (hasActiveRelations)
             {
                 TempData["ErrorMessage"] = "This business cannot be deleted because it has related records (branches or items).";
                 return RedirectToAction(nameof(Index));
@@ -132,8 +130,8 @@ namespace PRISM.Controllers
 
                 business.Status = "Inactive";
 
-                _context.Businesses.Update(business);
-                _context.SaveChanges();
+               _context.Businesses.Update(business);
+               await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Business deactivated successfully.";
             }
@@ -144,19 +142,20 @@ namespace PRISM.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
-
-        //public IActionResult Delete(int id)
+        //[HttpGet]
+        //public async Task<IActionResult> Delete(int id)
         //{
-        //    var business = _context.Businesses.FirstOrDefault(m => m.BusinessId == id);
-        //    if (business is null)
-        //    {
+        //    var business = await _context.Businesses
+        //        .Include(b => b.Branches)
+        //        .Include(b => b.Items)
+        //        .FirstOrDefaultAsync(m => m.BusinessId == id);
+
+        //    if (business == null)
         //        return NotFound();
-        //    }
-        //    _context.Businesses.Remove(business);
-        //    _context.SaveChanges();
-        //    return RedirectToAction(nameof(Index));
+
+        //    return View(business);
         //}
+        
         #endregion
     }
 }

@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies; // ✅ Add this
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PRISM.Models.Authmodels;
 using PRISM.Services;
+using System.Security.Claims;
 
 namespace PRISM.Controllers
 {
@@ -26,11 +29,10 @@ namespace PRISM.Controllers
             _logger = logger;
         }
 
-        // GET: Register/RegisterLogin
+        // GET: Register/Register
         [HttpGet]
         public IActionResult Register()
         {
-            // If user is already logged in, redirect to dashboard
             if (User.Identity?.IsAuthenticated == true)
             {
                 return RedirectToAction("Index", "Dashboard");
@@ -39,11 +41,10 @@ namespace PRISM.Controllers
             return View();
         }
 
-        // GET: Register/CompleteProfile
+        // GET: Register/Login
         [HttpGet]
         public IActionResult Login()
         {
-            // If user is already logged in, redirect to dashboard
             if (User.Identity?.IsAuthenticated == true)
             {
                 return RedirectToAction("Index", "Dashboard");
@@ -52,10 +53,9 @@ namespace PRISM.Controllers
             return View();
         }
 
-        // POST: Register (API endpoint for AJAX)
-        // Change the POST action names to match your GET action names
+        // POST: Register
         [HttpPost]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model) 
+        public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -71,11 +71,38 @@ namespace PRISM.Controllers
                     return BadRequest(new { success = false, message = result.Message });
                 }
 
-                // Sign in the user with cookie authentication
                 var user = await _userManager.FindByEmailAsync(model.Email);
                 if (user != null)
                 {
-                    await _signInManager.SignInAsync(user, isPersistent: true);
+                    // ✅ Create claims including roles
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, user.Id),
+                        new Claim(ClaimTypes.Name, user.UserName ?? user.Email),
+                        new Claim(ClaimTypes.Email, user.Email),
+                        new Claim("FullName", $"{user.FirstName} {user.LastName}")
+                    };
+
+                    // ✅ Add roles as claims
+                    var roles = await _userManager.GetRolesAsync(user);
+                    claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+                    var claimsIdentity = new ClaimsIdentity(
+                        claims,
+                        CookieAuthenticationDefaults.AuthenticationScheme); // ✅ Use this constant
+
+                    var authProperties = new AuthenticationProperties
+                    {
+                        IsPersistent = true,
+                        ExpiresUtc = DateTimeOffset.UtcNow.AddDays(30),
+                        AllowRefresh = true
+                    };
+
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme, // ✅ Use this constant
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
+
                     _logger.LogInformation("User {Email} registered and signed in successfully", model.Email);
                 }
 
@@ -93,8 +120,9 @@ namespace PRISM.Controllers
             }
         }
 
+        // POST: Login
         [HttpPost]
-        public async Task<IActionResult> Login([FromBody] LoginModel model) 
+        public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             if (!ModelState.IsValid)
             {

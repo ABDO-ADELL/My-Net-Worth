@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using PRISM.Helpers;
 using PRISM.Models.Authmodels;
 using PRISM.Services;
+using System.Text;
 
 
 namespace PRISM
@@ -29,8 +32,6 @@ namespace PRISM
 
                 services.AddScoped<IAuthService, AuthService>();
 
-
-                //***
                 services.Configure<JWT>(configuration.GetSection("JWT"));
 
                 services.AddIdentity<AppUser, IdentityRole>(options =>
@@ -65,7 +66,36 @@ namespace PRISM
                     options.Cookie.HttpOnly = true;
                     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
                 });
-
+                // Add JWT Authentication for API
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                })
+                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+                {
+                    options.LoginPath = "/Register/Login";
+                    options.LogoutPath = "/Account/Logout";
+                    options.AccessDeniedPath = "/Account/AccessDenied";
+                    options.ExpireTimeSpan = TimeSpan.FromDays(30);
+                    options.SlidingExpiration = true;
+                })
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options => // ✅ For API
+                {
+                    options.SaveToken = false;
+                    options.RequireHttpsMetadata = false;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = configuration["JWT:Issuer"],
+                        ValidAudience = configuration["JWT:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(configuration["JWT:Key"]))
+                    };
+                });
 
 
             }
@@ -74,6 +104,7 @@ namespace PRISM
 
 
             builder.Services.AddControllersWithViews();
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
