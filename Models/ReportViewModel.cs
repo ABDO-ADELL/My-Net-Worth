@@ -9,13 +9,15 @@ namespace PRISM.Models
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public string ReportType { get; set; }
-
         public decimal TotalRevenue { get; set; }
         public decimal TotalExpenses { get; set; }
         public decimal TotalProfit { get; set; }
         public int TotalOrders { get; set; }
         public int TotalPayments { get; set; }
         public decimal AverageOrderValue { get; set; }
+        public List<Supplier> Suppliers { get; set; } = new();
+        public int TotalSuppliers { get; set; }
+        public List<SupplierSummary> SupplierSummaries { get; set; } = new();
 
         public List<Order> Orders { get; set; } = new();
         public List<Expense> Expenses { get; set; } = new();
