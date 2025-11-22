@@ -28,13 +28,12 @@ namespace PRISM.Models
 
         public bool IsDeleted { get; set; } = false;
 
-        // ✅ FIX: BusinessId must NOT be nullable for required relationship
         [Required(ErrorMessage = "Business is required")]
         [ForeignKey("Business")]
         public int BusinessId { get; set; }
 
         // Navigation property
-        public Business? Business { get; set; }
+        public Business Business { get; set; }
         public ICollection<Items> Items { get; set; }
         public ICollection<Inventory> Inventories { get; set; }
     }

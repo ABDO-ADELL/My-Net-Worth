@@ -7,7 +7,7 @@ namespace PRISM.Controllers
     public class BusinessController : BaseController
     {
         private readonly AppDbContext _context;
-        public BusinessController(AppDbContext context)
+        public BusinessController(AppDbContext context):base(context)
         {
             _context = context;
         }

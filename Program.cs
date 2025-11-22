@@ -34,6 +34,9 @@ namespace PRISM
 
                 services.Configure<JWT>(configuration.GetSection("JWT"));
 
+                //*
+
+
                 services.AddIdentity<AppUser, IdentityRole>(options =>
                 {
                     // Password settings
@@ -55,7 +58,6 @@ namespace PRISM
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
 
-                // Configure cookie authentication for MVC
                 services.ConfigureApplicationCookie(options =>
                 {
                     options.LoginPath = "/Register/Login";
@@ -65,7 +67,9 @@ namespace PRISM
                     options.SlidingExpiration = true;
                     options.Cookie.HttpOnly = true;
                     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                    options.Cookie.Name = "PRISM.Auth"; // ✅ Optional: custom cookie name
                 });
+
                 // Add JWT Authentication for API
                 services.AddAuthentication(options =>
                 {

@@ -1,24 +1,28 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PRISM.Models;
+using PRISM.Models.Authmodels;
+using System.Security.Claims;
 
 namespace PRISM.Controllers
 {
-    public class BranchController : Controller
+    [Authorize]
+    public class BranchController : BaseController
     {
-        private readonly AppDbContext _context;
-
-        public BranchController(AppDbContext context)
+        private readonly AppDbContext _context;        
+        public BranchController(AppDbContext context ):base(context)
         {
             _context = context;
         }
         [HttpGet]
         public async Task<IActionResult> Index()
         {
+            var user = CurrentUser; 
             var branches = await _context.Branches
                 .Include(b => b.Business)
-                .Where(b => !b.IsDeleted)
+                .Where(b => !b.IsDeleted && b.BusinessId == user.BusinessId)
                 .OrderBy(b => b.Name)
                 .ToListAsync();
             return View(branches);
@@ -28,11 +32,12 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
+            var user = CurrentUser;
             var branch = await _context.Branches
                 .Include(b => b.Business)
                 .Include(b => b.Items)
-                .Include(b => b.Inventories)
-                .FirstOrDefaultAsync(b => b.BranchId == id);
+                .Include(b => b.Inventories).Where(b => b.BusinessId == user.BusinessId&& b.BranchId==id)
+                .FirstOrDefaultAsync();
 
             if (branch == null)
             {
@@ -46,8 +51,9 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
+            var user = CurrentUser;
             ViewBag.Businesses = new SelectList(
-                await _context.Businesses.Where(b => !b.IsDeleted).ToListAsync(),
+                await _context.Businesses.Where(b => !b.IsDeleted && b.BusinessId == user.BusinessId).ToListAsync(),
                 "BusinessId",
                 "Name"
             );
@@ -58,6 +64,8 @@ namespace PRISM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Branch branch)
         {
+            var user = CurrentUser;
+
             ModelState.Remove("Business");
             ModelState.Remove("Items");
             ModelState.Remove("Inventories");
@@ -65,7 +73,7 @@ namespace PRISM.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.Businesses = new SelectList(
-                    await _context.Businesses.Where(b => !b.IsDeleted).ToListAsync(),
+                    await _context.Businesses.Where(b => !b.IsDeleted && b.BusinessId == user.BusinessId).ToListAsync(),
                     "BusinessId",
                     "Name",
                     branch.BusinessId
@@ -84,7 +92,7 @@ namespace PRISM.Controllers
                 {
                     ModelState.AddModelError("BusinessId", "Selected business does not exist.");
                     ViewBag.Businesses = new SelectList(
-                        await _context.Businesses.Where(b => !b.IsDeleted).ToListAsync(),
+                        await _context.Businesses.Where(b => !b.IsDeleted&&b.BusinessId==user.BusinessId).ToListAsync(),
                         "BusinessId",
                         "Name"
                     );
@@ -107,7 +115,7 @@ namespace PRISM.Controllers
 
                 ModelState.AddModelError("", $"Error creating branch: {ex.Message}");
                 ViewBag.Businesses = new SelectList(
-                    await _context.Businesses.Where(b => !b.IsDeleted).ToListAsync(),
+                    await _context.Businesses.Where(b => !b.IsDeleted&&b.BusinessId==user.BusinessId).ToListAsync(),
                     "BusinessId",
                     "Name",
                     branch.BusinessId
@@ -122,6 +130,8 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
+            var user = CurrentUser;
+
             var branch = await _context.Branches.FindAsync(id);
             if (branch == null || branch.IsDeleted)
             {
@@ -129,7 +139,7 @@ namespace PRISM.Controllers
             }
 
             ViewBag.Businesses = new SelectList(
-                await _context.Businesses.Where(b => !b.IsDeleted).ToListAsync(),
+                await _context.Businesses.Where(b => !b.IsDeleted && b.BusinessId == user.BusinessId).ToListAsync(),
                 "BusinessId",
                 "Name",
                 branch.BusinessId
@@ -142,6 +152,8 @@ namespace PRISM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Branch branch)
         {
+            var user = CurrentUser;
+
             if (id != branch.BranchId)
             {
                 return NotFound();
@@ -154,7 +166,7 @@ namespace PRISM.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.Businesses = new SelectList(
-                    await _context.Businesses.Where(b => !b.IsDeleted).ToListAsync(),
+                    await _context.Businesses.Where(b => !b.IsDeleted && b.BusinessId == user.BusinessId).ToListAsync(),
                     "BusinessId",
                     "Name",
                     branch.BusinessId
@@ -185,11 +197,12 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Archived()
         {
+            var user = CurrentUser;
             var archivedBranches = await _context.Branches
                 .Include(b => b.Business)
                 .Include(b => b.Items)
                 .Include(b => b.Inventories)
-                .Where(b => b.IsDeleted)
+                .Where(b => b.IsDeleted && b.BusinessId==user.BusinessId)
                 .ToListAsync();
 
             return View(archivedBranches);
@@ -200,9 +213,10 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
+            var user = CurrentUser;
             var branch = await _context.Branches
-                .Include(b => b.Business)
-                .FirstOrDefaultAsync(b => b.BranchId == id);
+                .Include(b => b.Business).Where(b => b.BusinessId == user.BusinessId && b.BranchId == id)
+                .FirstOrDefaultAsync();
 
             if (branch == null)
             {
@@ -233,7 +247,8 @@ namespace PRISM.Controllers
 
         private async Task<bool> BranchExists(int id)
         {
-            return await _context.Branches.AnyAsync(e => e.BranchId == id);
+            var user = CurrentUser;
+            return await _context.Branches.Where(b=>b.BranchId ==id && b.BusinessId == user.BusinessId).AnyAsync();
         }
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using PRISM.Models;
 using PRISM.Models.Authmodels;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace PRISM.Controllers
 {
@@ -59,13 +60,17 @@ namespace PRISM.Controllers
         }
 
         // GET: Order/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["BusinessId"] = new SelectList(_context.Businesses, "BusinessId", "Name");
-            ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name");
-            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _context.Users.FindAsync(userId);
+
+            //ViewData["BusinessId"] = new SelectList(_context.Businesses, "BusinessId", "Name");
+            //ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name");
+            //ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName");
+            await PopulateDropdowns();
             ViewData["Items"] = _context.Items
-                .Where(i => !i.IsDeleted)
+                .Where(i => !i.IsDeleted && i.BusinessId ==user.BusinessId)
                 .Select(i => new { i.ItemId, i.Name, i.SellPrice })
                 .ToList();
 
@@ -76,10 +81,12 @@ namespace PRISM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Order order, List<int> itemIds, List<int> quantities)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _context.Users.FindAsync(userId);
+
             using var transaction = await _context.Database.BeginTransactionAsync(); 
             try
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (string.IsNullOrEmpty(userId))
                 {
                     TempData["Error"] = "User not authenticated.";
@@ -156,13 +163,14 @@ namespace PRISM.Controllers
             }
 
             // Reload dropdown data
-            ViewData["BusinessId"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.BusinessId);
-            ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name", order.BranchId);
-            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId);
+            //ViewData["BusinessId"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.BusinessId);
+            //ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name", order.BranchId);
+            //ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId);
             ViewData["Items"] = _context.Items
-                .Where(i => !i.IsDeleted)
+                .Where(i => !i.IsDeleted && i.BusinessId==user.BusinessId)
                 .Select(i => new { i.ItemId, i.Name, i.SellPrice })
                 .ToList();
+            await PopulateDropdowns();
 
             return View(order);
         }        // GET: Order/Edit/5
@@ -182,9 +190,10 @@ namespace PRISM.Controllers
                 return NotFound();
             }
 
-            ViewData["BusinessId"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.BusinessId);
-            ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name", order.BranchId);
-            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId);
+            //ViewData["BusinessId"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.BusinessId);
+            //ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name", order.BranchId);
+            //ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId);
+            await PopulateDropdowns();
 
             return View(order);
         }
@@ -221,10 +230,10 @@ namespace PRISM.Controllers
                 }
             }
 
-            ViewData["BusinessId"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.business);
-            ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name", order.BranchId);
-            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId);
-
+            //ViewData["BusinessId"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.business);
+            //ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name", order.BranchId);
+            //ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId);
+            await PopulateDropdowns();
             return View(order);
         }
 
@@ -297,5 +306,18 @@ namespace PRISM.Controllers
         {
             return _context.Orders.Any(e => e.Id == id && !e.IsDeleted);
         }
+
+        private async Task PopulateDropdowns(Items? item = null)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _context.Users.FindAsync(userId);
+
+            ViewBag.Customers = new SelectList(await _context.ItemCategories.Where(c => !c.IsArchived && c.BusinessId == user.BusinessId).ToListAsync(), "CustomerId", "FullName", item?.CategoryId);
+            ViewBag.Branches = new SelectList(await _context.Branches.Where(b => !b.IsDeleted && b.BusinessId == user.BusinessId).ToListAsync(), "BranchId", "Name", item?.BranchId);
+            ViewBag.Businesses = new SelectList(await _context.Businesses.Where(a => a.BusinessId == user.BusinessId).ToListAsync(), "BusinessId", "Name", item?.BusinessId);
+            //ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId
+
+        }
+
     }
 }

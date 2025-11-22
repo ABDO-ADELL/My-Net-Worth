@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 namespace PRISM.Controllers
 {
     [AllowAnonymous]
-    public class SuppliersController : Controller
+    public class SuppliersController : BaseController
     {
         private readonly AppDbContext _context;
 
-        public SuppliersController(AppDbContext context)
+        public SuppliersController(AppDbContext context): base(context)
         {
             _context = context;
         }
@@ -23,10 +23,11 @@ namespace PRISM.Controllers
         // GET: Suppliers
         public async Task<IActionResult> Index()
         {
+            var user = CurrentUser;
             var suppliers = await _context.Suppliers
                 .Include(s => s.SupplierItems)
                 .ThenInclude(si => si.Item)
-                .Where(s => !s.IsDeleted)
+                .Where(s => !s.IsDeleted && s.BusinessId == user.BusinessId)
                 .ToListAsync();
             return View(suppliers);
         }
@@ -124,8 +125,8 @@ namespace PRISM.Controllers
         {
             var supplier = await _context.Suppliers
                 .Include(s => s.SupplierItems)
-                .ThenInclude(si => si.Item)
-                .FirstOrDefaultAsync(s => s.SupplierId == id && !s.IsDeleted);
+                .ThenInclude(si => si.Item).Where(s => s.BusinessId == CurrentUser.BusinessId && s.SupplierId == id && !s.IsDeleted)
+                .FirstOrDefaultAsync();
 
             if (supplier == null)
                 return NotFound();
@@ -137,10 +138,12 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
+            var user = CurrentUser;
+
             var supplier = await _context.Suppliers
                 .Include(s => s.SupplierItems)
-                .ThenInclude(si => si.Item)
-                .FirstOrDefaultAsync(s => s.SupplierId == id && !s.IsDeleted);
+                .ThenInclude(si => si.Item).Where(s => s.BusinessId == user.BusinessId&& s.SupplierId == id && !s.IsDeleted)
+                .FirstOrDefaultAsync();
 
             if (supplier == null)
                 return NotFound();
@@ -235,10 +238,11 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
+            var user = CurrentUser;
             var supplier = await _context.Suppliers
                 .Include(s => s.SupplierItems)
-                .ThenInclude(si => si.Item)
-                .FirstOrDefaultAsync(s => s.SupplierId == id && !s.IsDeleted);
+                .ThenInclude(si => si.Item).Where(s => s.BusinessId == user.BusinessId && s.SupplierId == id && !s.IsDeleted)
+                .FirstOrDefaultAsync();
 
             if (supplier == null)
                 return NotFound();
@@ -251,10 +255,11 @@ namespace PRISM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            var user = CurrentUser;
             var supplier = await _context.Suppliers
                 .Include(s => s.SupplierItems)
                 .ThenInclude(si => si.Item)
-                .FirstOrDefaultAsync(s => s.SupplierId == id && !s.IsDeleted);
+                .FirstOrDefaultAsync(s => s.BusinessId == user.BusinessId && s.SupplierId == id && !s.IsDeleted);
 
             if (supplier != null)
             {
@@ -269,8 +274,9 @@ namespace PRISM.Controllers
         // Helper: Populate Items Dropdown
         private async Task PopulateItemsDropdown()
         {
+            var user = CurrentUser;
             var items = await _context.Items
-                .Where(i => !i.IsDeleted)
+                .Where(i => !i.IsDeleted && i.BusinessId==user.BusinessId)
                 .Select(i => new SelectListItem
                 {
                     Value = i.ItemId.ToString(),
@@ -284,8 +290,9 @@ namespace PRISM.Controllers
         // GET: Archived Suppliers
         public async Task<IActionResult> Archived()
         {
+            var user = CurrentUser;
             var archivedSuppliers = await _context.Suppliers
-                .Where(s => s.IsDeleted)
+                .Where(s => s.IsDeleted&&s.BusinessId==user.BusinessId)
                 .Include(s => s.SupplierItems)   // << مهم جداً
                 .ToListAsync();
 

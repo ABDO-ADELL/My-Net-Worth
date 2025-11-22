@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PRISM.Models;
+using System.Security.Claims;
 
 namespace PRISM.Controllers
 {
@@ -20,9 +22,15 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            // بنبعت لليو ViewBag فيه أسماء الـ Businesses كلها
-            ViewBag.Businesses = new SelectList(await _context.Businesses.ToListAsync(), "BusinessId", "Name");
+            //var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            //var user = await _context.Users.FindAsync(userId);
+
+            //ViewBag.Businesses = new SelectList(await _context.Businesses.Where(a=>a.BusinessId==user.BusinessId).ToListAsync(), "BusinessId", "Name");
+            //return View();
+
+            await PopulateDropdowns();
             return View();
+
         }
 
         // ✅ POST: Create (حفظ البيانات)
@@ -32,7 +40,7 @@ namespace PRISM.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Businesses = new SelectList(await _context.Businesses.ToListAsync(), "BusinessId", "Name");
+                await PopulateDropdowns();
                 return View(category);
             }
 
@@ -55,9 +63,12 @@ namespace PRISM.Controllers
         // ✅ عرض كل الكاتيجوريز
         public async Task<IActionResult> Index()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _context.Users.FindAsync(userId);
+
             var categories = await _context.ItemCategories
                 .Include(c => c.Business)
-                .Where(c => !c.IsArchived)
+                .Where(c => !c.IsArchived &&c.BusinessId ==user.BusinessId)
                 .ToListAsync();
             return View(categories);
         }
@@ -66,9 +77,13 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Archived()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _context.Users.FindAsync(userId);
+
+
             var archived = await _context.ItemCategories
                 .Include(c => c.Business)
-                .Where(c => c.IsArchived)
+                .Where(c => c.IsArchived&&c.BusinessId==user.BusinessId)
                 .ToListAsync();
 
             return View(archived);
@@ -78,6 +93,9 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Search(string? query)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _context.Users.FindAsync(userId);
+
             if (string.IsNullOrWhiteSpace(query))
             {
                 // لو البحث فاضي، رجّعي الصفحة فاضية أو كل الكاتيجوريز حسب رغبتك
@@ -86,7 +104,7 @@ namespace PRISM.Controllers
 
             var results = await _context.ItemCategories
                 .Include(c => c.Business)
-                .Where(c => c.Name.Contains(query))
+                .Where(c => c.Name.Contains(query) &&c.BusinessId==user.BusinessId)
                 .ToListAsync();
 
             return View(results);
@@ -96,7 +114,11 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var category = await _context.ItemCategories.FindAsync(id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _context.Users.FindAsync(userId);
+
+            var category = await _context.ItemCategories.Where(a=>a.BusinessId == user.BusinessId && a.CategoryId==id).FirstOrDefaultAsync();
+
             if (category == null)
                 return NotFound();
 
@@ -138,9 +160,12 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _context.Users.FindAsync(userId);
+
             var category = await _context.ItemCategories
-                .Include(c => c.Business)
-                .FirstOrDefaultAsync(c => c.CategoryId == id);
+                .Include(c => c.Business).Where(a=>a.BusinessId==user.BusinessId&&a.CategoryId == id)
+                .FirstOrDefaultAsync();
 
             if (category == null)
                 return NotFound();
@@ -152,9 +177,12 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _context.Users.FindAsync(userId);
+
             var category = await _context.ItemCategories
-                .Include(c => c.Business)
-                .FirstOrDefaultAsync(c => c.CategoryId == id);
+                .Include(c => c.Business).Where(a => a.BusinessId == user.BusinessId && a.CategoryId == id)
+                .FirstOrDefaultAsync();
 
             if (category == null)
                 return NotFound();
@@ -181,6 +209,15 @@ namespace PRISM.Controllers
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = "Category deleted successfully!";
             return RedirectToAction(nameof(Index));
+        }
+        private async Task PopulateDropdowns(Items? item = null)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _context.Users.FindAsync(userId);
+
+            ViewBag.Categories = new SelectList(await _context.ItemCategories.Where(c => !c.IsArchived && c.BusinessId == user.BusinessId).ToListAsync(), "CategoryId", "Name", item?.CategoryId);
+            ViewBag.Branches = new SelectList(await _context.Branches.Where(b => !b.IsDeleted && b.BusinessId == user.BusinessId).ToListAsync(), "BranchId", "Name", item?.BranchId);
+            ViewBag.Businesses = new SelectList(await _context.Businesses.Where(a => a.BusinessId == user.BusinessId).ToListAsync(), "BusinessId", "Name", item?.BusinessId);
         }
 
 

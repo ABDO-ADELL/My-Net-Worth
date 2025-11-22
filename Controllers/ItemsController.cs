@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PRISM.Models;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace PRISM.Controllers
@@ -21,10 +22,13 @@ namespace PRISM.Controllers
         // ✅ GET: Items (Index)
         public async Task<IActionResult> Index()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _context.Users.FindAsync(userId);
+
             var items = await _context.Items
                 .Include(i => i.ItemCategory)
                 .Include(i => i.Branch)
-                .Where(i => !i.IsDeleted)
+                .Where(i => !i.IsDeleted && i.BusinessId == user.BusinessId)
                 .ToListAsync();
             return View(items);
         }
@@ -33,10 +37,13 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Archived()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _context.Users.FindAsync(userId);
+
             var archived = await _context.Items
                 .Include(i => i.ItemCategory)
                 .Include(i => i.Branch)
-                .Where(i => i.IsDeleted)
+                .Where(i => i.IsDeleted && i.BusinessId ==user.BusinessId)
                 .ToListAsync();
             return View(archived);
         }
@@ -45,13 +52,16 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Search(string? query)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _context.Users.FindAsync(userId);
+
             if (string.IsNullOrWhiteSpace(query))
                 return View(new List<Items>());
 
             var results = await _context.Items
                 .Include(i => i.ItemCategory)
                 .Include(i => i.Branch)
-                .Where(i => i.Name.Contains(query) || i.Sku.Contains(query))
+                .Where(i => i.Name.Contains(query) || i.Sku.Contains(query) && i.BusinessId==user.BusinessId)
                 .ToListAsync();
 
             return View(results);
@@ -195,12 +205,15 @@ namespace PRISM.Controllers
 
 
 
-        // ✅ Helper: Populate Dropdowns
+        // Helper: Populate Dropdowns
         private async Task PopulateDropdowns(Items? item = null)
         {
-            ViewBag.Categories = new SelectList(await _context.ItemCategories.Where(c => !c.IsArchived ).ToListAsync(), "CategoryId", "Name", item?.CategoryId);
-            ViewBag.Branches = new SelectList(await _context.Branches.Where(b => !b.IsDeleted).ToListAsync(), "BranchId", "Name", item?.BranchId);
-            ViewBag.Businesses = new SelectList(await _context.Businesses.ToListAsync(), "BusinessId", "Name", item?.BusinessId);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _context.Users.FindAsync(userId);
+
+            ViewBag.Categories = new SelectList(await _context.ItemCategories.Where(c => !c.IsArchived  && c.BusinessId ==user.BusinessId).ToListAsync(), "CategoryId", "Name", item?.CategoryId);
+            ViewBag.Branches = new SelectList(await _context.Branches.Where(b => !b.IsDeleted && b.BusinessId == user.BusinessId).ToListAsync(), "BranchId", "Name", item?.BranchId);
+            ViewBag.Businesses = new SelectList(await _context.Businesses.Where(a=>a.BusinessId==user.BusinessId).ToListAsync(), "BusinessId", "Name", item?.BusinessId);
         }
     }
 }
