@@ -2,25 +2,22 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PRISM.Models.Authmodels;
-using PRISM.Services;
+using System.Security.Claims;
 
 namespace PRISM.Controllers
 {
     [AllowAnonymous]
     public class RegisterController : Controller
     {
-        private readonly IAuthService _authService;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly UserManager<AppUser> _userManager;
         private readonly ILogger<RegisterController> _logger;
 
         public RegisterController(
-            IAuthService authService,
             SignInManager<AppUser> signInManager,
             UserManager<AppUser> userManager,
             ILogger<RegisterController> logger)
         {
-            _authService = authService;
             _signInManager = signInManager;
             _userManager = userManager;
             _logger = logger;
@@ -56,21 +53,36 @@ namespace PRISM.Controllers
 
             try
             {
-                var result = await _authService.RegisterAsync(model);
-
-                if (!result.IsAuthenticated)
+                // Check if email exists
+                var existingUser = await _userManager.FindByEmailAsync(model.Email);
+                if (existingUser != null)
                 {
-                    return BadRequest(new { success = false, message = result.Message });
+                    return BadRequest(new { success = false, message = "Email is already registered" });
                 }
 
-                // ✅ Sign in the user with Identity's built-in method
-                var user = await _userManager.FindByEmailAsync(model.Email);
-                if (user != null)
+                // Create new user
+                var user = new AppUser
                 {
-                    // SignInAsync handles all claims automatically
-                    await _signInManager.SignInAsync(user, isPersistent: true);
-                    _logger.LogInformation("User {Email} registered and signed in successfully", model.Email);
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    Email = model.Email,
+                    UserName = model.Email,
+                    SecurityStamp = Guid.NewGuid().ToString()
+                };
+
+                // Create user with password
+                var result = await _userManager.CreateAsync(user, model.Password);
+
+                if (!result.Succeeded)
+                {
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    return BadRequest(new { success = false, message = errors });
                 }
+
+                // Sign in with proper claims
+                await _signInManager.SignInAsync(user, isPersistent: true);
+
+                _logger.LogInformation("User {Email} registered and signed in successfully", model.Email);
 
                 return Ok(new
                 {
@@ -82,7 +94,11 @@ namespace PRISM.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error during registration");
-                return StatusCode(500, new { success = false, message = "An error occurred during registration" });
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "An error occurred during registration"
+                });
             }
         }
 
@@ -99,10 +115,14 @@ namespace PRISM.Controllers
                 var user = await _userManager.FindByEmailAsync(model.Email);
                 if (user == null)
                 {
-                    return Unauthorized(new { success = false, message = "Invalid email or password" });
+                    return Unauthorized(new
+                    {
+                        success = false,
+                        message = "Invalid email or password"
+                    });
                 }
 
-                // ✅ This already handles claims automatically
+                // SignInManager handles everything correctly
                 var result = await _signInManager.PasswordSignInAsync(
                     user,
                     model.Password,
@@ -113,6 +133,7 @@ namespace PRISM.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User {Email} logged in successfully", model.Email);
+
                     return Ok(new
                     {
                         success = true,
@@ -124,15 +145,27 @@ namespace PRISM.Controllers
                 if (result.IsLockedOut)
                 {
                     _logger.LogWarning("User {Email} account locked out", model.Email);
-                    return Unauthorized(new { success = false, message = "Account locked due to too many failed attempts. Please try again later." });
+                    return Unauthorized(new
+                    {
+                        success = false,
+                        message = "Account locked. Try again later."
+                    });
                 }
 
-                return Unauthorized(new { success = false, message = "Invalid email or password" });
+                return Unauthorized(new
+                {
+                    success = false,
+                    message = "Invalid email or password"
+                });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error during login");
-                return StatusCode(500, new { success = false, message = "An error occurred during login" });
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "An error occurred during login"
+                });
             }
         }
     }

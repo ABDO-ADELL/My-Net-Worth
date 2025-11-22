@@ -438,21 +438,17 @@
     </aside>
 
     <!-- Top Navigation -->
-    <nav class="top-nav">
-        <button class="toggle-sidebar" id="toggleSidebar">
-            <i class="fas fa-bars"></i>
-        </button>
 
-@if (User.Identity?.IsAuthenticated == true)
+    <div class="top-nav-right">
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            @inject Microsoft.AspNetCore.Identity.UserManager<PRISM.Models.Authmodels.AppUser> UserManager
             {
-                @inject Microsoft.AspNetCore.Identity.UserManager<PRISM.Models.Authmodels.AppUser> UserManager
-                {
-                    var currentUser = await UserManager.GetUserAsync(User);
-                    var userRoles = currentUser != null ? await UserManager.GetRolesAsync(currentUser) : new List<string>();
-                    var displayName = currentUser != null ? $"{currentUser.FirstName} {currentUser.LastName}" : "User";
-                    var userInitials = currentUser != null ? $"{currentUser.FirstName?.FirstOrDefault()}{currentUser.LastName?.FirstOrDefault()}" : "U";
-                    var primaryRole = userRoles.FirstOrDefault() ?? "User";
-                
+                var currentUser = await UserManager.GetUserAsync(User);
+                var userRoles = currentUser != null ? await UserManager.GetRolesAsync(currentUser) : new List<string>();
+                var displayName = currentUser != null ? $"{currentUser.FirstName} {currentUser.LastName}" : "User";
+                var userInitials = currentUser != null ? $"{currentUser.FirstName?.FirstOrDefault()}{currentUser.LastName?.FirstOrDefault()}" : "U";
+                var primaryRole = userRoles.FirstOrDefault() ?? "User";
 
                 <a href="@Url.Action("Profile", "Account")" class="user-menu" style="text-decoration: none;">
                     <div class="user-avatar" title="@displayName">
@@ -465,17 +461,69 @@
                     <i class="fas fa-chevron-down" style="color: #64748b; font-size: 12px;"></i>
                 </a>
 
-                <a href="@Url.Action("Logout", "Account")" class="text-danger" style="text-decoration: none; font-size: 20px;" title="Logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                </a>
+                <!-- FIXED: Secure POST logout form -->
+                <form asp-controller="Account" asp-action="Logout" method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-link text-danger"
+                            style="text-decoration: none; border: none; background: none; font-size: 20px; padding: 0 10px;"
+                            title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </form>
             }
-            }
-            else
+        }
+        else
+        {
+            <a href="@Url.Action("Login", "Register")" class="btn btn-primary btn-sm">
+                <i class="fas fa-sign-in-alt me-2"></i>Login
+            </a>
+        }
+    </div>
+
+    <nav class="top-nav">
+        <button class="toggle-sidebar" id="toggleSidebar">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!--  the logout link -->
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            @inject Microsoft.AspNetCore.Identity.UserManager<PRISM.Models.Authmodels.AppUser> UserManager
             {
-                <a href="@Url.Action("Login", "Register")" class="btn btn-primary btn-sm">
-                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                var currentUser = await UserManager.GetUserAsync(User);
+                var userRoles = currentUser != null ? await UserManager.GetRolesAsync(currentUser) : new List<string>();
+                var displayName = currentUser != null ? $"{currentUser.FirstName} {currentUser.LastName}" : "User";
+                var userInitials = currentUser != null ? $"{currentUser.FirstName?.FirstOrDefault()}{currentUser.LastName?.FirstOrDefault()}" : "U";
+                var primaryRole = userRoles.FirstOrDefault() ?? "User";
+
+                <a href="@Url.Action("Profile", "Account")" class="user-menu" style="text-decoration: none;">
+                    <div class="user-avatar" title="@displayName">
+                        @userInitials
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">@displayName</div>
+                        <div class="user-role">@primaryRole</div>
+                    </div>
+                    <i class="fas fa-chevron-down" style="color: #64748b; font-size: 12px;"></i>
                 </a>
+
+                <!-- ✅ FIXED: Secure POST logout form -->
+                <form asp-controller="Account" asp-action="Logout" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-link text-danger" style="text-decoration: none; border: none; background: none; font-size: 20px; padding: 0 10px;" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </form>
             }
+        }
+        else
+        {
+            <a href="@Url.Action("Login", "Register")" class="btn btn-primary btn-sm">
+                <i class="fas fa-sign-in-alt me-2"></i>Login
+            </a>
+        }
+
+
+
     </nav>
 
     <!-- Main Content -->

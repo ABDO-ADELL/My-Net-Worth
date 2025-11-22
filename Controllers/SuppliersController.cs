@@ -23,11 +23,11 @@ namespace PRISM.Controllers
         // GET: Suppliers
         public async Task<IActionResult> Index()
         {
-            var user = CurrentUser;
+            var userId = GetCurrentUserId();
             var suppliers = await _context.Suppliers
                 .Include(s => s.SupplierItems)
                 .ThenInclude(si => si.Item)
-                .Where(s => !s.IsDeleted && s.BusinessId == user.BusinessId)
+                .Where(s => !s.IsDeleted && s.Business.UserId == userId)
                 .ToListAsync();
             return View(suppliers);
         }
@@ -36,7 +36,7 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = GetCurrentUserId();
             ViewBag.Businesses = new SelectList(
                 await _context.Businesses
                     .Where(b => !b.IsDeleted && b.UserId == userId)
@@ -85,10 +85,9 @@ namespace PRISM.Controllers
             {
                 ModelState.AddModelError("BusinessId", "Please select a business.");
             }
-            // ✅ Verify business belongs to current user
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var businessExists = await _context.Businesses
-                .AnyAsync(b => b.BusinessId == supplier.BusinessId
+                .AnyAsync(b => b.UserId == userId  && b.BusinessId == supplier.BusinessId
                             && !b.IsDeleted
                             && b.UserId == userId);
 
@@ -110,7 +109,6 @@ namespace PRISM.Controllers
                 return View(supplier);
             }
 
-            // فقط إضافة المورد بما في ذلك SupplierItems
             _context.Suppliers.Add(supplier);
             await _context.SaveChangesAsync();
 
@@ -123,9 +121,10 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
+            var userId = GetCurrentUserId();
             var supplier = await _context.Suppliers
                 .Include(s => s.SupplierItems)
-                .ThenInclude(si => si.Item).Where(s => s.BusinessId == CurrentUser.BusinessId && s.SupplierId == id && !s.IsDeleted)
+                .ThenInclude(si => si.Item).Where(s => s.Business.UserId ==userId  && s.SupplierId == id && !s.IsDeleted)
                 .FirstOrDefaultAsync();
 
             if (supplier == null)
@@ -138,11 +137,11 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var user = CurrentUser;
+            var userId = GetCurrentUserId();
 
             var supplier = await _context.Suppliers
                 .Include(s => s.SupplierItems)
-                .ThenInclude(si => si.Item).Where(s => s.BusinessId == user.BusinessId&& s.SupplierId == id && !s.IsDeleted)
+                .ThenInclude(si => si.Item).Where(s => s.Business.UserId == userId&& s.SupplierId == id && !s.IsDeleted)
                 .FirstOrDefaultAsync();
 
             if (supplier == null)
@@ -157,6 +156,7 @@ namespace PRISM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Supplier supplier)
         {
+            var userId = GetCurrentUserId();
             if (id != supplier.SupplierId)
                 return NotFound();
 
@@ -181,7 +181,7 @@ namespace PRISM.Controllers
             {
                 var existingSupplier = await _context.Suppliers
                     .Include(s => s.SupplierItems)
-                    .FirstOrDefaultAsync(s => s.SupplierId == id);
+                    .FirstOrDefaultAsync(s => s.SupplierId == id && s.Business.UserId==userId);
 
                 if (existingSupplier == null)
                     return NotFound();
@@ -238,10 +238,10 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
-            var user = CurrentUser;
+            var userId = GetCurrentUserId();
             var supplier = await _context.Suppliers
                 .Include(s => s.SupplierItems)
-                .ThenInclude(si => si.Item).Where(s => s.BusinessId == user.BusinessId && s.SupplierId == id && !s.IsDeleted)
+                .ThenInclude(si => si.Item).Where(s => s.Business.UserId == userId && s.SupplierId == id && !s.IsDeleted)
                 .FirstOrDefaultAsync();
 
             if (supplier == null)
@@ -255,11 +255,11 @@ namespace PRISM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var user = CurrentUser;
+            var userId = GetCurrentUserId();
             var supplier = await _context.Suppliers
                 .Include(s => s.SupplierItems)
                 .ThenInclude(si => si.Item)
-                .FirstOrDefaultAsync(s => s.BusinessId == user.BusinessId && s.SupplierId == id && !s.IsDeleted);
+                .FirstOrDefaultAsync(s => s.Business.UserId == userId && s.SupplierId == id && !s.IsDeleted);
 
             if (supplier != null)
             {
@@ -274,9 +274,9 @@ namespace PRISM.Controllers
         // Helper: Populate Items Dropdown
         private async Task PopulateItemsDropdown()
         {
-            var user = CurrentUser;
+            var userId = GetCurrentUserId();
             var items = await _context.Items
-                .Where(i => !i.IsDeleted && i.BusinessId==user.BusinessId)
+                .Where(i => !i.IsDeleted && i.Business.UserId==userId)
                 .Select(i => new SelectListItem
                 {
                     Value = i.ItemId.ToString(),
@@ -290,9 +290,9 @@ namespace PRISM.Controllers
         // GET: Archived Suppliers
         public async Task<IActionResult> Archived()
         {
-            var user = CurrentUser;
+            var userId = GetCurrentUserId();
             var archivedSuppliers = await _context.Suppliers
-                .Where(s => s.IsDeleted&&s.BusinessId==user.BusinessId)
+                .Where(s => s.IsDeleted&&s.Business.UserId==userId)
                 .Include(s => s.SupplierItems)   // << مهم جداً
                 .ToListAsync();
 

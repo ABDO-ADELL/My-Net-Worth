@@ -19,41 +19,47 @@ namespace PRISM.Controllers
             _context = context;
         }
 
-        // ✅ GET: Items (Index)
+        private string GetCurrentUserId()
+        {
+            return User.FindFirstValue(ClaimTypes.NameIdentifier);
+        }
+
+        // GET: Items (Index)
         public async Task<IActionResult> Index()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _context.Users.FindAsync(userId);
+            var userId = GetCurrentUserId();
 
             var items = await _context.Items
                 .Include(i => i.ItemCategory)
                 .Include(i => i.Branch)
-                .Where(i => !i.IsDeleted && i.BusinessId == user.BusinessId)
+                .Include(i => i.Business)
+                .Where(i => !i.IsDeleted && i.Business.UserId == userId)
                 .ToListAsync();
+
             return View(items);
         }
 
-        // ✅ GET: Archived Items
+        // GET: Archived Items
         [HttpGet]
         public async Task<IActionResult> Archived()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _context.Users.FindAsync(userId);
+            var userId = GetCurrentUserId();
 
             var archived = await _context.Items
                 .Include(i => i.ItemCategory)
                 .Include(i => i.Branch)
-                .Where(i => i.IsDeleted && i.BusinessId ==user.BusinessId)
+                .Include(i => i.Business)
+                .Where(i => i.IsDeleted && i.Business.UserId == userId)
                 .ToListAsync();
+
             return View(archived);
         }
 
-        // ✅ GET: Search
+        // GET: Search
         [HttpGet]
         public async Task<IActionResult> Search(string? query)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _context.Users.FindAsync(userId);
+            var userId = GetCurrentUserId();
 
             if (string.IsNullOrWhiteSpace(query))
                 return View(new List<Items>());
@@ -61,13 +67,15 @@ namespace PRISM.Controllers
             var results = await _context.Items
                 .Include(i => i.ItemCategory)
                 .Include(i => i.Branch)
-                .Where(i => i.Name.Contains(query) || i.Sku.Contains(query) && i.BusinessId==user.BusinessId)
+                .Include(i => i.Business)
+                .Where(i => (i.Name.Contains(query) || i.Sku.Contains(query))
+                    && i.Business.UserId == userId)
                 .ToListAsync();
 
             return View(results);
         }
 
-        // ✅ GET: Create
+        // GET: Create
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -75,7 +83,7 @@ namespace PRISM.Controllers
             return View();
         }
 
-        // ✅ POST: Create
+        // POST: Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Items item)
@@ -93,23 +101,31 @@ namespace PRISM.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ✅ GET: Edit
+        // GET: Edit
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var item = await _context.Items.FindAsync(id);
-            if (item == null) return NotFound();
+            var userId = GetCurrentUserId();
+
+            var item = await _context.Items
+                .Include(i => i.Business)
+                .FirstOrDefaultAsync(i => i.ItemId == id
+                    && i.Business.UserId == userId);
+
+            if (item == null)
+                return NotFound();
 
             await PopulateDropdowns(item);
             return View(item);
         }
 
-        // ✅ POST: Edit
+        // POST: Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Items item)
         {
-            if (id != item.ItemId) return NotFound();
+            if (id != item.ItemId)
+                return NotFound();
 
             if (!ModelState.IsValid)
             {
@@ -119,8 +135,20 @@ namespace PRISM.Controllers
 
             try
             {
+                var userId = GetCurrentUserId();
+
+                // Verify item belongs to user's business
+                var existingItem = await _context.Items
+                    .Include(i => i.Business)
+                    .FirstOrDefaultAsync(i => i.ItemId == id
+                        && i.Business.UserId == userId);
+
+                if (existingItem == null)
+                    return NotFound();
+
                 _context.Update(item);
                 await _context.SaveChangesAsync();
+
                 TempData["SuccessMessage"] = "Item updated successfully!";
                 return RedirectToAction(nameof(Index));
             }
@@ -132,26 +160,37 @@ namespace PRISM.Controllers
             }
         }
 
-        // ✅ GET: Delete (Confirmation)
+        // GET: Delete (Confirmation)
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
+            var userId = GetCurrentUserId();
+
             var item = await _context.Items
                 .Include(i => i.ItemCategory)
                 .Include(i => i.Branch)
-                .FirstOrDefaultAsync(i => i.ItemId == id);
+                .Include(i => i.Business)
+                .FirstOrDefaultAsync(i => i.ItemId == id
+                    && i.Business.UserId == userId);
 
-            if (item == null) return NotFound();
+            if (item == null)
+                return NotFound();
 
             return View(item);
         }
 
-        // ✅ POST: Delete (Soft Delete)
+        // POST: Delete (Soft Delete)
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var item = await _context.Items.FindAsync(id);
+            var userId = GetCurrentUserId();
+
+            var item = await _context.Items
+                .Include(i => i.Business)
+                .FirstOrDefaultAsync(i => i.ItemId == id
+                    && i.Business.UserId == userId);
+
             if (item != null)
             {
                 item.IsDeleted = true;
@@ -166,21 +205,26 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
+            var userId = GetCurrentUserId();
+
             var item = await _context.Items
                 .Include(i => i.ItemCategory)
                 .Include(i => i.Branch)
-                .FirstOrDefaultAsync(c => c.ItemId == id);
+                .Include(i => i.Business)
+                .FirstOrDefaultAsync(c => c.ItemId == id
+                    && c.Business.UserId == userId);
 
             if (item == null)
                 return NotFound();
 
             return View(item);
         }
+
         [HttpGet]
         public JsonResult GetBranches(int businessId)
         {
             var branches = _context.Branches
-                .Where(b => b.BusinessId == businessId)
+                .Where(b => b.BusinessId == businessId && !b.IsDeleted)
                 .Select(b => new {
                     branchId = b.BranchId,
                     branchName = b.Name
@@ -189,11 +233,12 @@ namespace PRISM.Controllers
 
             return Json(branches);
         }
+
         [HttpGet]
         public JsonResult GetCategories(int businessId)
         {
             var categories = _context.ItemCategories
-                .Where(c => c.BusinessId == businessId)
+                .Where(c => c.BusinessId == businessId && !c.IsArchived)
                 .Select(c => new {
                     categoryId = c.CategoryId,
                     categoryName = c.Name
@@ -203,17 +248,39 @@ namespace PRISM.Controllers
             return Json(categories);
         }
 
-
-
         // Helper: Populate Dropdowns
         private async Task PopulateDropdowns(Items? item = null)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _context.Users.FindAsync(userId);
+            var userId = GetCurrentUserId();
 
-            ViewBag.Categories = new SelectList(await _context.ItemCategories.Where(c => !c.IsArchived  && c.BusinessId ==user.BusinessId).ToListAsync(), "CategoryId", "Name", item?.CategoryId);
-            ViewBag.Branches = new SelectList(await _context.Branches.Where(b => !b.IsDeleted && b.BusinessId == user.BusinessId).ToListAsync(), "BranchId", "Name", item?.BranchId);
-            ViewBag.Businesses = new SelectList(await _context.Businesses.Where(a=>a.BusinessId==user.BusinessId).ToListAsync(), "BusinessId", "Name", item?.BusinessId);
+            ViewBag.Categories = new SelectList(
+                await _context.ItemCategories
+                    .Include(c => c.Business)
+                    .Where(c => !c.IsArchived && c.Business.UserId == userId)
+                    .ToListAsync(),
+                "CategoryId",
+                "Name",
+                item?.CategoryId
+            );
+
+            ViewBag.Branches = new SelectList(
+                await _context.Branches
+                    .Include(b => b.Business)
+                    .Where(b => !b.IsDeleted && b.Business.UserId == userId)
+                    .ToListAsync(),
+                "BranchId",
+                "Name",
+                item?.BranchId
+            );
+
+            ViewBag.Businesses = new SelectList(
+                await _context.Businesses
+                    .Where(b => !b.IsDeleted && b.UserId == userId)
+                    .ToListAsync(),
+                "BusinessId",
+                "Name",
+                item?.BusinessId
+            );
         }
     }
 }
