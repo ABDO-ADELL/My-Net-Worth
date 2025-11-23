@@ -17,13 +17,9 @@
             <button onclick="window.print()" class="btn btn-outline-secondary">
                 <i class="fas fa-print me-2"></i>Print Report
             </button>
-            <a asp-action="ExportToExcel"
-               asp-route-businessId="@Model.BusinessId"
-               asp-route-startDate="@Model.StartDate.ToString("yyyy-MM-dd")"
-               asp-route-endDate="@Model.EndDate.ToString("yyyy-MM-dd")"
-               class="btn btn-success">
+            <button onclick="exportToExcel()" class="btn btn-success" id="exportBtn">
                 <i class="fas fa-file-excel me-2"></i>Export to Excel
-            </a>
+            </button>
         </div>
     </div>
 
@@ -44,33 +40,36 @@
                 </h5>
             </div>
             <div class="card-body">
-                <form asp-action="Index" method="get" class="row g-3">
+                <form asp-action="Index" method="get" class="row g-3" id="reportFilterForm">
                     <div class="col-md-3">
                         <label class="form-label fw-semibold">Business</label>
-                        <select name="businessId" class="form-select">
+                        <select name="businessId" id="businessIdInput" class="form-select">
                             <option value="">All Businesses</option>
-                            @foreach (var business in ViewBag.Businesses)
+                            @if (ViewBag.Businesses != null)
                             {
-                                <option value="@business.BusinessId" selected="@(business.BusinessId == ViewBag.SelectedBusinessId)">
-                                    @business.Name
-                                </option>
+                                @foreach (var business in (List<Business>)ViewBag.Businesses)
+                                {
+                                    <option value="@business.BusinessId" selected="@(business.BusinessId == ViewBag.SelectedBusinessId)">
+                                        @business.Name
+                                    </option>
+                                }
                             }
                         </select>
                     </div>
 
                     <div class="col-md-3">
                         <label class="form-label fw-semibold">Start Date</label>
-                        <input type="date" name="startDate" class="form-control" value="@Model.StartDate.ToString("yyyy-MM-dd")" required />
+                        <input type="date" name="startDate" id="startDateInput" class="form-control" value="@Model.StartDate.ToString("yyyy-MM-dd")" required />
                     </div>
 
                     <div class="col-md-3">
                         <label class="form-label fw-semibold">End Date</label>
-                        <input type="date" name="endDate" class="form-control" value="@Model.EndDate.ToString("yyyy-MM-dd")" required />
+                        <input type="date" name="endDate" id="endDateInput" class="form-control" value="@Model.EndDate.ToString("yyyy-MM-dd")" required />
                     </div>
 
                     <div class="col-md-3">
                         <label class="form-label fw-semibold">Report Type</label>
-                        <select name="reportType" class="form-select">
+                        <select name="reportType" id="reportTypeInput" class="form-select">
                             <option value="summary" selected="@(Model.ReportType == "summary")">Summary</option>
                             <option value="detailed" selected="@(Model.ReportType == "detailed")">Detailed</option>
                         </select>
@@ -94,7 +93,7 @@
                 <i class="fas fa-info-circle fa-2x me-3"></i>
                 <div>
                     <strong>Report Period:</strong> @Model.StartDate.ToString("MMM dd, yyyy") - @Model.EndDate.ToString("MMM dd, yyyy")
-                    @if (Model.BusinessId.HasValue)
+                    @if (Model.BusinessId.HasValue && ViewBag.Businesses != null)
                     {
                         var selectedBusiness = ((List<Business>)ViewBag.Businesses).FirstOrDefault(b => b.BusinessId == Model.BusinessId.Value);
                         if (selectedBusiness != null)
@@ -106,6 +105,19 @@
                     {
                         <span class="ms-3">| <strong>Showing:</strong> All Businesses</span>
                     }
+                    <span class="ms-3">
+                        | <strong>Report Type:</strong>
+                        @if (Model.ReportType == "detailed")
+                        {
+                            <span class="badge bg-success">DETAILED</span>
+                            <small class="text-muted ms-2">(Includes: Orders, Items, Expenses, Payments, Businesses, Branches, Customers, Categories, Suppliers)</small>
+                        }
+                        else
+                        {
+                            <span class="badge bg-primary">SUMMARY</span>
+                            <small class="text-muted ms-2">(Includes: Orders, Expenses, Payments, Suppliers)</small>
+                        }
+                    </span>
                 </div>
             </div>
         </div>
@@ -180,7 +192,7 @@
         </div>
 
         <!-- Business Performance -->
-        @if (Model.BusinessPerformance.Any())
+        @if (Model.BusinessPerformance != null && Model.BusinessPerformance.Any())
         {
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-white border-0 py-3">
@@ -228,7 +240,7 @@
         <!-- Charts Row -->
         <div class="row g-4 mb-4">
             <!-- Top Selling Items -->
-            @if (Model.TopSellingItems.Any())
+            @if (Model.TopSellingItems != null && Model.TopSellingItems.Any())
             {
                 <div class="col-lg-6">
                     <div class="card shadow-sm h-100">
@@ -273,7 +285,7 @@
             }
 
             <!-- Expense Breakdown -->
-            @if (Model.ExpensesByCategory.Any())
+            @if (Model.ExpensesByCategory != null && Model.ExpensesByCategory.Any())
             {
                 <div class="col-lg-6">
                     <div class="card shadow-sm h-100">
@@ -296,7 +308,7 @@
                                     <tbody>
                                         @foreach (var cat in Model.ExpensesByCategory)
                                         {
-                                            var percentage = (cat.TotalAmount / Model.TotalExpenses * 100);
+                                            var percentage = Model.TotalExpenses > 0 ? (cat.TotalAmount / Model.TotalExpenses * 100) : 0;
                                             <tr>
                                                 <td class="fw-semibold">@cat.Category</td>
                                                 <td class="text-center">
@@ -316,7 +328,7 @@
         </div>
 
         <!-- Top Customers -->
-        @if (Model.TopCustomers.Any())
+        @if (Model.TopCustomers != null && Model.TopCustomers.Any())
         {
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-white border-0 py-3">
@@ -360,8 +372,9 @@
                 </div>
             </div>
         }
+
         <!-- Suppliers Summary -->
-        @if (Model.SupplierSummaries.Any())
+        @if (Model.SupplierSummaries != null && Model.SupplierSummaries.Any())
         {
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-white border-0 py-3">
@@ -384,10 +397,11 @@
                             <tbody>
                                 @foreach (var supplier in Model.SupplierSummaries)
                                 {
+                                    var supplierDetail = Model.Suppliers?.FirstOrDefault(s => s.SupplierId == supplier.SupplierId);
                                     <tr>
                                         <td class="fw-semibold">@supplier.SupplierName</td>
-                                        <td>@Model.Suppliers.FirstOrDefault(s => s.SupplierId == supplier.SupplierId)?.Email</td>
-                                        <td>@Model.Suppliers.FirstOrDefault(s => s.SupplierId == supplier.SupplierId)?.Phone</td>
+                                        <td>@(supplierDetail?.Email ?? "N/A")</td>
+                                        <td>@(supplierDetail?.Phone ?? "N/A")</td>
                                         <td class="text-center">
                                             <span class="badge bg-info">@supplier.TotalItems</span>
                                         </td>
@@ -405,15 +419,15 @@
         @if (Model.ReportType == "detailed")
         {
             <!-- Orders Table -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white border-0 py-3">
-                    <h5 class="mb-0">
-                        <i class="fas fa-shopping-cart me-2 text-primary"></i>All Orders (@Model.Orders.Count)
-                    </h5>
-                </div>
-                <div class="card-body">
-                    @if (Model.Orders.Any())
-                    {
+            @if (Model.Orders != null && Model.Orders.Any())
+            {
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-shopping-cart me-2 text-primary"></i>All Orders (@Model.Orders.Count)
+                        </h5>
+                    </div>
+                    <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-sm table-hover mb-0">
                                 <thead class="bg-light">
@@ -441,20 +455,20 @@
                                 </tbody>
                             </table>
                         </div>
-                    }
+                    </div>
                 </div>
-            </div>
+            }
 
             <!-- Expenses Table -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white border-0 py-3">
-                    <h5 class="mb-0">
-                        <i class="fas fa-money-bill-wave me-2 text-danger"></i>All Expenses (@Model.Expenses.Count)
-                    </h5>
-                </div>
-                <div class="card-body">
-                    @if (Model.Expenses.Any())
-                    {
+            @if (Model.Expenses != null && Model.Expenses.Any())
+            {
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-money-bill-wave me-2 text-danger"></i>All Expenses (@Model.Expenses.Count)
+                        </h5>
+                    </div>
+                    <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-sm table-hover mb-0">
                                 <thead class="bg-light">
@@ -482,12 +496,55 @@
                                 </tbody>
                             </table>
                         </div>
-                    }
+                    </div>
                 </div>
-            </div>
+            }
         }
     }
 </div>
+
+@section Scripts {
+    <script>
+        function exportToExcel() {
+            // Get filter values
+            var businessId = document.getElementById('businessIdInput').value;
+            var startDate = document.getElementById('startDateInput').value;
+            var endDate = document.getElementById('endDateInput').value;
+            var reportType = document.getElementById('reportTypeInput').value;
+
+            // Build URL with parameters
+            var url = '@Url.Action("ExportToExcel", "Report")' +
+                      '?businessId=' + (businessId || '') +
+                      '&startDate=' + startDate +
+                      '&endDate=' + endDate +
+                      '&reportType=' + reportType;
+
+            // Show loading state
+            var btn = document.getElementById('exportBtn');
+            var originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Exporting...';
+            btn.disabled = true;
+
+            // Trigger download
+            window.location.href = url;
+
+            // Reset button after delay
+            setTimeout(function() {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }, 2000);
+        }
+
+        // Ensure the report type is properly selected on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            var reportType = '@Model.ReportType';
+            var reportTypeSelect = document.getElementById('reportTypeInput');
+            if (reportTypeSelect) {
+                reportTypeSelect.value = reportType;
+            }
+        });
+    </script>
+}
 
 <style>
     .stat-card {
@@ -526,16 +583,21 @@
         background-color: rgba(79, 172, 254, 0.1);
     }
 
+    .bg-warning-light {
+        background-color: rgba(245, 158, 11, 0.1);
+    }
+
     .card {
         border-radius: 12px;
     }
 
-    .table th {
-        font-weight: 600;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+    .list-group-item {
+        transition: background-color 0.3s;
     }
+
+        .list-group-item:hover {
+            background-color: #f8f9ff;
+        }
 
     @@media print {
         .btn, .card-header .fas, .no-print {

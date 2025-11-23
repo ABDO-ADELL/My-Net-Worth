@@ -11,7 +11,7 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // ✅ FIXED: Remove JWT, use only Cookie authentication for MVC
+        // Remove JWT, use only Cookie authentication for MVC
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -19,7 +19,7 @@ public class Program
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
 
-        // ✅ Identity Configuration
+        // Identity Configuration
         builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
         {
             options.Password.RequireDigit = true;
@@ -38,7 +38,7 @@ public class Program
         .AddEntityFrameworkStores<AppDbContext>()
         .AddDefaultTokenProviders();
 
-        // ✅ FIXED: Only Cookie Authentication
+        //  Cookie Authentication
         builder.Services.ConfigureApplicationCookie(options =>
         {
             options.LoginPath = "/Register/Login";
@@ -47,7 +47,8 @@ public class Program
             options.ExpireTimeSpan = TimeSpan.FromDays(30);
             options.SlidingExpiration = true;
             options.Cookie.HttpOnly = true;
-            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            options.Cookie.SameSite = SameSiteMode.Strict; 
             options.Cookie.Name = "PRISM.Auth";
         });
 
@@ -73,7 +74,6 @@ public class Program
         app.UseHttpsRedirection();
         app.UseRouting();
 
-        // ✅ Authentication must come before Authorization
         app.UseAuthentication();
         app.UseAuthorization();
 

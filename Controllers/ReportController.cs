@@ -150,7 +150,8 @@ namespace PRISM.Controllers
         }
 
         // Export to Excel
-        public async Task<IActionResult> ExportToExcel(int? businessId, DateTime? startDate, DateTime? endDate)
+        // Export to Excel - Replace the existing ExportToExcel method in ReportController.cs
+        public async Task<IActionResult> ExportToExcel(int? businessId, DateTime? startDate, DateTime? endDate, string? reportType)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -188,7 +189,6 @@ namespace PRISM.Controllers
                     && p.datetime <= endDate.Value
                     && p.Order.business.UserId == userId);
 
-
             if (businessId.HasValue && businessId.Value > 0)
             {
                 ordersQuery = ordersQuery.Where(o => o.BusinessId == businessId.Value);
@@ -200,35 +200,61 @@ namespace PRISM.Controllers
             var expenses = await expensesQuery.ToListAsync();
             var payments = await paymentsQuery.ToListAsync();
 
-
-            var suppliers = await _context.Suppliers
-                .Include(s => s.SupplierItems)
-                .ThenInclude(si => si.Item)
-                .Where(s => !s.IsDeleted)
+            // Get additional data for detailed report
+            var businesses = await _context.Businesses
+                .Where(b => !b.IsDeleted && b.UserId == userId)
                 .ToListAsync();
 
-            var supplierSummaries = await GetSupplierSummary(userId); // ✅ Get summaries
+            var branches = await _context.Branches
+                .Include(b => b.Business)
+                .Where(b => !b.IsDeleted && b.Business.UserId == userId)
+                .ToListAsync();
+
+            var customers = await _context.Customers
+                .Include(c => c.Branch)
+                    .ThenInclude(b => b.Business)
+                .Where(c => c.Branch.Business.UserId == userId)
+                .ToListAsync();
+
+            var categories = await _context.ItemCategories
+                .Include(c => c.Business)
+                .Where(c => !c.IsArchived && c.Business.UserId == userId)
+                .ToListAsync();
+
+            var items = await _context.Items
+                .Include(i => i.Business)
+                .Include(i => i.Branch)
+                .Include(i => i.ItemCategory)
+                .Where(i => !i.IsDeleted && i.Business.UserId == userId)
+                .ToListAsync();
+
+            var suppliers = await _context.Suppliers
+                .Include(s => s.Business)
+                .Include(s => s.SupplierItems)
+                    .ThenInclude(si => si.Item)
+                .Where(s => !s.IsDeleted && s.Business.UserId == userId)
+                .ToListAsync();
+
+            var supplierSummaries = await GetSupplierSummary(userId);
+
+            // Set default report type if not provided
+            if (string.IsNullOrEmpty(reportType))
+                reportType = "summary";
 
             // Create Excel file
             using var workbook = new XLWorkbook();
 
-            var suppliersSheet = workbook.Worksheets.Add("Suppliers");
-            CreateSuppliersSheet(suppliersSheet, suppliers);
-
-            // Add a new sheet for supplier summaries
-            var supplierSummarySheet = workbook.Worksheets.Add("Supplier Summary");
-            CreateSupplierSummarySheet(supplierSummarySheet, supplierSummaries);
-
-
-
-
-            // Summary Sheet
+            // Summary Sheet (Always included)
             var summarySheet = workbook.Worksheets.Add("Summary");
             CreateSummarySheet(summarySheet, orders, expenses, payments, startDate.Value, endDate.Value);
-            
+
             // Orders Sheet
             var ordersSheet = workbook.Worksheets.Add("Orders");
             CreateOrdersSheet(ordersSheet, orders);
+
+            // Order Items Sheet
+            var orderItemsSheet = workbook.Worksheets.Add("Order Items");
+            CreateOrderItemsSheet(orderItemsSheet, orders);
 
             // Expenses Sheet
             var expensesSheet = workbook.Worksheets.Add("Expenses");
@@ -238,22 +264,185 @@ namespace PRISM.Controllers
             var paymentsSheet = workbook.Worksheets.Add("Payments");
             CreatePaymentsSheet(paymentsSheet, payments);
 
-            // Order Items Sheet
-            var orderItemsSheet = workbook.Worksheets.Add("Order Items");
-            CreateOrderItemsSheet(orderItemsSheet, orders);
+            // Detailed Report: Add additional sheets
+            if (reportType == "detailed")
+            {
+                // Businesses Sheet
+                var businessesSheet = workbook.Worksheets.Add("Businesses");
+                CreateBusinessesSheet(businessesSheet, businesses);
 
-            var SupplierSummaries = await GetSupplierSummary(userId);
+                // Branches Sheet
+                var branchesSheet = workbook.Worksheets.Add("Branches");
+                CreateBranchesSheet(branchesSheet, branches);
+
+                // Customers Sheet
+                var customersSheet = workbook.Worksheets.Add("Customers");
+                CreateCustomersSheet(customersSheet, customers);
+
+                // Categories Sheet
+                var categoriesSheet = workbook.Worksheets.Add("Categories");
+                CreateCategoriesSheet(categoriesSheet, categories);
+
+                // Items Sheet
+                var itemsSheet = workbook.Worksheets.Add("Items");
+                CreateItemsSheet(itemsSheet, items);
+            }
+
+            // Suppliers Sheet (Always included)
+            var suppliersSheet = workbook.Worksheets.Add("Suppliers");
+            CreateSuppliersSheet(suppliersSheet, suppliers);
+
+            // Supplier Summary Sheet
+            var supplierSummarySheet = workbook.Worksheets.Add("Supplier Summary");
+            CreateSupplierSummarySheet(supplierSummarySheet, supplierSummaries);
 
             // Save to memory stream
             using var stream = new MemoryStream();
             workbook.SaveAs(stream);
             var content = stream.ToArray();
 
-            var fileName = $"Report_{startDate.Value:yyyy-MM-dd}_to_{endDate.Value:yyyy-MM-dd}_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+            var reportTypeLabel = reportType == "detailed" ? "Detailed" : "Summary";
+            var fileName = $"PRISM_{reportTypeLabel}_Report_{startDate.Value:yyyy-MM-dd}_to_{endDate.Value:yyyy-MM-dd}.xlsx";
 
             return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
 
+        // Add these new helper methods to create the additional sheets
+
+        private void CreateBusinessesSheet(IXLWorksheet sheet, List<Business> businesses)
+        {
+            sheet.Cell(1, 1).Value = "Business ID";
+            sheet.Cell(1, 2).Value = "Business Name";
+            sheet.Cell(1, 3).Value = "Industry";
+            sheet.Cell(1, 4).Value = "Timezone";
+            sheet.Cell(1, 5).Value = "Status";
+
+            sheet.Range(1, 1, 1, 5).Style.Font.Bold = true;
+            sheet.Range(1, 1, 1, 5).Style.Fill.BackgroundColor = XLColor.LightSkyBlue;
+
+            int row = 2;
+            foreach (var business in businesses)
+            {
+                sheet.Cell(row, 1).Value = business.BusinessId;
+                sheet.Cell(row, 2).Value = business.Name;
+                sheet.Cell(row, 3).Value = business.Industry;
+                sheet.Cell(row, 4).Value = business.Timezone;
+                sheet.Cell(row, 5).Value = business.Status;
+                row++;
+            }
+
+            sheet.Columns().AdjustToContents();
+        }
+
+        private void CreateBranchesSheet(IXLWorksheet sheet, List<Branch> branches)
+        {
+            sheet.Cell(1, 1).Value = "Branch ID";
+            sheet.Cell(1, 2).Value = "Branch Name";
+            sheet.Cell(1, 3).Value = "Business";
+            sheet.Cell(1, 4).Value = "Address";
+            sheet.Cell(1, 5).Value = "Phone";
+
+            sheet.Range(1, 1, 1, 5).Style.Font.Bold = true;
+            sheet.Range(1, 1, 1, 5).Style.Fill.BackgroundColor = XLColor.LightGreen;
+
+            int row = 2;
+            foreach (var branch in branches)
+            {
+                sheet.Cell(row, 1).Value = branch.BranchId;
+                sheet.Cell(row, 2).Value = branch.Name;
+                sheet.Cell(row, 3).Value = branch.Business?.Name;
+                sheet.Cell(row, 4).Value = branch.Address;
+                sheet.Cell(row, 5).Value = branch.Phone;
+                row++;
+            }
+
+            sheet.Columns().AdjustToContents();
+        }
+
+        private void CreateCustomersSheet(IXLWorksheet sheet, List<Customer> customers)
+        {
+            sheet.Cell(1, 1).Value = "Customer ID";
+            sheet.Cell(1, 2).Value = "Full Name";
+            sheet.Cell(1, 3).Value = "Email";
+            sheet.Cell(1, 4).Value = "Phone";
+            sheet.Cell(1, 5).Value = "Branch";
+            sheet.Cell(1, 6).Value = "Business";
+
+            sheet.Range(1, 1, 1, 6).Style.Font.Bold = true;
+            sheet.Range(1, 1, 1, 6).Style.Fill.BackgroundColor = XLColor.LightCyan;
+
+            int row = 2;
+            foreach (var customer in customers)
+            {
+                sheet.Cell(row, 1).Value = customer.CustomerId;
+                sheet.Cell(row, 2).Value = customer.FullName;
+                sheet.Cell(row, 3).Value = customer.Email;
+                sheet.Cell(row, 4).Value = customer.Phone;
+                sheet.Cell(row, 5).Value = customer.Branch?.Name;
+                sheet.Cell(row, 6).Value = customer.Branch?.Business?.Name;
+                row++;
+            }
+
+            sheet.Columns().AdjustToContents();
+        }
+
+        private void CreateCategoriesSheet(IXLWorksheet sheet, List<ItemCategory> categories)
+        {
+            sheet.Cell(1, 1).Value = "Category ID";
+            sheet.Cell(1, 2).Value = "Category Name";
+            sheet.Cell(1, 3).Value = "Business";
+            sheet.Cell(1, 4).Value = "Item Count";
+
+            sheet.Range(1, 1, 1, 4).Style.Font.Bold = true;
+            sheet.Range(1, 1, 1, 4).Style.Fill.BackgroundColor = XLColor.LightGoldenrodYellow;
+
+            int row = 2;
+            foreach (var category in categories)
+            {
+                sheet.Cell(row, 1).Value = category.CategoryId;
+                sheet.Cell(row, 2).Value = category.Name;
+                sheet.Cell(row, 3).Value = category.Business?.Name;
+                sheet.Cell(row, 4).Value = category.Items?.Count ?? 0;
+                row++;
+            }
+
+            sheet.Columns().AdjustToContents();
+        }
+
+        private void CreateItemsSheet(IXLWorksheet sheet, List<Items> items)
+        {
+            sheet.Cell(1, 1).Value = "Item ID";
+            sheet.Cell(1, 2).Value = "Item Name";
+            sheet.Cell(1, 3).Value = "SKU";
+            sheet.Cell(1, 4).Value = "Category";
+            sheet.Cell(1, 5).Value = "Branch";
+            sheet.Cell(1, 6).Value = "Business";
+            sheet.Cell(1, 7).Value = "Cost Price";
+            sheet.Cell(1, 8).Value = "Sell Price";
+            sheet.Cell(1, 9).Value = "Description";
+
+            sheet.Range(1, 1, 1, 9).Style.Font.Bold = true;
+            sheet.Range(1, 1, 1, 9).Style.Fill.BackgroundColor = XLColor.LightSalmon;
+
+            int row = 2;
+            foreach (var item in items)
+            {
+                sheet.Cell(row, 1).Value = item.ItemId;
+                sheet.Cell(row, 2).Value = item.Name;
+                sheet.Cell(row, 3).Value = item.Sku;
+                sheet.Cell(row, 4).Value = item.ItemCategory?.Name;
+                sheet.Cell(row, 5).Value = item.Branch?.Name;
+                sheet.Cell(row, 6).Value = item.Business?.Name;
+                sheet.Cell(row, 7).Value = item.CostPrice;
+                sheet.Cell(row, 7).Style.NumberFormat.Format = "$#,##0.00";
+                sheet.Cell(row, 8).Value = item.SellPrice;
+                sheet.Cell(row, 8).Style.NumberFormat.Format = "$#,##0.00";
+                sheet.Cell(row, 9).Value = item.Description ?? "";
+                row++;
+            }
+
+            sheet.Columns().AdjustToContents();
+        }
         // Helper Methods
         private void CreateSummarySheet(IXLWorksheet sheet, List<Order> orders, List<Expense> expenses,
             List<Payment> payments, DateTime startDate, DateTime endDate)
