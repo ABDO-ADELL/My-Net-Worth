@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PRISM;
 using PRISM.Helpers;
@@ -47,9 +48,24 @@ public class Program
             options.ExpireTimeSpan = TimeSpan.FromDays(30);
             options.SlidingExpiration = true;
             options.Cookie.HttpOnly = true;
-            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-            options.Cookie.SameSite = SameSiteMode.Strict; 
+           // options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+          //  options.Cookie.SameSite = SameSiteMode.Strict; 
             options.Cookie.Name = "PRISM.Auth";
+            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+            options.Cookie.SameSite = SameSiteMode.Lax;
+            if (!builder.Environment.IsDevelopment())
+            {
+                options.Cookie.Domain = null; // Let the browser set it automatically
+            }
+
+
+        });
+        // Handle proxy headers for RunASP
+        builder.Services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            options.KnownNetworks.Clear();
+            options.KnownProxies.Clear();
         });
 
         builder.Services.AddControllersWithViews();
@@ -70,7 +86,8 @@ public class Program
             app.UseExceptionHandler("/Home/Error");
             app.UseHsts();
         }
-
+        // Enable forwarded headers
+        app.UseForwardedHeaders();
         app.UseHttpsRedirection();
         app.UseRouting();
 
