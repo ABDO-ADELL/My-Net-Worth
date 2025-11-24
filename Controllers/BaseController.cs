@@ -56,13 +56,3 @@ public class BaseController : Controller
 }
 
 
-
-//    protected void SetUserId<T>(T entity) where T : class
-//    {
-//        var userIdProperty = entity.GetType().GetProperty("UserId");
-//        if (userIdProperty != null && userIdProperty.CanWrite)
-//        {
-//            userIdProperty.SetValue(entity, GetCurrentUserId());
-//        }
-//    }
-//}

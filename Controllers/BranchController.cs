@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PRISM.Models;
+using PRISM.Services;
 using System.Security.Claims;
 
 namespace PRISM.Controllers
@@ -11,23 +12,24 @@ namespace PRISM.Controllers
     public class BranchController : BaseController
     {
         private readonly AppDbContext _context;
+        private readonly ViewBagPopulationService _viewBagService;
 
-        public BranchController(AppDbContext context) : base(context)
+        public BranchController(AppDbContext context, ViewBagPopulationService viewBagService) : base(context)
         {
             _context = context;
+            _viewBagService = viewBagService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             var userId = GetCurrentUserId();
-
             var branches = await _context.Branches
                 .Include(b => b.Business)
                 .Where(b => !b.IsDeleted && b.Business.UserId == userId)
-                .OrderBy(b => b.Name)
                 .ToListAsync();
-
+            
+            await this.PopulateBranchesAsync(_viewBagService);
             return View(branches);
         }
 
@@ -57,15 +59,7 @@ namespace PRISM.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var userId = GetCurrentUserId();
-
-            ViewBag.Businesses = new SelectList(
-                await _context.Businesses
-                    .Where(b => !b.IsDeleted && b.UserId == userId)
-                    .ToListAsync(),
-                "BusinessId",
-                "Name"
-            );
+            await this.PopulateBusinessesAsync(_viewBagService);
             return View();
         }
 
@@ -81,14 +75,8 @@ namespace PRISM.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewBag.Businesses = new SelectList(
-                    await _context.Businesses
-                        .Where(b => !b.IsDeleted && b.UserId == userId)
-                        .ToListAsync(),
-                    "BusinessId",
-                    "Name",
-                    branch.BusinessId
-                );
+                await this.PopulateBusinessesAsync(_viewBagService);
+
 
                 TempData["ErrorMessage"] = "Please correct the errors and try again.";
                 return View(branch);
@@ -149,7 +137,6 @@ namespace PRISM.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var userId = GetCurrentUserId();
-
             var branch = await _context.Branches
                 .Include(b => b.Business)
                 .FirstOrDefaultAsync(b => b.BranchId == id
@@ -161,28 +148,17 @@ namespace PRISM.Controllers
                 return NotFound();
             }
 
-            ViewBag.Businesses = new SelectList(
-                await _context.Businesses
-                    .Where(b => !b.IsDeleted && b.UserId == userId)
-                    .ToListAsync(),
-                "BusinessId",
-                "Name",
-                branch.BusinessId
-            );
+            // Populate businesses dropdown for reassignment
+            await this.PopulateBusinessesAsync(_viewBagService);
 
             return View(branch);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Branch branch)
+        public async Task<IActionResult> Edit(Branch branch)
         {
             var userId = GetCurrentUserId();
-
-            if (id != branch.BranchId)
-            {
-                return NotFound();
-            }
 
             ModelState.Remove("Business");
             ModelState.Remove("Items");
@@ -190,31 +166,47 @@ namespace PRISM.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewBag.Businesses = new SelectList(
-                    await _context.Businesses
-                        .Where(b => !b.IsDeleted && b.UserId == userId)
-                        .ToListAsync(),
-                    "BusinessId",
-                    "Name",
-                    branch.BusinessId
-                );
+                await this.PopulateBusinessesAsync(_viewBagService);
+                TempData["ErrorMessage"] = "Please correct the errors and try again.";
                 return View(branch);
             }
 
             try
             {
-                // Verify branch belongs to user's business
+                // Load existing branch with security check
                 var existingBranch = await _context.Branches
                     .Include(b => b.Business)
-                    .FirstOrDefaultAsync(b => b.BranchId == id
+                    .FirstOrDefaultAsync(b => b.BranchId == branch.BranchId
+                        && !b.IsDeleted
                         && b.Business.UserId == userId);
 
                 if (existingBranch == null)
                 {
+                    TempData["ErrorMessage"] = "Branch not found or access denied.";
                     return NotFound();
                 }
 
-                _context.Branches.Update(branch);
+                // Validate the new BusinessId belongs to the current user
+                var validBusiness = await _context.Businesses
+                    .AnyAsync(b => b.BusinessId == branch.BusinessId
+                        && !b.IsDeleted
+                        && b.UserId == userId);
+
+                if (!validBusiness)
+                {
+                    ModelState.AddModelError("BusinessId", "Selected business is invalid or does not belong to you.");
+                    await this.PopulateBusinessesAsync(_viewBagService);
+                    TempData["ErrorMessage"] = "You can only assign branches to your own businesses.";
+                    return View(branch);
+                }
+
+                // Update fields - user can reassign to a different business they own
+                existingBranch.Name = branch.Name;
+                existingBranch.Address = branch.Address;
+                existingBranch.Phone = branch.Phone;
+                existingBranch.BusinessId = branch.BusinessId; // Allow reassignment
+
+                _context.Branches.Update(existingBranch);
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = $"Branch '{branch.Name}' updated successfully!";
@@ -224,9 +216,18 @@ namespace PRISM.Controllers
             {
                 if (!await BranchExists(branch.BranchId))
                 {
+                    TempData["ErrorMessage"] = "Branch no longer exists.";
                     return NotFound();
                 }
                 throw;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating branch: {ex.Message}");
+                ModelState.AddModelError("", "An unexpected error occurred while updating the branch.");
+                await this.PopulateBusinessesAsync(_viewBagService);
+                TempData["ErrorMessage"] = "An error occurred while updating the branch.";
+                return View(branch);
             }
         }
         #endregion
@@ -301,242 +302,3 @@ namespace PRISM.Controllers
         }
     }
 }
-
-
-
-//        public async Task<IActionResult> Index()
-//        {
-//            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-//            var user = await _context.Users.FindAsync(userId);
-//            var branches = await _context.Branches
-//                .Include(b => b.Business)
-//                .Where(b => !b.IsDeleted && b.BusinessId == user.BusinessId)
-//                .OrderBy(b => b.Name)
-//                .ToListAsync();
-//            return View(branches);
-//        }
-
-//        #region Details
-//        [HttpGet]
-//        public async Task<IActionResult> Details(int id)
-//        {
-//            var user = CurrentUser;
-//            var branch = await _context.Branches
-//                .Include(b => b.Business)
-//                .Include(b => b.Items)
-//                .Include(b => b.Inventories).Where(b => b.BusinessId == user.BusinessId&& b.BranchId==id)
-//                .FirstOrDefaultAsync();
-
-//            if (branch == null)
-//            {
-//                return NotFound();
-//            }
-//            return View(branch);
-//        }
-//        #endregion
-
-//        #region Create  
-//        [HttpGet]
-//        public async Task<IActionResult> Create()
-//        {
-//            var user = CurrentUser;
-//            ViewBag.Businesses = new SelectList(
-//                await _context.Businesses.Where(b => !b.IsDeleted && b.BusinessId == user.BusinessId).ToListAsync(),
-//                "BusinessId",
-//                "Name"
-//            );
-//            return View();
-//        }
-
-//        [HttpPost]
-//        [ValidateAntiForgeryToken]
-//        public async Task<IActionResult> Create(Branch branch)
-//        {
-//            var user = CurrentUser;
-
-//            ModelState.Remove("Business");
-//            ModelState.Remove("Items");
-//            ModelState.Remove("Inventories");
-
-//            if (!ModelState.IsValid)
-//            {
-//                ViewBag.Businesses = new SelectList(
-//                    await _context.Businesses.Where(b => !b.IsDeleted && b.BusinessId == user.BusinessId).ToListAsync(),
-//                    "BusinessId",
-//                    "Name",
-//                    branch.BusinessId
-//                );
-
-//                TempData["ErrorMessage"] = "Please correct the errors and try again.";
-//                return View(branch);
-//            }
-
-//            try
-//            {
-//                var businessExists = await _context.Businesses
-//                    .AnyAsync(b => b.BusinessId == branch.BusinessId && !b.IsDeleted);
-
-//                if (!businessExists)
-//                {
-//                    ModelState.AddModelError("BusinessId", "Selected business does not exist.");
-//                    ViewBag.Businesses = new SelectList(
-//                        await _context.Businesses.Where(b => !b.IsDeleted&&b.BusinessId==user.BusinessId).ToListAsync(),
-//                        "BusinessId",
-//                        "Name"
-//                    );
-//                    TempData["ErrorMessage"] = "Selected business is invalid.";
-//                    return View(branch);
-//                }
-
-//                branch.IsDeleted = false;
-
-//                _context.Branches.Add(branch);
-//                await _context.SaveChangesAsync();
-
-//                TempData["SuccessMessage"] = $"Branch '{branch.Name}' added successfully!";
-//                return RedirectToAction(nameof(Index));
-//            }
-//            catch (Exception ex)
-//            {
-//                Console.WriteLine($"Error creating branch: {ex.Message}");
-//                Console.WriteLine($"Inner Exception: {ex.InnerException?.Message}");
-
-//                ModelState.AddModelError("", $"Error creating branch: {ex.Message}");
-//                ViewBag.Businesses = new SelectList(
-//                    await _context.Businesses.Where(b => !b.IsDeleted&&b.BusinessId==user.BusinessId).ToListAsync(),
-//                    "BusinessId",
-//                    "Name",
-//                    branch.BusinessId
-//                );
-//                TempData["ErrorMessage"] = "An error occurred while creating the branch.";
-//                return View(branch);
-//            }
-//        }
-//        #endregion
-
-//        #region Edit    
-//        [HttpGet]
-//        public async Task<IActionResult> Edit(int id)
-//        {
-//            var user = CurrentUser;
-
-//            var branch = await _context.Branches.FindAsync(id);
-//            if (branch == null || branch.IsDeleted)
-//            {
-//                return NotFound();
-//            }
-
-//            ViewBag.Businesses = new SelectList(
-//                await _context.Businesses.Where(b => !b.IsDeleted && b.BusinessId == user.BusinessId).ToListAsync(),
-//                "BusinessId",
-//                "Name",
-//                branch.BusinessId
-//            );
-
-//            return View(branch);
-//        }
-
-//        [HttpPost]
-//        [ValidateAntiForgeryToken]
-//        public async Task<IActionResult> Edit(int id, Branch branch)
-//        {
-//            var user = CurrentUser;
-
-//            if (id != branch.BranchId)
-//            {
-//                return NotFound();
-//            }
-
-//            ModelState.Remove("Business");
-//            ModelState.Remove("Items");
-//            ModelState.Remove("Inventories");
-
-//            if (!ModelState.IsValid)
-//            {
-//                ViewBag.Businesses = new SelectList(
-//                    await _context.Businesses.Where(b => !b.IsDeleted && b.BusinessId == user.BusinessId).ToListAsync(),
-//                    "BusinessId",
-//                    "Name",
-//                    branch.BusinessId
-//                );
-//                return View(branch);
-//            }
-
-//            try
-//            {
-//                _context.Branches.Update(branch);
-//                await _context.SaveChangesAsync();
-
-//                TempData["SuccessMessage"] = $"Branch '{branch.Name}' updated successfully!";
-//                return RedirectToAction(nameof(Index));
-//            }
-//            catch (DbUpdateConcurrencyException)
-//            {
-//                if (!await BranchExists(branch.BranchId))
-//                {
-//                    return NotFound();
-//                }
-//                throw;
-//            }
-//        }
-//        #endregion
-
-//        #region Archive
-//        [HttpGet]
-//        public async Task<IActionResult> Archived()
-//        {
-//            var user = CurrentUser;
-//            var archivedBranches = await _context.Branches
-//                .Include(b => b.Business)
-//                .Include(b => b.Items)
-//                .Include(b => b.Inventories)
-//                .Where(b => b.IsDeleted && b.BusinessId==user.BusinessId)
-//                .ToListAsync();
-
-//            return View(archivedBranches);
-//        }
-//        #endregion
-
-//        #region Delete
-//        [HttpGet]
-//        public async Task<IActionResult> Delete(int id)
-//        {
-//            var user = CurrentUser;
-//            var branch = await _context.Branches
-//                .Include(b => b.Business).Where(b => b.BusinessId == user.BusinessId && b.BranchId == id)
-//                .FirstOrDefaultAsync();
-
-//            if (branch == null)
-//            {
-//                return NotFound();
-//            }
-
-//            return View(branch);
-//        }
-
-//        [HttpPost, ActionName("Delete")]
-//        [ValidateAntiForgeryToken]
-//        public async Task<IActionResult> DeleteConfirmed(int id)
-//        {
-//            var branch = await _context.Branches.FindAsync(id);
-//            if (branch == null)
-//            {
-//                return NotFound();
-//            }
-
-//            branch.IsDeleted = true;
-//            _context.Branches.Update(branch);
-//            await _context.SaveChangesAsync();
-
-//            TempData["SuccessMessage"] = $"Branch '{branch.Name}' deleted successfully!";
-//            return RedirectToAction(nameof(Index));
-//        }
-//        #endregion
-
-//        private async Task<bool> BranchExists(int id)
-//        {
-//            var user = CurrentUser;
-//            return await _context.Branches.Where(b=>b.BranchId ==id && b.BusinessId == user.BusinessId).AnyAsync();
-//        }
-//    }
-//}

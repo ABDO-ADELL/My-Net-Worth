@@ -1,0 +1,926 @@
+﻿/* site.css - Optimized Dark Mode Theme */
+:root {
+    --bg-primary: #f5f7fa;
+    --bg-secondary: #ffffff;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --sidebar-bg: linear-gradient(180deg, #1a1f3a 0%, #0f1421 100%);
+    --topnav-bg: #ffffff;
+    --card-bg: #ffffff;
+    --shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+[data-theme="dark"] {
+    --bg-primary: #0f1421;
+    --bg-secondary: #1a1f3a;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #94a3b8;
+    --border-color: #2d3748;
+    --topnav-bg: #1a1f3a;
+    --card-bg: #1e293b;
+    --shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+/* Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-primary);
+    overflow-x: hidden;
+    color: var(--text-primary);
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px;
+    background: var(--sidebar-bg);
+    padding: 20px 0;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+    overflow-y: auto;
+}
+
+    .sidebar.collapsed {
+        width: 80px;
+    }
+
+.sidebar-brand {
+    padding: 20px 25px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: white;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 20px;
+}
+
+    .sidebar-brand i {
+        font-size: 28px;
+        color: #667eea;
+    }
+
+.sidebar-brand-text {
+    font-size: 22px;
+    font-weight: 700;
+    transition: opacity 0.3s;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.sidebar.collapsed .sidebar-brand-text,
+.sidebar.collapsed .nav-text {
+    opacity: 0;
+    display: none;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0 15px;
+}
+
+.nav-item {
+    margin-bottom: 5px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 15px;
+    color: #a0aec0;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+    .nav-link:hover {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        transform: translateX(5px);
+    }
+
+    .nav-link.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .nav-link i {
+        font-size: 18px;
+        width: 24px;
+        text-align: center;
+    }
+
+.nav-section-title {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 20px 15px 10px;
+    margin-top: 10px;
+}
+
+/* Top Navigation */
+.top-nav {
+    position: fixed;
+    top: 0;
+    left: 260px;
+    right: 0;
+    height: 70px;
+    background: var(--topnav-bg);
+    display: flex;
+    align-items: center;
+    padding: 0 30px;
+    box-shadow: var(--shadow);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 999;
+    transition: left 0.3s ease;
+}
+
+.sidebar.collapsed ~ .top-nav {
+    left: 80px;
+}
+
+.top-nav-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.top-nav-left {
+    flex: 1;
+}
+
+.toggle-sidebar {
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+    .toggle-sidebar:hover {
+        color: #667eea;
+    }
+
+.top-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Main Layout */
+.main-content {
+    margin-left: 260px;
+    margin-top: 70px;
+    padding: 30px;
+    min-height: calc(100vh - 70px);
+    transition: margin-left 0.3s ease;
+    background-color: var(--bg-primary);
+}
+
+.sidebar.collapsed ~ .main-content {
+    margin-left: 80px;
+}
+
+.footer {
+    margin-left: 260px;
+    padding: 20px 30px;
+    background: var(--topnav-bg);
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 14px;
+    transition: margin-left 0.3s ease;
+}
+
+.sidebar.collapsed ~ .footer {
+    margin-left: 80px;
+}
+
+/* Components */
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 12px;
+}
+
+.card-header {
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.card-body {
+    background-color: var(--card-bg);
+}
+
+.table {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+    .table th {
+        background-color: var(--bg-secondary);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    .table td {
+        background-color: var(--card-bg);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+    }
+
+.table-hover tbody tr:hover {
+    background-color: var(--bg-secondary);
+}
+
+.dropdown-menu {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.dropdown-item {
+    color: var(--text-primary);
+}
+
+    .dropdown-item:hover {
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+
+.modal-content {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+}
+
+.form-control, .form-select {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+    .form-control:focus, .form-select:focus {
+        background-color: var(--card-bg);
+        border-color: #667eea;
+        color: var(--text-primary);
+    }
+
+/* Buttons & Interactive */
+.btn-icon {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .btn-icon:hover {
+        background: var(--bg-secondary);
+        color: #667eea;
+    }
+
+.btn-outline-primary {
+    color: #667eea;
+    border-color: #667eea;
+}
+
+    .btn-outline-primary:hover {
+        background-color: #667eea;
+        border-color: #667eea;
+        color: white;
+    }
+
+/* Dashboard Specific */
+.stat-card {
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px var(--shadow) !important;
+    }
+
+.icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.bg-success-light {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+.bg-danger-light {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+.bg-primary-light {
+    background-color: rgba(102, 126, 234, 0.1) !important;
+}
+
+.bg-info-light {
+    background-color: rgba(79, 172, 254, 0.1) !important;
+}
+
+.bg-warning-light {
+    background-color: rgba(245, 158, 11, 0.1) !important;
+}
+
+/* List Groups */
+.list-group-flush .list-group-item {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+.list-group-item:hover {
+    background-color: var(--bg-secondary) !important;
+}
+
+/* Text & Colors */
+p, .text-muted, .text-secondary {
+    color: var(--text-muted) !important;
+}
+
+.text-success {
+    color: #10b981 !important;
+}
+
+.text-danger {
+    color: #ef4444 !important;
+}
+
+.text-primary {
+    color: #667eea !important;
+}
+
+.text-info {
+    color: #4facfe !important;
+}
+
+.text-warning {
+    color: #f59e0b !important;
+}
+
+.badge.bg-light {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Overrides for Bootstrap classes */
+.bg-white {
+    background-color: var(--bg-secondary) !important;
+}
+
+.bg-light {
+    background-color: var(--bg-secondary) !important;
+}
+
+.border-0 {
+    border: 1px solid var(--border-color) !important;
+}
+
+/* Alerts */
+.alert-warning {
+    background-color: rgba(245, 158, 11, 0.1) !important;
+    border-color: rgba(245, 158, 11, 0.2) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Scrollbar */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.5);
+    border-radius: 10px;
+}
+
+    .sidebar::-webkit-scrollbar-thumb:hover {
+        background: rgba(102, 126, 234, 0.7);
+    }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: 280px;
+    }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+            .sidebar.collapsed.active {
+                transform: translateX(0);
+            }
+
+    .top-nav {
+        left: 0;
+        padding: 0 20px;
+    }
+
+    .main-content, .footer {
+        margin-left: 0;
+    }
+
+    .user-info {
+        display: none !important;
+    }
+
+    .breadcrumb-item:not(:last-child) {
+        display: none;
+    }
+
+    .top-nav-right {
+        gap: 15px;
+    }
+
+    .sidebar.active::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 280px;
+        background: rgba(0,0,0,0.5);
+        z-index: -1;
+    }
+}
+
+/* Performance optimizations */
+.sidebar *, .modal *, .dropdown-menu * {
+    transition: none;
+}
+/* User Dropdown & Search Box Fixes */
+.user-dropdown .user-profile-btn {
+    background: none;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 12px;
+    transition: all 0.3s;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+    .user-dropdown .user-profile-btn:hover {
+        background: var(--bg-secondary);
+    }
+
+.user-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    border: 2px solid var(--border-color);
+}
+
+.user-status {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--card-bg);
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.user-role {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+/* Search Box Styles */
+.search-container {
+    position: relative;
+}
+
+.search-box {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 16px;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+    .search-box:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+    }
+
+    .search-box::placeholder {
+        color: var(--text-secondary);
+    }
+
+/* Form Control Overrides */
+.form-control {
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    border-radius: 6px;
+}
+
+    .form-control:focus {
+        background-color: var(--card-bg) !important;
+        border-color: #667eea !important;
+        color: var(--text-primary) !important;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important;
+    }
+
+    .form-control::placeholder {
+        color: var(--text-secondary) !important;
+        opacity: 0.7;
+    }
+
+/* Input Group Fixes */
+.input-group-text {
+    background-color: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-secondary) !important;
+}
+
+.input-group .form-control {
+    border-left: none !important;
+}
+
+.input-group .input-group-text:first-child {
+    border-right: none !important;
+}
+
+.input-group .form-control:last-child {
+    border-left: none !important;
+}
+
+/* Dropdown Toggle Fix */
+.dropdown-toggle {
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+    .dropdown-toggle:hover, .dropdown-toggle:focus {
+        background-color: var(--bg-secondary) !important;
+        border-color: var(--border-color) !important;
+        color: var(--text-primary) !important;
+    }
+
+/* Button Group Fixes */
+.btn-group .btn {
+    border-color: var(--border-color) !important;
+}
+
+    .btn-group .btn:hover {
+        background-color: var(--bg-secondary) !important;
+    }
+
+/* Specific fix for the business dropdown in dashboard */
+#businessDropdown {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+    #businessDropdown:hover {
+        background-color: var(--bg-secondary) !important;
+    }
+
+/* Search modal specific fixes */
+.modal-header {
+    border-bottom-color: var(--border-color) !important;
+    background-color: var(--card-bg) !important;
+}
+
+.modal-footer {
+    border-top-color: var(--border-color) !important;
+    background-color: var(--card-bg) !important;
+}
+
+/* Fix for the theme toggle button */
+.theme-toggle {
+    background: transparent !important;
+    border: none !important;
+    color: var(--text-secondary) !important;
+}
+
+    .theme-toggle:hover {
+        background: var(--bg-secondary) !important;
+        color: #667eea !important;
+    }
+
+/* Notification icon fix */
+.notification-icon {
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+}
+
+    .notification-icon:hover {
+        color: #667eea;
+        background: var(--bg-secondary);
+    }
+
+/* Breadcrumb fixes */
+.breadcrumb-item a {
+    color: var(--text-secondary);
+    text-decoration: none;
+}
+
+    .breadcrumb-item a:hover {
+        color: #667eea;
+    }
+
+.breadcrumb-item.active {
+    color: var(--text-primary);
+}
+
+/* Page title in top nav */
+.page-title {
+    color: var(--text-primary) !important;
+}
+
+/* Ensure all interactive elements have proper contrast */
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+.btn-outline-secondary {
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+    .btn-outline-secondary:hover {
+        background-color: var(--bg-secondary);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+    }
+
+/* Fix for the user dropdown menu alignment */
+.dropdown-menu-end {
+    right: 0;
+    left: auto;
+}
+
+/* Mobile responsive fixes for user dropdown */
+@media (max-width: 768px) {
+    .user-info {
+        display: none !important;
+    }
+
+    .user-dropdown .user-profile-btn {
+        padding: 6px 8px;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+}
+
+/* Fix for search suggestions */
+.search-suggestions {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-top: 8px;
+    padding: 12px;
+}
+
+    .search-suggestions .badge {
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+    }
+
+        .search-suggestions .badge:hover {
+            background: #667eea !important;
+            color: white !important;
+            border-color: #667eea;
+        }
+/* Disabled Form Controls */
+.form-control:disabled,
+.form-select:disabled {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-secondary) !important;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+    .form-control:disabled::placeholder,
+    .form-select:disabled::placeholder {
+        color: var(--text-secondary) !important;
+        opacity: 0.5;
+    }
+
+/* Disabled Select Boxes */
+select:disabled {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-secondary) !important;
+    opacity: 0.6;
+}
+
+    select:disabled option {
+        color: var(--text-secondary);
+        background-color: var(--bg-secondary);
+    }
+
+/* Read-only states */
+.form-control[readonly] {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-secondary) !important;
+}
+
+/* Placeholder text for disabled inputs */
+.form-control:disabled::placeholder {
+    color: var(--text-secondary) !important;
+    opacity: 0.5;
+}
+
+/* Disabled dropdown toggle */
+.dropdown-toggle:disabled {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-secondary) !important;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Disabled buttons */
+.btn:disabled {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-secondary) !important;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Specific styling for "Select Business First..." type messages */
+.form-select option[disabled]:first-child {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* Loading states for form controls */
+.form-control.loading,
+.form-select.loading {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364748b'%3E%3Cpath d='M12 2a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1zm0 15a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1zm8.66-10a1 1 0 0 1-.366 1.366l-2.598 1.5a1 1 0 1 1-1-1.732l2.598-1.5A1 1 0 0 1 20.66 7zM7.67 14.5a1 1 0 0 1-.366 1.366l-2.598 1.5a1 1 0 1 1-1-1.732l2.598-1.5a1 1 0 0 1 1.366.366zM20.66 17a1 1 0 0 1-1.366.366l-2.598-1.5a1 1 0 0 1 1-1.732l2.598 1.5A1 1 0 0 1 20.66 17zM7.67 9.5a1 1 0 0 1-1.366.366l-2.598-1.5a1 1 0 1 1 1-1.732l2.598 1.5A1 1 0 0 1 7.67 9.5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px 16px;
+    padding-right: 40px;
+}
+
+/* Helper text for disabled fields */
+.disabled-field-help {
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-style: italic;
+    margin-top: 4px;
+}
+
+/* Required field indicators */
+.form-label.required::after {
+    content: " *";
+    color: #ef4444;
+}
+
+/* Focus states for enabled fields only */
+.form-control:not(:disabled):focus,
+.form-select:not(:disabled):focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important;
+}
+
+/* Hover states only for enabled fields */
+.form-control:not(:disabled):hover,
+.form-select:not(:disabled):hover {
+    border-color: var(--border-color);
+}
+
+/* Specific fix for the business dropdown chain */
+.business-chain-disabled {
+    opacity: 0.7;
+}
+
+    .business-chain-disabled .form-label {
+        color: var(--text-secondary);
+    }
+
+/* Animation for when fields become enabled */
+.form-control:disabled,
+.form-select:disabled {
+    transition: all 0.3s ease;
+}
+
+.form-control:not(:disabled),
+.form-select:not(:disabled) {
+    transition: all 0.3s ease;
+}
+
+/* Custom select arrow for disabled states */
+.form-select:disabled {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%2394a3b8' viewBox='0 0 16 16'%3e%3cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3e%3c/svg%3e");
+}
+
+/* Group related disabled fields */
+.field-group-disabled {
+    opacity: 0.7;
+}
+
+    .field-group-disabled .form-label {
+        color: var(--text-secondary);
+    }
+
+    .field-group-disabled .form-text {
+        color: var(--text-secondary);
+        opacity: 0.8;
+    }
+
+/* Success state when dependencies are resolved */
+.field-group-enabled {
+    opacity: 1;
+}
+
+    .field-group-enabled .form-label {
+        color: var(--text-primary);
+    }

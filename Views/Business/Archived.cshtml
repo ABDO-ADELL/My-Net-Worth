@@ -18,6 +18,7 @@
             <th>Status</th>
             <th>Branches</th>
             <th>Items</th>
+            <th>Actions</th>   @* ➕ Added *@
         </tr>
     </thead>
     <tbody>
@@ -31,6 +32,14 @@
                 <td>@business.Status</td>
                 <td>@(business.Branches?.Count() ?? 0)</td>
                 <td>@(business.Items?.Count() ?? 0)</td>
+                <td>
+                    <form asp-action="Unarchive" method="post">
+                        <input type="hidden" name="id" value="@business.BusinessId" />
+                        <button type="submit" class="btn btn-success btn-sm">
+                            Unarchive
+                        </button>
+                    </form>
+                </td>
             </tr>
         }
     </tbody>

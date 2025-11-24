@@ -10,35 +10,32 @@
     <form asp-action="Edit" method="post">
         <input type="hidden" asp-for="BranchId" />
 
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
         <div class="mb-3">
-            <label asp-for="Name" class="form-label">Branch Name</label>
+            <label asp-for="Name" class="form-label"></label>
             <input asp-for="Name" class="form-control" />
             <span asp-validation-for="Name" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Address" class="form-label">Address</label>
+            <label asp-for="Address" class="form-label"></label>
             <input asp-for="Address" class="form-control" />
             <span asp-validation-for="Address" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="Phone" class="form-label">Phone</label>
+            <label asp-for="Phone" class="form-label"></label>
             <input asp-for="Phone" class="form-control" />
             <span asp-validation-for="Phone" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="BusinessId" class="form-label">Business</label>
+            <label asp-for="BusinessId" class="form-label"></label>
             <select asp-for="BusinessId" class="form-select" asp-items="ViewBag.Businesses">
-                <option value="">-- Select Business --</option>
+                <option>-- Select Business --</option>
             </select>
             <span asp-validation-for="BusinessId" class="text-danger"></span>
-        </div>
-
-        <div class="form-check mb-3">
-            <input asp-for="IsDeleted" class="form-check-input" type="checkbox" />
-            <label asp-for="IsDeleted" class="form-check-label">Mark as Deleted</label>
         </div>
 
         <button type="submit" class="btn btn-primary">Save</button>

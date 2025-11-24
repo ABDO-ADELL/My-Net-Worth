@@ -15,7 +15,7 @@ namespace PRISM.Controllers
         public IActionResult Index()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var businesses = _context.Businesses.Where(o=>o.UserId==userId)
+            var businesses = _context.Businesses.Where(o=>o.UserId==userId && !o.IsDeleted)
                 .OrderBy(b => b.Name);
             return View(businesses.ToList());
         }
@@ -81,7 +81,13 @@ namespace PRISM.Controllers
             {
                 return View(business);
             }
-            _context.Businesses.Update(business);
+            var existingBusiness = _context.Businesses.FirstOrDefault(b => b.BusinessId == business.BusinessId);
+            existingBusiness.Name = business.Name;
+            existingBusiness.Industry = business.Industry;
+            existingBusiness.Timezone = business.Timezone;
+            existingBusiness.Status = business.Status;
+            existingBusiness.IsDeleted = business.IsDeleted;
+
             _context.SaveChanges();
             return RedirectToAction(nameof(Index));
         }
@@ -99,11 +105,31 @@ namespace PRISM.Controllers
 
             return View(archivedBusinesses);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Unarchive(int id)
+        {
+            var business = await _context.Businesses
+                .FirstOrDefaultAsync(b => b.BusinessId == id);
+
+            if (business == null)
+                return NotFound();
+
+            business.IsDeleted = false;
+            business.Status = "Active";
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Business restored successfully.";
+
+            return RedirectToAction("Archived"); 
+        }
+
         #endregion
 
         #region Delete
-        [HttpPost]
-        public async Task<IActionResult> Delete(int id) 
+        [HttpPost, ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(int id) 
         {
             var business = _context.Businesses
                 .Include(b => b.Branches)
@@ -142,20 +168,20 @@ namespace PRISM.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-        //[HttpGet]
-        //public async Task<IActionResult> Delete(int id)
-        //{
-        //    var business = await _context.Businesses
-        //        .Include(b => b.Branches)
-        //        .Include(b => b.Items)
-        //        .FirstOrDefaultAsync(m => m.BusinessId == id);
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id )
+        {
+            var business = await _context.Businesses
+                .Include(b => b.Branches)
+                .Include(b => b.Items)
+                .FirstOrDefaultAsync(m => m.BusinessId == id);
 
-        //    if (business == null)
-        //        return NotFound();
+            if (business == null)
+                return NotFound();
 
-        //    return View(business);
-        //}
-        
+            return View(business);
+        }
+
         #endregion
     }
 }

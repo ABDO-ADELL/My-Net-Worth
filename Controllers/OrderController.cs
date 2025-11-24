@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -9,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace PRISM.Controllers
 {
-    public class OrderController : Controller
+    public class OrderController : BaseController
     {
         private readonly AppDbContext _context;
         private readonly UserManager<AppUser> _userManager;
 
-        public OrderController(AppDbContext context, UserManager<AppUser> userManager)
+        public OrderController(AppDbContext context, UserManager<AppUser> userManager):base(context)
         {
             _context = context;
             _userManager = userManager;
@@ -28,7 +29,7 @@ namespace PRISM.Controllers
                 .Include(o => o.branch)
                 .Include(o => o.Customer)
                 .Include(o => o.user)
-                .Where(o => !o.IsDeleted && o.UserId == userId)
+                .Where(o => !o.IsDeleted )
                 .OrderByDescending(o => o.datetime)
                 .ToListAsync();
 
@@ -62,17 +63,15 @@ namespace PRISM.Controllers
         // GET: Order/Create
         public async Task<IActionResult> Create()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _context.Users.FindAsync(userId);
 
             //ViewData["BusinessId"] = new SelectList(_context.Businesses, "BusinessId", "Name");
             //ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name");
             //ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName");
             await PopulateDropdowns();
-            ViewData["Items"] = _context.Items
-                .Where(i => !i.IsDeleted && i.BusinessId ==user.BusinessId)
-                .Select(i => new { i.ItemId, i.Name, i.SellPrice })
-                .ToList();
+            //ViewData["Items"] = _context.Items
+            //    .Where(i => !i.IsDeleted && i.BusinessId == user.BusinessId)
+            //    .Select(i => new { i.ItemId, i.Name, i.SellPrice })
+            //    .ToList();
 
             return View();
         }
@@ -309,13 +308,37 @@ namespace PRISM.Controllers
 
         private async Task PopulateDropdowns(Items? item = null)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _context.Users.FindAsync(userId);
 
-            ViewBag.Customers = new SelectList(await _context.ItemCategories.Where(c => !c.IsArchived && c.BusinessId == user.BusinessId).ToListAsync(), "CustomerId", "FullName", item?.CategoryId);
-            ViewBag.Branches = new SelectList(await _context.Branches.Where(b => !b.IsDeleted && b.BusinessId == user.BusinessId).ToListAsync(), "BranchId", "Name", item?.BranchId);
-            ViewBag.Businesses = new SelectList(await _context.Businesses.Where(a => a.BusinessId == user.BusinessId).ToListAsync(), "BusinessId", "Name", item?.BusinessId);
-            //ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId
+            var userId = GetCurrentUserId();
+          //  var user = await _context.Users.FindAsync(userId);
+
+            ViewBag.BusinessId = new SelectList(
+                await _context.Businesses
+                    .Where(b => !b.IsDeleted && b.UserId == userId)
+                    .ToListAsync(),
+                "BusinessId",
+                "Name"
+            );
+            ViewBag.BranchId = new SelectList(
+                await _context.Branches.Include(b => b.Business)
+        .Where(b => !b.IsDeleted && b.Business.UserId == userId)
+        .ToListAsync(),
+    "BranchId",
+    "Name"
+);
+
+            ViewBag.CustomerId = new SelectList(
+                await _context.Customers.Include(c => c.Branch).ThenInclude(b => b.Business)
+                    .Where(c => c.Branch.Business.UserId == userId)
+                    .ToListAsync(),
+                "CustomerId",
+                "FullName"
+            );
+            ViewData["Items"] = _context.Items.Include(i => i.Business)
+    .Where(i => !i.IsDeleted && i.Business.UserId == userId)
+    .Select(i => new { i.ItemId, i.Name, i.SellPrice })
+    .ToList();
+
 
         }
 

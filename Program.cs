@@ -70,7 +70,7 @@ public class Program
 
         builder.Services.AddControllersWithViews();
         builder.Services.AddHttpContextAccessor();
-
+        builder.Services.AddScoped<ViewBagPopulationService>();
         builder.Services.AddControllers()
             .AddJsonOptions(options =>
             {
