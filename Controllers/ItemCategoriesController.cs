@@ -114,7 +114,7 @@ namespace PRISM.Controllers
                 return NotFound();
 
             // بنبعت ليست البزنس عشان تظهر في الدروب داون
-            ViewBag.Businesses = new SelectList(await _context.Businesses.Where(b=>b.UserId==userId).ToListAsync(), "BusinessId", "Name", category.BusinessId);
+            ViewBag.Businesses = new SelectList(await _context.Businesses.Where(b=>b.UserId==userId && !b.IsDeleted).ToListAsync(), "BusinessId", "Name", category.BusinessId);
 
             return View(category);
         }
@@ -163,6 +163,23 @@ namespace PRISM.Controllers
 
             return View(category);
         }
+        public async Task<IActionResult> Unarchive(int id)
+        {
+            var business = await _context.ItemCategories
+                .FirstOrDefaultAsync(b => b.CategoryId == id);
+
+            if (business == null)
+                return NotFound();
+
+            business.IsArchived = false;
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Business restored successfully.";
+
+            return RedirectToAction("Archived");
+        }
+
 
         // ✅ GET: Delete (عرض صفحة تأكيد الحذف)
         [HttpGet]
@@ -204,9 +221,9 @@ namespace PRISM.Controllers
         {
             var userId = GetCurrentUserId();
 
-            ViewBag.Categories = new SelectList(await _context.ItemCategories.Where(c => !c.IsArchived && c.Business.UserId == userId).ToListAsync(), "CategoryId", "Name", item?.CategoryId);
+            ViewBag.Categories = new SelectList(await _context.ItemCategories.Where(c => !c.IsArchived && c.Business.UserId == userId && c.Business.IsDeleted).ToListAsync(), "CategoryId", "Name", item?.CategoryId);
             ViewBag.Branches = new SelectList(await _context.Branches.Where(b => !b.IsDeleted && b.Business.UserId == userId).ToListAsync(), "BranchId", "Name", item?.BranchId);
-            ViewBag.Businesses = new SelectList(await _context.Businesses.Where(a => a.UserId== userId).ToListAsync(), "BusinessId", "Name", item?.BusinessId);
+            ViewBag.Businesses = new SelectList(await _context.Businesses.Where(a => a.UserId== userId && !a.IsDeleted).ToListAsync(), "BusinessId", "Name", item?.BusinessId);
         }
 
 

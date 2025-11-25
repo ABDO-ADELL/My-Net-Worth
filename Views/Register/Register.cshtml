@@ -15,105 +15,142 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f2f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f7;
             min-height: 100vh;
             display: flex;
-            direction: ltr;
         }
 
         .left-section {
             flex: 1;
-            background: linear-gradient(135deg, rgba(32, 201, 151, 0.7) 0%, rgba(0, 123, 255, 0.7) 100%), url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200') center/cover;
+            background: #6366f1;
+            padding: 60px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 60px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px;
-            position: relative;
-            overflow: hidden;
+            font-size: 24px;
         }
 
-            .left-section::before {
-                content: '';
-                position: absolute;
-                width: 300px;
-                height: 300px;
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 50%;
-                top: -100px;
-                left: -100px;
-            }
-
-            .left-section::after {
-                content: '';
-                position: absolute;
-                width: 200px;
-                height: 200px;
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 50%;
-                bottom: -50px;
-                right: -50px;
-            }
-
-        .left-content {
-            text-align: center;
-            color: white;
-            z-index: 1;
-            max-width: 500px;
+        .logo-text {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
-            .left-content h1 {
-                font-size: 48px;
-                font-weight: 700;
-                margin-bottom: 20px;
-                text-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            }
+        .hero-title {
+            font-size: 52px;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            letter-spacing: -1px;
+        }
 
-            .left-content p {
-                font-size: 18px;
-                line-height: 1.6;
-                opacity: 0.95;
-            }
+        .hero-subtitle {
+            font-size: 18px;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin-bottom: 50px;
+            max-width: 550px;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .feature-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .feature-content h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .feature-content p {
+            font-size: 14px;
+            opacity: 0.85;
+            line-height: 1.5;
+            margin: 0;
+        }
 
         .right-section {
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px;
+            padding: 60px;
             background: white;
+            overflow-y: auto;
         }
 
         .register-container {
             width: 100%;
-            max-width: 450px;
+            max-width: 520px;
         }
 
         .register-header {
-            margin-bottom: 35px;
+            margin-bottom: 40px;
         }
 
-            .register-header h2 {
+            .register-header h1 {
                 font-size: 32px;
                 font-weight: 700;
                 color: #1a1a1a;
-                margin-bottom: 10px;
+                margin-bottom: 8px;
+                letter-spacing: -0.5px;
             }
 
             .register-header p {
-                color: #6c757d;
                 font-size: 16px;
+                color: #6b7280;
             }
 
         .form-row {
-            display: flex;
-            gap: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
             margin-bottom: 20px;
         }
-
-            .form-row .form-group {
-                flex: 1;
-            }
 
         .form-group {
             margin-bottom: 20px;
@@ -121,94 +158,191 @@
 
         .form-label {
             display: block;
-            margin-bottom: 8px;
-            color: #344054;
-            font-weight: 500;
             font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
         }
 
         .form-control {
             width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #d0d5dd;
+            padding: 14px 16px;
+            border: 1px solid #d1d5db;
             border-radius: 8px;
             font-size: 15px;
-            transition: all 0.3s ease;
+            transition: all 0.2s;
+            background: white;
         }
 
             .form-control:focus {
                 outline: none;
-                border-color: #20c997;
-                box-shadow: 0 0 0 4px rgba(32, 201, 151, 0.1);
+                border-color: #6366f1;
+                box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
             }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #9ca3af;
+            font-size: 18px;
+        }
 
         .btn-primary {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, #20c997 0%, #007bff 100%);
+            background: #6366f1;
             border: none;
             border-radius: 8px;
             color: white;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
+            transition: all 0.2s;
+            margin-top: 8px;
         }
 
             .btn-primary:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 10px 20px rgba(32, 201, 151, 0.3);
+                background: #4f46e5;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
             }
 
-        .footer-links {
-            margin-top: 25px;
+            .btn-primary:active {
+                transform: translateY(0);
+            }
+
+        .signin-link {
             text-align: center;
+            margin-top: 32px;
+            font-size: 14px;
+            color: #6b7280;
         }
 
-            .footer-links a {
-                color: #20c997;
+            .signin-link a {
+                color: #6366f1;
                 text-decoration: none;
-                font-size: 14px;
+                font-weight: 600;
             }
 
-                .footer-links a:hover {
+                .signin-link a:hover {
                     text-decoration: underline;
                 }
 
-        @@media (max-width: 992px) {
-            body {
-                flex-direction: column;
-            }
+        @@media (max-width: 1024px) {
+            body
 
-            .left-section {
-                min-height: 250px;
-            }
-
-            .left-content h1 {
-                font-size: 36px;
-            }
-
-            .form-row {
-                flex-direction: column;
-                gap: 0;
-            }
+        {
+            flex-direction: column;
         }
-    </style>
+
+        .left-section {
+            padding: 40px;
+        }
+
+        .hero-title {
+            font-size: 38px;
+        }
+
+        .right-section {
+            padding: 40px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        }
+
+        @@media (max-width: 640px) {
+            .left-section
+
+        {
+            padding: 32px 24px;
+        }
+
+        .hero-title {
+            font-size: 32px;
+        }
+
+        .right-section {
+            padding: 32px 24px;
+        }
+
+        }</style>
 </head>
 <body>
     <div class="left-section">
-        <div class="left-content">
-            <h1>Join PRISM</h1>
-            <p>Start your journey with our comprehensive management system. Create your account and unlock powerful tools for managing your business efficiently</p>
+        <div class="logo-section">
+            <div class="logo-icon">📊</div>
+            <div class="logo-text">PRISM</div>
+        </div>
+
+        <h1 class="hero-title">Everything You Need to Manage Your Business</h1>
+        <p class="hero-subtitle">Join PRISM now and optmize your busisness</p>
+
+        <div class="feature-list">
+            <div class="feature-item">
+                <div class="feature-icon">📊</div>
+                <div class="feature-content">
+                    <h3>Comprehensive Analytics</h3>
+                    <p>Deep insights into your business operations with real-time reporting</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">👥</div>
+                <div class="feature-content">
+                    <h3>Team Management</h3>
+                    <p>Efficiently manage teams, roles, and permissions across branches</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">🌐</div>
+                <div class="feature-content">
+                    <h3>Multi-Branch Support</h3>
+                    <p>Seamlessly coordinate operations across multiple locations</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">🛡️</div>
+                <div class="feature-content">
+                    <h3>Enterprise Security</h3>
+                    <p>SOC 2 compliant with end-to-end encryption</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-content">
+                    <h3>Workflow Automation</h3>
+                    <p>Automate repetitive tasks and streamline processes</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">🕐</div>
+                <div class="feature-content">
+                    <h3>24/7 Monitoring</h3>
+                    <p>Real-time system monitoring with instant alerts</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="right-section">
         <div class="register-container">
             <div class="register-header">
-                <h2>Create Account</h2>
-                <p>Fill in your information to get started</p>
+                <h1>Start Your Free Trial</h1>
+                <p>Join thousands of businesses using PRISM to streamline operations and boost productivity. No credit card required.</p>
             </div>
 
             <form onsubmit="event.preventDefault(); register();">
@@ -225,30 +359,42 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" id="email" class="form-control" placeholder="example@company.com" required />
+                    <label class="form-label">Work Email</label>
+                    <input type="email" id="email" class="form-control" placeholder="name@company.com" required />
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Password</label>
-                    <input type="password" id="password" class="form-control" placeholder="••••••••" required />
+                    <div class="input-wrapper">
+                        <input type="password" id="password" class="form-control" placeholder="Create a strong password" required />
+                        <span class="password-toggle" onclick="togglePassword('password')">👁️</span>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Confirm Password</label>
-                    <input type="password" id="confirmPassword" class="form-control" placeholder="••••••••" required />
+                    <div class="input-wrapper">
+                        <input type="password" id="confirmPassword" class="form-control" placeholder="Re-enter your password" required />
+                        <span class="password-toggle" onclick="togglePassword('confirmPassword')">👁️</span>
+                    </div>
                 </div>
 
-                <button type="submit" class="btn-primary">Create Account</button>
+                <button type="submit" class="btn-primary">Create Account & Start Free Trial</button>
             </form>
 
-            <div class="footer-links">
-                <a href="Login">Already have an account? Sign in</a>
+            <div class="signin-link">
+                Already have an account? <a href="/Register/Login">Sign in instead</a>
             </div>
         </div>
     </div>
 
     <script>
+        function togglePassword(fieldId) {
+            const passwordField = document.getElementById(fieldId);
+            const type = passwordField.type === 'password' ? 'text' : 'password';
+            passwordField.type = type;
+        }
+
         async function register() {
             const model = {
                 FirstName: document.getElementById("firstName").value,
@@ -258,18 +404,16 @@
                 ConfirmPassword: document.getElementById("confirmPassword").value
             };
 
-            // Validate password match
             if (model.Password !== model.ConfirmPassword) {
                 alert("Password and confirmation do not match!");
                 return;
             }
 
-            // Validate password length
             if (model.Password.length < 6) {
                 alert("Password must be at least 6 characters long");
                 return;
             }
-            //api/Authentication/Register
+
             try {
                 const res = await fetch("/Register/Register", {
                     method: "POST",
@@ -278,21 +422,17 @@
                 });
 
                 const data = await res.json();
-                console.log("Response:", data);
 
                 if (res.ok) {
-                    // Store tokens securely
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('refreshToken', data.refreshToken);
                     localStorage.setItem('userEmail', data.email);
                     localStorage.setItem('userName', data.userName);
 
-                    alert("Account created successfully!");
                     window.location.href = "/Dashboard/Index";
                 } else {
-                    // Handle different error scenarios
                     const errorMessage = data.message || "Please try again";
-                    alert(" Registration failed: " + errorMessage);
+                    alert("Registration failed: " + errorMessage);
                 }
             } catch (err) {
                 console.error("Registration error:", err);
@@ -300,6 +440,5 @@
             }
         }
     </script>
-
 </body>
 </html>

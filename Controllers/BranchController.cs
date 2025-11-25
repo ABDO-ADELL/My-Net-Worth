@@ -247,6 +247,23 @@ namespace PRISM.Controllers
 
             return View(archivedBranches);
         }
+        public async Task<IActionResult> Unarchive(int id)
+        {
+            var Branch = await _context.Branches
+                .FirstOrDefaultAsync(b => b.BranchId == id);
+
+            if (Branch == null)
+                return NotFound();
+
+            Branch.IsDeleted = false;
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Business restored successfully.";
+
+            return RedirectToAction("Archived");
+        }
+
         #endregion
 
         #region Delete

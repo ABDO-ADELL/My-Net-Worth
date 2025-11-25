@@ -23,6 +23,14 @@
                 <td>@item.Name</td>
                 <td>@item.Business?.Name</td>
                 <td><span class="badge bg-danger">Archived</span></td>
+                <td>
+                    <form asp-action="Unarchive" method="post">
+                        <input type="hidden" name="id" value="@item.CategoryId" />
+                        <button type="submit" class="btn btn-success btn-sm">
+                            Unarchive
+                        </button>
+                    </form>
+                </td>
             </tr>
         }
     </tbody>

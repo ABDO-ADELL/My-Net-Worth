@@ -146,7 +146,16 @@ namespace PRISM.Controllers
                 if (existingItem == null)
                     return NotFound();
 
-                _context.Update(item);
+                existingItem.BranchId = item.BranchId;
+                existingItem.CategoryId = item.CategoryId;
+                existingItem.Name = item.Name;
+                existingItem.Sku = item.Sku;
+                existingItem.CostPrice = item.CostPrice;
+                existingItem.SellPrice = item.SellPrice;
+                existingItem.DurationMinutes = item.DurationMinutes;
+                existingItem.Description = item.Description;
+                existingItem.BusinessId = item.BusinessId;
+                
                 await _context.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "Item updated successfully!";

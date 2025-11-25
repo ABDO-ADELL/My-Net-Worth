@@ -33,6 +33,14 @@
                 <td>@(branch.Items?.Count() ?? 0)</td>
                 <td>@(branch.Inventories?.Count() ?? 0)</td>
                 <td><span class="badge bg-danger">Archived</span></td>
+                <td>
+                    <form asp-action="Unarchive" method="post">
+                        <input type="hidden" name="id" value="@branch.BranchId" />
+                        <button type="submit" class="btn btn-success btn-sm">
+                            Unarchive
+                        </button>
+                    </form>
+                </td>
             </tr>
         }
     </tbody>

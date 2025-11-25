@@ -1,105 +1,179 @@
-﻿@model IEnumerable<PRISM.Items>
+﻿@model IEnumerable<PRISM.Models.Items>
 
 @{
-    ViewData["Title"] = "Items List";
+    ViewData["Title"] = "Items Management";
 }
 
-<h2>@ViewData["Title"]</h2>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="section-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1>Items Management</h1>
+                <p class="text-muted">Manage your products and services inventory</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a asp-action="Archived" class="btn btn-outline-secondary">
+                    <i class="fas fa-archive me-2"></i>View Archived
+                </a>
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Add New Item
+                </a>
+            </div>
+        </div>
+    </div>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">+ Add New Item</a>
-    <a asp-action="Archived" class="btn btn-outline-secondary">View Archived</a>
-</p>
+    <!-- Success Message -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-<!-- ✅ مربع البحث -->
-<div class="d-flex align-items-center mb-3" style="gap: 10px;">
-    <div style="position: relative; width: 300px;">
-        <input type="text"
-               id="searchBox"
-               class="form-control"
-               placeholder="Search by Name or SKU..."
-               oninput="filterTable()" />
+    <!-- Items Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0">
+                <i class="fas fa-boxes me-2"></i>All Items
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="px-3 py-2 small">Item Name</th>
+                                <th class="py-2 small">SKU</th>
+                                <th class="py-2 small">Business</th>
+                                <th class="py-2 small">Branch</th>
+                                <th class="py-2 small">Category</th>
+                                <th class="py-2 small text-end">Cost Price</th>
+                                <th class="py-2 small text-end">Sell Price</th>
+                                <th class="py-2 small">Duration</th>
+                                <th class="py-2 small text-center">Status</th>
+                                <th class="py-2 small text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="px-3 py-2">
+                                        <div class="d-flex align-items-center">
+                                            <div class="icon-box bg-primary-light me-3">
+                                                <i class="fas fa-box text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">@item.Name</div>
+                                                @if (!string.IsNullOrEmpty(item.Description))
+                                                {
+                                                    <small class="text-muted">@item.Description</small>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-2">
+                                        <code>@item.Sku</code>
+                                    </td>
+                                    <td class="py-2">
+                                        <span class="badge bg-light text-dark">@item.Business?.Name</span>
+                                    </td>
+                                    <td class="py-2">
+                                        <small>@item.Branch?.Name</small>
+                                    </td>
+                                    <td class="py-2">
+                                        <span class="badge bg-info-light text-info">@item.ItemCategory?.Name</span>
+                                    </td>
+                                    <td class="py-2 text-end">
+                                        <span class="text-muted">$@item.CostPrice.ToString("N2")</span>
+                                    </td>
+                                    <td class="py-2 text-end">
+                                        <strong class="text-success">$@item.SellPrice.ToString("N2")</strong>
+                                    </td>
+                                    <td class="py-2">
+                                        @if (item.DurationMinutes.HasValue)
+                                        {
+                                            <span class="badge bg-warning-light text-warning">
+                                                @item.DurationMinutes.Value min
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td class="py-2 text-center">
+                                        @if (item.IsDeleted)
+                                        {
+                                            <span class="badge bg-danger">Archived</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">Active</span>
+                                        }
+                                    </td>
+                                    <td class="py-2 text-end">
+                                        <div class="action-buttons">
+                                            <a asp-action="Edit" asp-route-id="@item.ItemId" class="btn-action" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Details" asp-route-id="@item.ItemId" class="btn-action" title="Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <button type="button" class="btn-action text-danger" title="Delete"
+                                                    data-bs-toggle="modal" data-bs-target="#deleteModal-@item.ItemId">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
 
-        <!-- ❌ زر المسح -->
-        <span id="clearBtn"
-              onclick="clearSearch()"
-              style="position: absolute; right: 10px; top: 8px; cursor: pointer; display: none; color: #888;">
-            ✖
-        </span>
+                                        <!-- Delete Modal -->
+                                        <div class="modal fade" id="deleteModal-@item.ItemId" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-header border-0">
+                                                        <h5 class="modal-title text-danger">
+                                                            <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
+                                                        </h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to delete <strong>@item.Name</strong>?</p>
+                                                        <p class="text-muted small">This action will archive the item. You can restore it later from archived items.</p>
+                                                    </div>
+                                                    <div class="modal-footer border-0">
+                                                        <form asp-action="Delete" method="post">
+                                                            <input type="hidden" name="id" value="@item.ItemId" />
+                                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn btn-danger">
+                                                                <i class="fas fa-trash me-2"></i>Delete Item
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-boxes fa-3x text-muted opacity-25 mb-3"></i>
+                    <h4 class="text-muted">No Items Found</h4>
+                    <p class="text-muted mb-4">Get started by adding your first item to the inventory.</p>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add Your First Item
+                    </a>
+                </div>
+            }
+        </div>
     </div>
 </div>
-
-<!-- ✅ الجدول -->
-<table class="table table-bordered table-striped" id="itemsTable">
-    <thead>
-        <tr>
-            <th>Item ID</th>
-            <th>Name</th>
-            <th>SKU</th>
-            <th>Cost Price</th>
-            <th>Sell Price</th>
-            <th>Category</th>
-            <th>Branch</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr class="text-center">
-                <td>@item.ItemId</td>
-                <td>@item.Name</td>
-                <td>@item.Sku</td>
-                <td>@item.CostPrice.ToString("C")</td>
-                <td>@item.SellPrice.ToString("C")</td>
-                <td>@item.ItemCategory?.Name</td>
-                <td>@item.Branch?.Name</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.ItemId" class="btn btn-sm btn-warning">Edit</a>
-                    <a asp-action="Details" asp-route-id="@item.ItemId" class="btn btn-sm btn-info">Details</a>
-                    <a asp-action="Delete" asp-route-id="@item.ItemId" class="btn btn-sm btn-danger">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-<!-- ✅ الرسالة عند عدم وجود نتائج -->
-<p id="noResults" style="display:none; color: #888; font-style: italic;">
-    🚫 No items found.
-</p>
-
-<!-- ✅ سكربت البحث -->
-<script>
-    function filterTable() {
-        const input = document.getElementById("searchBox");
-        const filter = input.value.toLowerCase();
-        const table = document.getElementById("itemsTable");
-        const trs = table.getElementsByTagName("tr");
-        const clearBtn = document.getElementById("clearBtn");
-        const noResults = document.getElementById("noResults");
-
-        let visibleCount = 0;
-        clearBtn.style.display = filter ? "block" : "none";
-
-        for (let i = 1; i < trs.length; i++) { // i=1 لتجاهل الـ thead
-            const name = trs[i].getElementsByTagName("td")[1]?.textContent.toLowerCase();
-            const sku = trs[i].getElementsByTagName("td")[2]?.textContent.toLowerCase();
-
-            if (name.includes(filter) || sku.includes(filter)) {
-                trs[i].style.display = "";
-                visibleCount++;
-            } else {
-                trs[i].style.display = "none";
-            }
-        }
-
-        noResults.style.display = visibleCount === 0 ? "block" : "none";
-    }
-
-    function clearSearch() {
-        document.getElementById("searchBox").value = "";
-        document.getElementById("clearBtn").style.display = "none";
-        filterTable();
-    }
-</script>

@@ -1,137 +1,238 @@
-﻿@model PRISM.Items
+﻿@model PRISM.Models.Items
 
 @{
-    ViewData["Title"] = "Add Item";
+    ViewData["Title"] = "Add New Item";
 }
 
-<h2>Add New Item</h2>
-
-<form asp-action="Create" method="post">
-    <!-- Business Dropdown -->
-    <div class="form-group mt-2">
-        <label asp-for="BusinessId">Business</label>
-        <select asp-for="BusinessId" asp-items="ViewBag.Businesses" class="form-control">
-            <option value="">-- Select Business --</option>
-        </select>
-        <span asp-validation-for="BusinessId" class="text-danger"></span>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="section-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1>Add New Item</h1>
+                <p class="text-muted">Create a new product or service in your inventory</p>
+            </div>
+            <div>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Items
+                </a>
+            </div>
+        </div>
     </div>
 
-    <!-- Branch Dropdown -->
-    <div class="form-group mt-2">
-        <label asp-for="BranchId">Branch</label>
-        <select asp-for="BranchId" asp-items="ViewBag.Branches" class="form-control">
-            <option value="">-- Select Branch --</option>
-        </select>
-        <span asp-validation-for="BranchId" class="text-danger"></span>
-    </div>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-plus-circle text-success me-2"></i>Item Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" id="createItemForm">
+                        <!-- Basic Information -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Name" class="form-label required">Item Name</label>
+                                    <input asp-for="Name" class="form-control" placeholder="Enter item name" />
+                                    <span asp-validation-for="Name" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Sku" class="form-label required">SKU Code</label>
+                                    <input asp-for="Sku" class="form-control" placeholder="Enter unique SKU" />
+                                    <span asp-validation-for="Sku" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
 
-    <!-- Category Dropdown -->
-    <div class="form-group mt-2">
-        <label asp-for="CategoryId">Category</label>
-        <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-control">
-            <option value="">-- Select Category --</option>
-        </select>
-        <span asp-validation-for="CategoryId" class="text-danger"></span>
-    </div>
+                        <!-- Business & Location -->
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="BusinessId" class="form-label required">Business</label>
+                                    <select asp-for="BusinessId" asp-items="ViewBag.Businesses" class="form-select" id="businessSelect">
+                                        <option value="">-- Select Business --</option>
+                                    </select>
+                                    <span asp-validation-for="BusinessId" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="BranchId" class="form-label required">Branch</label>
+                                    <select asp-for="BranchId" class="form-select" id="branchSelect" disabled>
+                                        <option value="">-- Select Business First --</option>
+                                    </select>
+                                    <span asp-validation-for="BranchId" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="CategoryId" class="form-label required">Category</label>
+                                    <select asp-for="CategoryId" class="form-select" id="categorySelect" disabled>
+                                        <option value="">-- Select Business First --</option>
+                                    </select>
+                                    <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
 
-    <!-- Item Name -->
-    <div class="form-group mt-2">
-        <label asp-for="Name">Item Name</label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
-    </div>
+                        <!-- Pricing -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="CostPrice" class="form-label">Cost Price</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input asp-for="CostPrice" class="form-control" placeholder="0.00" step="0.01" value="0" />
+                                    </div>
+                                    <span asp-validation-for="CostPrice" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="SellPrice" class="form-label required">Sell Price</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input asp-for="SellPrice" class="form-control" placeholder="0.00" step="0.01" />
+                                    </div>
+                                    <span asp-validation-for="SellPrice" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
 
-    <!-- SKU -->
-    <div class="form-group mt-2">
-        <label asp-for="Sku">SKU</label>
-        <input asp-for="Sku" class="form-control" />
-        <span asp-validation-for="Sku" class="text-danger"></span>
-    </div>
+                        <!-- Service Duration -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="DurationMinutes" class="form-label">Service Duration (Minutes)</label>
+                                    <input asp-for="DurationMinutes" class="form-control" placeholder="Leave empty for products" type="number" min="0" />
+                                    <small class="text-muted">For services only - leave empty for physical products</small>
+                                    <span asp-validation-for="DurationMinutes" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Item Type</label>
+                                    <div class="form-control-plaintext">
+                                        <span id="itemTypeIndicator" class="badge bg-info">Auto-detected</span>
+                                        <small class="text-muted d-block">Based on duration field</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-    <!-- Cost Price -->
-    <div class="form-group mt-2">
-        <label asp-for="CostPrice">Cost Price</label>
-        <input asp-for="CostPrice" class="form-control" />
-        <span asp-validation-for="CostPrice" class="text-danger"></span>
-    </div>
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Enter item description (optional)"></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
 
-    <!-- Sell Price -->
-    <div class="form-group mt-2">
-        <label asp-for="SellPrice">Sell Price</label>
-        <input asp-for="SellPrice" class="form-control" />
-        <span asp-validation-for="SellPrice" class="text-danger"></span>
-    </div>
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-2 pt-3 border-top">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>Create Item
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 
-    <!-- Duration (Optional) -->
-    <div class="form-group mt-2">
-        <label asp-for="DurationMinutes">Duration (Minutes)</label>
-        <input asp-for="DurationMinutes" class="form-control" />
-        <span asp-validation-for="DurationMinutes" class="text-danger"></span>
-    </div>
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Info -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0">
+                        <i class="fas fa-info-circle text-info me-2"></i>Quick Info
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h6 class="alert-heading">Item Types</h6>
+                        <p class="mb-2 small"><strong>Product:</strong> Physical goods with inventory</p>
+                        <p class="mb-0 small"><strong>Service:</strong> Time-based services with duration</p>
+                    </div>
 
-    <!-- Description (Optional) -->
-    <div class="form-group mt-2">
-        <label asp-for="Description">Description</label>
-        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-        <span asp-validation-for="Description" class="text-danger"></span>
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading">Required Fields</h6>
+                        <ul class="mb-0 small">
+                            <li>Item Name</li>
+                            <li>SKU Code</li>
+                            <li>Business</li>
+                            <li>Branch</li>
+                            <li>Category</li>
+                            <li>Sell Price</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <button type="submit" class="btn btn-primary mt-3">Add Item</button>
-</form>
-
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success mt-3">
-        @TempData["SuccessMessage"]
-    </div>
-}
+</div>
 
 @section Scripts {
-    @await Html.PartialAsync("_ValidationScriptsPartial")
-
     <script>
-        $("#BusinessId").change(function () {
-            var businessId = $(this).val();
+        $(document).ready(function () {
+            // Dynamic dropdowns
+            $('#businessSelect').change(function () {
+                const businessId = $(this).val();
+                const branchSelect = $('#branchSelect');
+                const categorySelect = $('#categorySelect');
 
-            // Reset Branch dropdown
-            $("#BranchId").empty();
-            $("#BranchId").append('<option value="">-- Select Branch --</option>');
+                // Reset and disable dependent dropdowns
+                branchSelect.html('<option value="">-- Select Branch --</option>').prop('disabled', !businessId);
+                categorySelect.html('<option value="">-- Select Category --</option>').prop('disabled', !businessId);
 
-            // Reset Category dropdown
-            $("#CategoryId").empty();
-            $("#CategoryId").append('<option value="">-- Select Category --</option>');
-
-            if (businessId) {
-
-                // Load Branches
-                $.ajax({
-                    url: '/Items/GetBranches',
-                    type: 'GET',
-                    data: { businessId: businessId },
-                    success: function (branches) {
-                        $.each(branches, function (i, branch) {
-                            $("#BranchId").append(
-                                `<option value="${branch.branchId}">${branch.branchName}</option>`
-                            );
+                if (businessId) {
+                    // Load branches
+                    $.getJSON('@Url.Action("GetBranches", "Items")', { businessId: businessId }, function (branches) {
+                        branches.forEach(function (branch) {
+                            branchSelect.append($('<option></option>').val(branch.branchId).text(branch.branchName));
                         });
-                    }
-                });
+                    });
 
-                // Load Categories
-                $.ajax({
-                    url: '/Items/GetCategories',
-                    type: 'GET',
-                    data: { businessId: businessId },
-                    success: function (categories) {
-                        $.each(categories, function (i, category) {
-                            $("#CategoryId").append(
-                                `<option value="${category.categoryId}">${category.categoryName}</option>`
-                            );
+                    // Load categories
+                    $.getJSON('@Url.Action("GetCategories", "Items")', { businessId: businessId }, function (categories) {
+                        categories.forEach(function (category) {
+                            categorySelect.append($('<option></option>').val(category.categoryId).text(category.categoryName));
                         });
-                    }
-                });
+                    });
+                }
+            });
 
-            }
+            // Item type detection
+            $('#DurationMinutes').on('input', function () {
+                const duration = $(this).val();
+                const indicator = $('#itemTypeIndicator');
+
+                if (duration && duration > 0) {
+                    indicator.removeClass('bg-info bg-success').addClass('bg-warning').text('Service');
+                } else {
+                    indicator.removeClass('bg-info bg-warning').addClass('bg-success').text('Product');
+                }
+            });
+
+            // Form validation
+            $('#createItemForm').on('submit', function (e) {
+                const sellPrice = parseFloat($('#SellPrice').val()) || 0;
+                const costPrice = parseFloat($('#CostPrice').val()) || 0;
+
+                if (sellPrice > 0 && costPrice > 0 && sellPrice < costPrice) {
+                    if (!confirm('Selling price is less than cost price. This will result in a loss. Continue?')) {
+                        e.preventDefault();
+                    }
+                }
+            });
         });
     </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

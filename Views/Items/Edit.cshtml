@@ -1,151 +1,334 @@
-﻿@using PRISM.Models
-@model Supplier
-@using Microsoft.AspNetCore.Mvc.Rendering
+﻿@model PRISM.Models.Items
 
 @{
-    ViewData["Title"] = "Edit Supplier";
-    var allItems = ViewBag.Items as List<SelectListItem> ?? new List<SelectListItem>();
+    ViewData["Title"] = "Edit Item";
 }
 
-<div class="container mt-4">
-    <h2>@ViewData["Title"]</h2>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="section-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1>Edit Item</h1>
+                <p class="text-muted">Update item details and pricing information</p>
+            </div>
+            <div>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Items
+                </a>
+            </div>
+        </div>
+    </div>
 
-    <form asp-action="Edit" method="post">
-        <input type="hidden" asp-for="SupplierId" />
+    <!-- Success Message -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-        <div class="mb-3">
-            <label asp-for="Name" class="form-label">Supplier Name</label>
-            <input asp-for="Name" class="form-control" />
-            <span asp-validation-for="Name" class="text-danger"></span>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit text-primary me-2"></i>Edit Item Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" id="editItemForm">
+                        <input type="hidden" asp-for="ItemId" />
+
+                        <!-- Basic Information -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Name" class="form-label required">Item Name</label>
+                                    <input asp-for="Name" class="form-control" placeholder="Enter item name" />
+                                    <span asp-validation-for="Name" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Sku" class="form-label required">SKU Code</label>
+                                    <input asp-for="Sku" class="form-control" placeholder="Enter unique SKU" />
+                                    <span asp-validation-for="Sku" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Business & Location -->
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="BusinessId" class="form-label required">Business</label>
+                                    <select asp-for="BusinessId" asp-items="ViewBag.Businesses" class="form-select" id="businessSelect">
+                                        <option value="">-- Select Business --</option>
+                                    </select>
+                                    <span asp-validation-for="BusinessId" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="BranchId" class="form-label required">Branch</label>
+                                    <select asp-for="BranchId" asp-items="ViewBag.Branches" class="form-select" id="branchSelect">
+                                        <option value="">-- Select Branch --</option>
+                                    </select>
+                                    <span asp-validation-for="BranchId" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="CategoryId" class="form-label required">Category</label>
+                                    <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-select" id="categorySelect">
+                                        <option value="">-- Select Category --</option>
+                                    </select>
+                                    <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pricing -->
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="CostPrice" class="form-label">Cost Price</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input asp-for="CostPrice" class="form-control" placeholder="0.00" step="0.01" />
+                                    </div>
+                                    <span asp-validation-for="CostPrice" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="SellPrice" class="form-label required">Sell Price</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input asp-for="SellPrice" class="form-control" placeholder="0.00" step="0.01" />
+                                    </div>
+                                    <span asp-validation-for="SellPrice" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Profit Margin</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="profitMargin" placeholder="0%" readonly />
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                    <small class="text-muted">Calculated automatically</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Service Duration -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="DurationMinutes" class="form-label">Service Duration (Minutes)</label>
+                                    <input asp-for="DurationMinutes" class="form-control" placeholder="Leave empty for products" type="number" min="0" />
+                                    <small class="text-muted">For services only - leave empty for physical products</small>
+                                    <span asp-validation-for="DurationMinutes" class="text-danger small"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Item Type</label>
+                                    <div class="form-control-plaintext">
+                                        @if (Model.DurationMinutes.HasValue && Model.DurationMinutes > 0)
+                                        {
+                                            <span class="badge bg-warning">Service</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">Product</span>
+                                        }
+                                        <small class="text-muted d-block">Based on duration field</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Enter item description (optional)"></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-2 pt-3 border-top">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Update Item
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="button" class="btn btn-outline-danger ms-auto" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                <i class="fas fa-trash me-2"></i>Delete Item
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label asp-for="Email" class="form-label">Email</label>
-            <input asp-for="Email" type="email" class="form-control" />
-            <span asp-validation-for="Email" class="text-danger"></span>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="Phone" class="form-label">Phone</label>
-            <input asp-for="Phone" class="form-control" />
-            <span asp-validation-for="Phone" class="text-danger"></span>
-        </div>
-
-        <hr />
-        <h4>Supplier Items</h4>
-
-        <div id="itemsContainer">
-            @if (Model.SupplierItems != null && Model.SupplierItems.Any())
-            {
-                var index = 0;
-                foreach (var item in Model.SupplierItems)
-                {
-                    <div class="row mb-3">
-                        <input type="hidden" asp-for="@item.SupplierItemId" name="SupplierItems[@index].SupplierItemId" />
-
-                        <div class="col-md-4">
-                            <label class="form-label">Item</label>
-                            <select asp-for="@item.ItemId" name="SupplierItems[@index].ItemId" class="form-select">
-                                <option value="">-- Select Item --</option>
-                                @foreach (var it in allItems)
-                                {
-                                    <option value="@it.Value" selected="@(item.ItemId.ToString() == it.Value ? "selected" : "")">@it.Text</option>
-                                }
-                            </select>
-                            <span class="text-danger"></span>
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Item Summary -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0">
+                        <i class="fas fa-info-circle text-info me-2"></i>Item Summary
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <small class="text-muted d-block">Item ID</small>
+                            <strong>#@Model.ItemId</strong>
                         </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label">Purchase Price</label>
-                            <input asp-for="@item.PurchasePrice" name="SupplierItems[@index].PurchasePrice" class="form-control" />
-                            <span class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-3">
-                            <label class="form-label">Payment Method</label>
-                            <select asp-for="@item.PaymentMethod" name="SupplierItems[@index].PaymentMethod" class="form-select">
-                                <option value="">-- Select Method --</option>
-                                <option value="Cash" selected="@(item.PaymentMethod == "Cash" ? "selected" : "")">Cash</option>
-                                <option value="Credit Card" selected="@(item.PaymentMethod == "Credit Card" ? "selected" : "")">Credit Card</option>
-                                <option value="Debit Card" selected="@(item.PaymentMethod == "Debit Card" ? "selected" : "")">Debit Card</option>
-                                <option value="Bank Transfer" selected="@(item.PaymentMethod == "Bank Transfer" ? "selected" : "")">Bank Transfer</option>
-                                <option value="E-Wallet" selected="@(item.PaymentMethod == "E-Wallet" ? "selected" : "")">E-Wallet</option>
-                                <option value="Check" selected="@(item.PaymentMethod == "Check" ? "selected" : "")">Check</option>
-                            </select>
-                            <span class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="button" class="btn btn-danger w-100 removeItemBtn">Remove</button>
-                        </div>
-                    </div>
-                    index++;
-                }
-            }
-            else
-            {
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Item</label>
-                        <select name="SupplierItems[0].ItemId" class="form-select">
-                            <option value="">-- Select Item --</option>
-                            @foreach (var it in allItems)
+                        <div class="col-6">
+                            <small class="text-muted d-block">Status</small>
+                            @if (Model.IsDeleted)
                             {
-                                <option value="@it.Value">@it.Text</option>
+                                <span class="badge bg-danger">Archived</span>
                             }
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Purchase Price</label>
-                        <input name="SupplierItems[0].PurchasePrice" class="form-control" />
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Payment Method</label>
-                        <select name="SupplierItems[0].PaymentMethod" class="form-select">
-                            <option value="">-- Select Method --</option>
-                            <option value="Cash">Cash</option>
-                            <option value="Credit Card">Credit Card</option>
-                            <option value="Debit Card">Debit Card</option>
-                            <option value="Bank Transfer">Bank Transfer</option>
-                            <option value="E-Wallet">E-Wallet</option>
-                            <option value="Check">Check</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="button" class="btn btn-danger w-100 removeItemBtn">Remove</button>
+                            else
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                        </div>
+                        <div class="col-12">
+                            <small class="text-muted d-block">Current Type</small>
+                            @if (Model.DurationMinutes.HasValue && Model.DurationMinutes > 0)
+                            {
+                                <span class="badge bg-warning w-100">Service (@Model.DurationMinutes min)</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success w-100">Product</span>
+                            }
+                        </div>
                     </div>
                 </div>
-            }
-        </div>
+            </div>
 
-        <button type="button" class="btn btn-secondary mb-3" id="addItemBtn">Add Item</button>
-
-        <div class="mb-3">
-            <button type="submit" class="btn btn-primary">Save</button>
-            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            <!-- Quick Actions -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0">
+                        <i class="fas fa-bolt text-warning me-2"></i>Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a asp-action="Details" asp-route-id="@Model.ItemId" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-eye me-2"></i>View Details
+                        </a>
+                        <a href="@Url.Action("Create", "Order")?itemId=@Model.ItemId" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-plus me-2"></i>Create Order
+                        </a>
+                        <a asp-action="Index" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-list me-2"></i>All Items
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-    </form>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong>@Model.Name</strong>?</p>
+                <p class="text-muted small">This action will archive the item. You can restore it later from archived items.</p>
+            </div>
+            <div class="modal-footer border-0">
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" name="id" value="@Model.ItemId" />
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Delete Item
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
     <script>
-        $(function(){
-            var container = $('#itemsContainer');
-            $('#addItemBtn').click(function(){
-                var lastRow = container.find('.row').last();
-                var newRow = lastRow.clone();
-                newRow.find('input, select').val('');
-                container.append(newRow);
+        $(document).ready(function () {
+            // Calculate profit margin
+            function calculateProfitMargin() {
+                const costPrice = parseFloat($('#CostPrice').val()) || 0;
+                const sellingPrice = parseFloat($('#SellPrice').val()) || 0;
+
+                if (costPrice > 0 && sellingPrice > costPrice) {
+                    const margin = ((sellingPrice - costPrice) / costPrice * 100).toFixed(2);
+                    $('#profitMargin').val(margin + '%');
+                } else {
+                    $('#profitMargin').val('0%');
+                }
+            }
+
+            // Event listeners
+            $('#CostPrice, #SellPrice').on('input', calculateProfitMargin);
+
+            // Initialize calculations
+            calculateProfitMargin();
+
+            // Dynamic dropdowns
+            $('#businessSelect').change(function () {
+                const businessId = $(this).val();
+
+                if (businessId) {
+                    // Load branches
+                    $.getJSON('@Url.Action("GetBranches", "Items")', { businessId: businessId }, function (branches) {
+                        const branchSelect = $('#branchSelect');
+                        branchSelect.html('<option value="">-- Select Branch --</option>');
+                        branches.forEach(function (branch) {
+                            branchSelect.append($('<option></option>').val(branch.branchId).text(branch.branchName));
+                        });
+                    });
+
+                    // Load categories
+                    $.getJSON('@Url.Action("GetCategories", "Items")', { businessId: businessId }, function (categories) {
+                        const categorySelect = $('#categorySelect');
+                        categorySelect.html('<option value="">-- Select Category --</option>');
+                        categories.forEach(function (category) {
+                            categorySelect.append($('<option></option>').val(category.categoryId).text(category.categoryName));
+                        });
+                    });
+                }
             });
 
-            container.on('click', '.removeItemBtn', function(){
-                if(container.find('.row').length > 1){
-                    $(this).closest('.row').remove();
-                } else {
-                    alert('At least one item required');
+            // Form validation
+            $('#editItemForm').on('submit', function (e) {
+                const sellingPrice = parseFloat($('#SellPrice').val()) || 0;
+                const costPrice = parseFloat($('#CostPrice').val()) || 0;
+
+                if (sellingPrice > 0 && costPrice > 0 && sellingPrice < costPrice) {
+                    if (!confirm('Selling price is less than cost price. This will result in a loss. Continue?')) {
+                        e.preventDefault();
+                    }
                 }
             });
         });
     </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
