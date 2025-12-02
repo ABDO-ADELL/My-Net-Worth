@@ -8,6 +8,7 @@ using System.Security.Claims;
 namespace PRISM.Controllers
 {
     //[Authorize(Roles = "Admin,Owner,Accountant")]
+    [Authorize]
     public class ExpensesController : Controller
     {
         private readonly ExpenseBL _expenseBL;

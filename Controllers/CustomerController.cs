@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PRISM.Models;
@@ -6,6 +7,7 @@ using System.Security.Claims;
 
 namespace PRISM.Controllers
 {
+    [Authorize]
     public class CustomerController : BaseController
     {
         private readonly AppDbContext _context;

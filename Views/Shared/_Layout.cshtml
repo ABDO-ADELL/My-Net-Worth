@@ -17,6 +17,13 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
         @await RenderSectionAsync("Styles", required: false)
 </head>
+<script>
+    // Apply theme immediately before page renders
+    (function() {
+        const theme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+    })();
+</script>
 <body>
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">

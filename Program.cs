@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using PRISM;
 using PRISM.Helpers;
@@ -67,6 +68,17 @@ public class Program
             options.KnownNetworks.Clear();
             options.KnownProxies.Clear();
         });
+        // Rate Limiting
+        builder.Services.AddRateLimiter(options => {    
+        
+            options.AddFixedWindowLimiter("Fixed", opt => { 
+                opt.PermitLimit = 100; 
+                opt.Window = TimeSpan.FromMinutes(1); 
+                opt.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst; 
+                opt.QueueLimit = 50; 
+            });
+        });
+
 
         builder.Services.AddControllersWithViews();
         builder.Services.AddHttpContextAccessor();

@@ -8,6 +8,7 @@ using static NuGet.Packaging.PackagingConstants;
 namespace PRISM.Controllers
 {
     //[Authorize(Roles = "Admin,Owner,Accountant")]
+    [Authorize]
     public class PaymentsController : Controller
     {
         private readonly PaymentBL _paymentBL;

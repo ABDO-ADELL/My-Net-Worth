@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace PRISM.Controllers
 {
-    [AllowAnonymous]
+    [Authorize]
     public class ItemCategoriesController : BaseController
     {
         private readonly AppDbContext _context;

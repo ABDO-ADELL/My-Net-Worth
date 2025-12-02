@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PRISM.Controllers
 {
-    [AllowAnonymous]
+    [Authorize]
     public class ItemsController : Controller
     {
         private readonly AppDbContext _context;
