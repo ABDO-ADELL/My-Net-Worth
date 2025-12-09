@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
-using PRISM;
+using PRISM.DataAccess;
 using PRISM.Models.Authmodels;
 using System.Security.Claims;
 

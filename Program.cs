@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-using PRISM;
+using PRISM.DataAccess;
 using PRISM.Helpers;
 using PRISM.Models.Authmodels;
 using PRISM.Services;

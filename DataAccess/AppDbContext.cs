@@ -4,7 +4,7 @@ using PRISM.Models.Authmodels;
 using System.Reflection.Emit;
 
 
-namespace PRISM
+namespace PRISM.DataAccess
 {
     public class AppDbContext : IdentityDbContext<AppUser>
     {

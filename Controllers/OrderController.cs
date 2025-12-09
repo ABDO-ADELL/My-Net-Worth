@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using PRISM.DataAccess;
 using PRISM.Models;
 using PRISM.Models.Authmodels;
 using System.Security.Claims;

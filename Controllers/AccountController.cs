@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PRISM.Models.Authmodels;
 using System.Security.Claims;
 using PRISM.Dto;
+using PRISM.DataAccess;
 
 namespace PRISM.Controllers
 {
