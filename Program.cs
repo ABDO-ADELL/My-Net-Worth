@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using PRISM.DataAccess;
 using PRISM.Helpers;
 using PRISM.Models.Authmodels;
+using PRISM.Repositories;
+using PRISM.Repositories.IRepositories;
 using PRISM.Services;
 
 public class Program
@@ -79,7 +81,7 @@ public class Program
             });
         });
 
-
+        builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>)); // Generic repository pattern
         builder.Services.AddControllersWithViews();
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<ViewBagPopulationService>();
