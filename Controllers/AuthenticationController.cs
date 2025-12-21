@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using PRISM.Models.Authmodels;
-using PRISM.Services;
+using PRISM.Services.IServices;
 
 namespace PRISM.Controllers
 {

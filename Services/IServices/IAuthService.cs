@@ -1,7 +1,7 @@
 ﻿using PRISM.Models.Authmodels;
 using System.Collections.Generic;
 
-namespace PRISM.Services
+namespace PRISM.Services.IServices
 
 {
     public interface IAuthService

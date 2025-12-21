@@ -1,43 +1,37 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using PRISM.DataAccess;
+using PRISM.Repositories.IRepositories;
 using PRISM.Models;
-using PRISM.Models.Authmodels;
+using PRISM.Services.IServices;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace PRISM.Controllers
 {
     [Authorize]
     public class OrderController : BaseController
     {
-        private readonly AppDbContext _context;
-        private readonly UserManager<AppUser> _userManager;
+        private readonly IOrderService _orderService;
+        private readonly IUnitOfWork _unitOfWork;
+        private AppDbContext _context;
 
-        public OrderController(AppDbContext context, UserManager<AppUser> userManager):base(context)
+        public OrderController(AppDbContext context, IOrderService orderService, IUnitOfWork unitOfWork )
+            : base(context)
         {
             _context = context;
-            _userManager = userManager;
+            _orderService = orderService;
+            _unitOfWork = unitOfWork;
         }
+
         // GET: Order
         public async Task<IActionResult> Index()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var orders = await _context.Orders
-                .Include(o => o.business)
-                .Include(o => o.branch)
-                .Include(o => o.Customer)
-                .Include(o => o.user)
-                .Where(o => !o.IsDeleted )
-                .OrderByDescending(o => o.datetime)
-                .ToListAsync();
-
+            var userId = GetCurrentUserId();
+            var orders = await _orderService.GetAllOrdersAsync(userId);
             return View(orders);
         }
+
         // GET: Order/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -46,14 +40,8 @@ namespace PRISM.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Orders
-                .Include(o => o.business)
-                .Include(o => o.branch)
-                .Include(o => o.Customer)
-                .Include(o => o.user)
-                .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Item)
-                .FirstOrDefaultAsync(m => m.Id == id && !m.IsDeleted);
+            var userId = GetCurrentUserId();
+            var order = await _orderService.GetOrderDetailsAsync(id.Value, userId);
 
             if (order == null)
             {
@@ -66,116 +54,48 @@ namespace PRISM.Controllers
         // GET: Order/Create
         public async Task<IActionResult> Create()
         {
-
-            //ViewData["BusinessId"] = new SelectList(_context.Businesses, "BusinessId", "Name");
-            //ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name");
-            //ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName");
+            var model = new Order
+            {
+                datetime = DateTime.UtcNow
+            };
             await PopulateDropdowns();
-            //ViewData["Items"] = _context.Items
-            //    .Where(i => !i.IsDeleted && i.BusinessId == user.BusinessId)
-            //    .Select(i => new { i.ItemId, i.Name, i.SellPrice })
-            //    .ToList();
-
-            return View();
+            return View(model);
         }
+
         // POST: Order/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Order order, List<int> itemIds, List<int> quantities)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _context.Users.FindAsync(userId);
+            var userId = GetCurrentUserId();
 
-            using var transaction = await _context.Database.BeginTransactionAsync(); 
-            try
+            // Remove navigation properties from model validation
+            ModelState.Remove("user");
+            ModelState.Remove("business");
+            ModelState.Remove("branch");
+            ModelState.Remove("Customer");
+            ModelState.Remove("OrderItems");
+
+            if (!ModelState.IsValid)
             {
-                if (string.IsNullOrEmpty(userId))
-                {
-                    TempData["Error"] = "User not authenticated.";
-                    return RedirectToAction("Login", "Register");
-                }
-                order.UserId = userId;
-                order.user = null; 
-                order.datetime = DateTime.Now;
-                order.IsDeleted = false;
-                order.status = true;
-
-                ModelState.Remove("user");
-                ModelState.Remove("business");
-                ModelState.Remove("branch");
-                ModelState.Remove("Customer");
-                ModelState.Remove("OrderItems");
-
-                // Check if items were added
-                if (itemIds == null || itemIds.Count == 0 || quantities == null || quantities.Count == 0)
-                {
-                    ModelState.AddModelError("", "Please add at least one item to the order.");
-                }
-
-                if (ModelState.IsValid)
-                {
-                    // Calculate total amount and create order items
-
-                    decimal totalAmount = 0;
-                    var orderItems = new List<OrderItem>();
-
-                    for (int i = 0; i < itemIds.Count; i++)
-                    {
-                        if (quantities[i] > 0)
-                        {
-                            var item = await _context.Items.FindAsync(itemIds[i]);
-                            if (item != null)
-                            {
-                                var orderItem = new OrderItem
-                                {
-                                    ItemId = itemIds[i],
-                                    Quantity = quantities[i],
-                                    Price = item.SellPrice,
-                                    TotalPrice = item.SellPrice * quantities[i]
-                                };
-                                orderItems.Add(orderItem);
-                                totalAmount += orderItem.TotalPrice;
-                            }
-                        }
-                    }
-
-                    order.total_amount = totalAmount;
-                    order.OrderItems = orderItems;
-
-                    // Add order to context
-                    _context.Orders.Add(order);
-                    await _context.SaveChangesAsync();
-
-                    await transaction.CommitAsync(); 
-                    TempData["Success"] = "Order created successfully!";
-                    return RedirectToAction(nameof(Index));
-                }
-                else
-                {
-                    await transaction.RollbackAsync(); 
-                    // Log validation errors for debugging
-                    var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-                    TempData["Error"] = "Validation failed: " + string.Join(", ", errors);
-                }
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", "Error creating order: " + ex.Message);
-                TempData["Error"] = "Error: " + ex.Message + " - " + ex.InnerException?.Message;
+                await PopulateDropdowns();
+                return View(order);
             }
 
-            // Reload dropdown data
-            //ViewData["BusinessId"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.BusinessId);
-            //ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name", order.BranchId);
-            //ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId);
-            ViewData["Items"] = _context.Items
-                .Where(i => !i.IsDeleted && i.BusinessId==user.BusinessId)
-                .Select(i => new { i.ItemId, i.Name, i.SellPrice })
-                .ToList();
+            var result = await _orderService.CreateOrderAsync(order, itemIds, quantities, userId);
+
+            if (result.Success)
+            {
+                TempData["Success"] = result.Message;
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["Error"] = result.Message;
             await PopulateDropdowns();
-
             return View(order);
-        }        // GET: Order/Edit/5
+        }
+
+        // GET: Order/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -183,20 +103,15 @@ namespace PRISM.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Orders
-                .Include(o => o.OrderItems)
-                .FirstOrDefaultAsync(o => o.Id == id && !o.IsDeleted);
+            var userId = GetCurrentUserId();
+            var order = await _orderService.GetOrderByIdAsync(id.Value, userId);
 
             if (order == null)
             {
                 return NotFound();
             }
 
-            //ViewData["BusinessId"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.BusinessId);
-            //ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name", order.BranchId);
-            //ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId);
             await PopulateDropdowns();
-
             return View(order);
         }
 
@@ -210,31 +125,30 @@ namespace PRISM.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            var userId = GetCurrentUserId();
+
+            // Remove navigation properties from model validation
+            ModelState.Remove("user");
+            ModelState.Remove("business");
+            ModelState.Remove("branch");
+            ModelState.Remove("Customer");
+            ModelState.Remove("OrderItems");
+
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(order);
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = "Order updated successfully!";
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!OrderExists(order.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await PopulateDropdowns();
+                return View(order);
             }
 
-            //ViewData["BusinessId"] = new SelectList(_context.Businesses, "BusinessId", "Name", order.business);
-            //ViewData["BranchId"] = new SelectList(_context.Branches, "BranchId", "Name", order.BranchId);
-            //ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "FullName", order.CustomerId);
+            var result = await _orderService.UpdateOrderAsync(id, order, userId);
+
+            if (result.Success)
+            {
+                TempData["Success"] = result.Message;
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["Error"] = result.Message;
             await PopulateDropdowns();
             return View(order);
         }
@@ -247,12 +161,8 @@ namespace PRISM.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Orders
-                .Include(o => o.business)
-                .Include(o => o.branch)
-                .Include(o => o.Customer)
-                .Include(o => o.user)
-                .FirstOrDefaultAsync(m => m.Id == id && !m.IsDeleted);
+            var userId = GetCurrentUserId();
+            var order = await _orderService.GetOrderByIdAsync(id.Value, userId);
 
             if (order == null)
             {
@@ -267,14 +177,16 @@ namespace PRISM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var order = await _context.Orders.FindAsync(id);
-            if (order != null)
+            var userId = GetCurrentUserId();
+            var result = await _orderService.DeleteOrderAsync(id, userId);
+
+            if (result.Success)
             {
-                // Soft delete
-                order.IsDeleted = true;
-                _context.Update(order);
-                await _context.SaveChangesAsync();
-                TempData["Success"] = "Order deleted successfully!";
+                TempData["Success"] = result.Message;
+            }
+            else
+            {
+                TempData["Error"] = result.Message;
             }
 
             return RedirectToAction(nameof(Index));
@@ -282,68 +194,66 @@ namespace PRISM.Controllers
 
         // API endpoint to get branches by business
         [HttpGet]
-        public JsonResult GetBranchesByBusiness(int businessId)
+        public async Task<JsonResult> GetBranchesByBusiness(int businessId)
         {
-            var branches = _context.Branches
-                .Where(b => b.BusinessId == businessId)
-                .Select(b => new { b.BranchId, b.Name })
-                .ToList();
+            var userId = GetCurrentUserId();
+            var branches = await _orderService.GetBranchesByBusinessAsync(businessId, userId);
 
-            return Json(branches);
+            var result = branches.Select(b => new { b.BranchId, b.Name });
+            return Json(result);
         }
 
         // API endpoint to get items by branch
         [HttpGet]
-        public JsonResult GetItemsByBranch(int branchId)
+        public async Task<JsonResult> GetItemsByBranch(int branchId)
         {
-            var items = _context.Items
-                .Where(i => i.BranchId == branchId && !i.IsDeleted)
-                .Select(i => new { i.ItemId, i.Name, i.SellPrice })
-                .ToList();
-
-            return Json(items);
-        }
-
-        private bool OrderExists(int id)
-        {
-            return _context.Orders.Any(e => e.Id == id && !e.IsDeleted);
-        }
-
-        private async Task PopulateDropdowns(Item? item = null)
-        {
-
             var userId = GetCurrentUserId();
-          //  var user = await _context.Users.FindAsync(userId);
+            var items = await _orderService.GetItemsByBranchAsync(branchId, userId);
 
-            ViewBag.BusinessId = new SelectList(
-                await _context.Businesses
-                    .Where(b => !b.IsDeleted && b.UserId == userId)
-                    .ToListAsync(),
-                "BusinessId",
-                "Name"
-            );
-            ViewBag.BranchId = new SelectList(
-                await _context.Branches.Include(b => b.Business)
-        .Where(b => !b.IsDeleted && b.Business.UserId == userId)
-        .ToListAsync(),
-    "BranchId",
-    "Name"
-);
-
-            ViewBag.CustomerId = new SelectList(
-                await _context.Customers.Include(c => c.Branch).ThenInclude(b => b.Business)
-                    .Where(c => c.Branch.Business.UserId == userId)
-                    .ToListAsync(),
-                "CustomerId",
-                "FullName"
-            );
-            ViewData["Items"] = _context.Items.Include(i => i.Business)
-    .Where(i => !i.IsDeleted && i.Business.UserId == userId)
-    .Select(i => new { i.ItemId, i.Name, i.SellPrice })
-    .ToList();
-
-
+            var result = items.Select(i => new { i.ItemId, i.Name, i.SellPrice });
+            return Json(result);
         }
 
+        private async Task PopulateDropdowns()
+        {
+            var userId = GetCurrentUserId();
+
+            var businesses = await _unitOfWork.Businesses.GetAsync(
+                expression: b => !b.IsDeleted && b.UserId == userId
+            );
+
+            ViewBag.BusinessId = new SelectList(businesses, "BusinessId", "Name");
+
+            var branches = await _unitOfWork.Branches.GetAsync(
+                expression: b => !b.IsDeleted && b.Business.UserId == userId,
+                includes: new System.Linq.Expressions.Expression<Func<Branch, object>>[]
+                {
+                    b => b.Business
+                }
+            );
+
+            ViewBag.BranchId = new SelectList(branches, "BranchId", "Name");
+
+            var customers = await _unitOfWork.Customers.GetAsync(
+                expression: c => c.Branch.Business.UserId == userId,
+                includes: new System.Linq.Expressions.Expression<Func<Customer, object>>[]
+                {
+                    c => c.Branch,
+                    c => c.Branch.Business
+                }
+            );
+
+            ViewBag.CustomerId = new SelectList(customers, "CustomerId", "FullName");
+
+            var items = await _unitOfWork.Items.GetAsync(
+                expression: i => !i.IsDeleted && i.Business.UserId == userId,
+                includes: new System.Linq.Expressions.Expression<Func<Items, object>>[]
+                {
+                    i => i.Business
+                }
+            );
+
+            ViewData["Items"] = items.Select(i => new { i.ItemId, i.Name, i.SellPrice }).ToList();
+        }
     }
 }

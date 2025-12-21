@@ -1,16 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using PRISM.Repositories.IRepositories;
-
+using PRISM.DataAccess;
 
 namespace PRISM.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        private DataAccess.AppDbContext _context;// = new();
+        private AppDbContext _context;
         private DbSet<T> _db;
 
-        public Repository(DataAccess.AppDbContext context)
+        public Repository(AppDbContext context)
         {
             _context = context;
             _db = _context.Set<T>();

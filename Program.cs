@@ -8,6 +8,7 @@ using PRISM.Models.Authmodels;
 using PRISM.Repositories;
 using PRISM.Repositories.IRepositories;
 using PRISM.Services;
+using PRISM.Services.IServices;
 
 public class Program
 {
@@ -22,6 +23,13 @@ public class Program
         // Keep AuthService for password hashing logic only
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
+
+        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+        builder.Services.AddScoped<IOrderService, OrderService>();
+        //builder.Services.AddScoped<IBusinessService, BusinessService>();
+        //builder.Services.AddScoped<IBranchService, BranchService>();
+        //builder.Services.AddScoped<ICustomerService, CustomerService>();
+        //builder.Services.AddScoped<IItemsService, ItemsService>();
 
         // Identity Configuration
         builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
