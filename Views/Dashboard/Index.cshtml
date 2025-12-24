@@ -2,20 +2,20 @@
 
 @{
     ViewData["Title"] = "Dashboard";
+    var profitMargin = Model.TotalRevenue > 0 ? (Model.TotalProfit / Model.TotalRevenue * 100) : 0;
 }
 
-<!-- Business Selector -->
+<!-- Header -->
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold">
-        <i class="fas fa-chart-line text-primary me-2"></i>Dashboard
-    </h2>
-
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fas fa-chart-line me-2 text-primary"></i>Dashboard Overview</h2>
+        <p class="text-muted mb-0">Real-time business performance metrics</p>
+    </div>
     <div class="dropdown">
-        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="businessDropdown"
-                data-bs-toggle="dropdown" aria-expanded="false">
+        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
             <i class="fas fa-building me-2"></i>Select Business
         </button>
-        <ul class="dropdown-menu" aria-labelledby="businessDropdown">
+        <ul class="dropdown-menu dropdown-menu-end">
             @foreach (var business in ViewBag.Businesses)
             {
                 <li>
@@ -31,151 +31,134 @@
 
 @if (ViewBag.NoBusiness == true)
 {
-    <div class="alert alert-warning border-0 shadow-sm">
-        <div class="d-flex align-items-start">
-            <i class="fas fa-exclamation-triangle fa-2x text-warning me-3"></i>
-            <div>
-                <h5 class="alert-heading mb-2">No Business Found!</h5>
-                <p class="mb-3">You need to create a business first before you can use the dashboard and manage your operations.</p>
-                <a asp-controller="Business" asp-action="Create" class="btn btn-warning">
-                    <i class="fas fa-plus me-2"></i>Create Your First Business
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Empty State Illustration -->
-    <div class="text-center py-5">
-        <i class="fas fa-building fa-5x text-muted opacity-25 mb-4"></i>
-        <h4 class="text-muted mb-2">Get Started with PRISM</h4>
-        <p class="text-muted mb-4">Create a business to start managing your orders, inventory, and finances.</p>
-
-        <div class="row g-4 mt-4">
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body text-center p-4">
-                        <div class="icon-box bg-primary-light mb-3 mx-auto" style="width: 64px; height: 64px;">
-                            <i class="fas fa-building text-primary fa-2x"></i>
-                        </div>
-                        <h6 class="fw-bold">Step 1: Create Business</h6>
-                        <p class="text-muted small mb-0">Set up your business profile</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body text-center p-4">
-                        <div class="icon-box bg-success-light mb-3 mx-auto" style="width: 64px; height: 64px;">
-                            <i class="fas fa-store text-success fa-2x"></i>
-                        </div>
-                        <h6 class="fw-bold">Step 2: Add Branches</h6>
-                        <p class="text-muted small mb-0">Create your locations</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body text-center p-4">
-                        <div class="icon-box bg-info-light mb-3 mx-auto" style="width: 64px; height: 64px;">
-                            <i class="fas fa-rocket text-info fa-2x"></i>
-                        </div>
-                        <h6 class="fw-bold">Step 3: Start Managing</h6>
-                        <p class="text-muted small mb-0">Add items, customers & orders</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>No Business Found.</strong> Create your first business to get started.
+        <a asp-controller="Business" asp-action="Create" class="btn btn-warning btn-sm ms-3">Create Business</a>
     </div>
 }
 else
 {
-    <!-- KPI Cards Row -->
-    <div class="row g-4 mb-4">
-        <!-- Revenue Card -->
+    <!-- KPI Cards -->
+    <div class="row g-3 mb-4">
         <div class="col-lg-3 col-md-6">
-            <div class="card stat-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-1 small">Total Revenue</p>
-                            <h3 class="fw-bold mb-0 text-success">$@Model.TotalRevenue.ToString("N2")</h3>
-                        </div>
-                        <div class="icon-box bg-success-light">
-                            <i class="fas fa-dollar-sign text-success"></i>
-                        </div>
-                    </div>
-                    <div class="mt-3">
-                        <span class="badge bg-success-light text-success">
-                            <i class="fas fa-arrow-up me-1"></i>From Orders
-                        </span>
-                    </div>
+            <div class="kpi-card">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="kpi-icon bg-success"><i class="fas fa-dollar-sign"></i></div>
+                </div>
+                <div class="kpi-label">Total Revenue</div>
+                <div class="kpi-value">$@Model.TotalRevenue.ToString("N2")</div>
+                <small class="text-muted">From completed orders</small>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="kpi-card">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="kpi-icon bg-danger"><i class="fas fa-money-bill-wave"></i></div>
+                </div>
+                <div class="kpi-label">Total Expenses</div>
+                <div class="kpi-value">$@Model.TotalExpenses.ToString("N2")</div>
+                <small class="text-muted">Business expenditures</small>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="kpi-card">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="kpi-icon bg-primary"><i class="fas fa-chart-line"></i></div>
+                </div>
+                <div class="kpi-label">Net Profit</div>
+                <div class="kpi-value">$@Model.TotalProfit.ToString("N2")</div>
+                <small class="text-muted">@profitMargin.ToString("N1")% Margin</small>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="kpi-card">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="kpi-icon bg-info"><i class="fas fa-shopping-cart"></i></div>
+                </div>
+                <div class="kpi-label">Total Orders</div>
+                <div class="kpi-value">@Model.TotalOrders</div>
+                <small class="text-muted">All time orders</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secondary Metrics -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="metric-card">
+                <i class="fas fa-users text-warning fa-2x me-3"></i>
+                <div>
+                    <small class="text-muted">Customers</small>
+                    <h4 class="mb-0">@Model.TotalCustomers</h4>
                 </div>
             </div>
         </div>
-
-        <!-- Expenses Card -->
         <div class="col-lg-3 col-md-6">
-            <div class="card stat-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-1 small">Total Expenses</p>
-                            <h3 class="fw-bold mb-0 text-danger">$@Model.TotalExpenses.ToString("N2")</h3>
-                        </div>
-                        <div class="icon-box bg-danger-light">
-                            <i class="fas fa-money-bill-wave text-danger"></i>
-                        </div>
-                    </div>
-                    <div class="mt-3">
-                        <span class="badge bg-danger-light text-danger">
-                            <i class="fas fa-arrow-down me-1"></i>Outgoing
-                        </span>
-                    </div>
+            <div class="metric-card">
+                <i class="fas fa-box text-purple fa-2x me-3"></i>
+                <div>
+                    <small class="text-muted">Items</small>
+                    <h4 class="mb-0">@Model.TotalItems</h4>
                 </div>
             </div>
         </div>
-
-        <!-- Profit Card -->
         <div class="col-lg-3 col-md-6">
-            <div class="card stat-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-1 small">Net Profit</p>
-                            <h3 class="fw-bold mb-0 @(Model.TotalProfit >= 0 ? "text-primary" : "text-danger")">
-                                $@Model.TotalProfit.ToString("N2")
-                            </h3>
-                        </div>
-                        <div class="icon-box bg-primary-light">
-                            <i class="fas fa-chart-line text-primary"></i>
-                        </div>
-                    </div>
-                    <div class="mt-3">
-                        <span class="badge @(Model.TotalProfit >= 0 ? "bg-primary-light text-primary" : "bg-danger-light text-danger")">
-                            <i class="fas fa-@(Model.TotalProfit >= 0 ? "arrow-up" : "arrow-down") me-1"></i>
-                            @((Model.TotalRevenue > 0 ? (Model.TotalProfit / Model.TotalRevenue * 100) : 0).ToString("N1"))%
-                        </span>
-                    </div>
+            <div class="metric-card">
+                <i class="fas fa-store text-teal fa-2x me-3"></i>
+                <div>
+                    <small class="text-muted">Branches</small>
+                    <h4 class="mb-0">@Model.TotalBranches</h4>
                 </div>
             </div>
         </div>
-
-        <!-- Orders Card -->
         <div class="col-lg-3 col-md-6">
-            <div class="card stat-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-1 small">Total Orders</p>
-                            <h3 class="fw-bold mb-0 text-info">@Model.TotalOrders</h3>
-                        </div>
-                        <div class="icon-box bg-info-light">
-                            <i class="fas fa-shopping-cart text-info"></i>
-                        </div>
+            <div class="metric-card">
+                <i class="fas fa-exclamation-triangle text-danger fa-2x me-3"></i>
+                <div>
+                    <small class="text-muted">Low Stock</small>
+                    <h4 class="mb-0">@Model.LowStockItems.Count</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart & Quick Actions -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0">Revenue vs Expenses</h5>
+                        <small class="text-muted">Last 6 months</small>
                     </div>
-                    <div class="mt-3">
-                        <a asp-controller="Order" asp-action="Index" class="text-decoration-none small">
-                            View All <i class="fas fa-arrow-right ms-1"></i>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueChart" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Order" asp-action="Create" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-2"></i>New Order
+                        </a>
+                        <a asp-controller="Items" asp-action="Create" class="btn btn-outline-primary">
+                            <i class="fas fa-box me-2"></i>Add Item
+                        </a>
+                        <a asp-controller="Customer" asp-action="Create" class="btn btn-outline-primary">
+                            <i class="fas fa-user-plus me-2"></i>New Customer
+                        </a>
+                        <a asp-controller="Expenses" asp-action="Create" asp-route-businessId="@Model.BusinessId" class="btn btn-outline-danger">
+                            <i class="fas fa-credit-card me-2"></i>Add Expense
+                        </a>
+                        <a asp-controller="Report" asp-action="Index" class="btn btn-outline-success">
+                            <i class="fas fa-file-invoice me-2"></i>View Reports
                         </a>
                     </div>
                 </div>
@@ -183,149 +166,35 @@ else
         </div>
     </div>
 
-    <!-- Secondary Stats Row -->
-    <div class="row g-4 mb-4">
-        <div class="col-lg-4 col-md-6">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="icon-box bg-warning-light me-3">
-                            <i class="fas fa-users text-warning"></i>
-                        </div>
-                        <div>
-                            <p class="text-muted mb-0 small">Customers</p>
-                            <h4 class="fw-bold mb-0">@Model.TotalCustomers</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4 col-md-6">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="icon-box bg-primary-light me-3">
-                            <i class="fas fa-box text-primary"></i>
-                        </div>
-                        <div>
-                            <p class="text-muted mb-0 small">Active Items</p>
-                            <h4 class="fw-bold mb-0">@Model.TotalItems</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4 col-md-6">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="icon-box bg-success-light me-3">
-                            <i class="fas fa-store text-success"></i>
-                        </div>
-                        <div>
-                            <p class="text-muted mb-0 small">Branches</p>
-                            <h4 class="fw-bold mb-0">@Model.TotalBranches</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Charts Row -->
-    <div class="row g-4 mb-4">
-        <!-- Revenue & Expenses Chart -->
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-0 py-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-chart-area text-primary me-2"></i>Revenue vs Expenses
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="revenueExpensesChart" height="300"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Top Selling Items -->
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 py-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-fire text-danger me-2"></i>Top Selling Items
-                    </h5>
-                </div>
-                <div class="card-body">
-                    @if (Model.TopSellingItems.Any())
-                    {
-                        <div class="list-group list-group-flush">
-                            @foreach (var item in Model.TopSellingItems)
-                            {
-                                <div class="list-group-item px-0 border-0">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h6 class="mb-1">@item.ItemName</h6>
-                                            <small class="text-muted">@item.TotalQuantitySold units sold</small>
-                                        </div>
-                                        <div class="text-end">
-                                            <div class="fw-bold text-success">$@item.TotalRevenue.ToString("N2")</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="text-muted text-center py-4">No sales data available</p>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Recent Activity Row -->
-    <div class="row g-4">
-        <!-- Recent Orders -->
+    <!-- Recent Orders & Expenses -->
+    <div class="row g-3 mb-4">
         <div class="col-lg-6">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-shopping-bag text-primary me-2"></i>Recent Orders
-                    </h5>
-                    <a asp-controller="Order" asp-action="Index" class="btn btn-sm btn-outline-primary">
-                        View All
-                    </a>
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Orders</h5>
+                    <a asp-controller="Order" asp-action="Index" class="btn btn-sm btn-primary">View All</a>
                 </div>
                 <div class="card-body p-0">
                     @if (Model.RecentOrders.Any())
                     {
                         <div class="table-responsive">
                             <table class="table table-hover mb-0">
-                                <thead class="bg-light">
+                                <thead>
                                     <tr>
-                                        <th class="px-3 py-2 small">Order</th>
-                                        <th class="py-2 small">Customer</th>
-                                        <th class="py-2 small">Date</th>
-                                        <th class="py-2 text-end small">Amount</th>
+                                        <th>Order #</th>
+                                        <th>Customer</th>
+                                        <th>Date</th>
+                                        <th class="text-end">Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var order in Model.RecentOrders)
                                     {
                                         <tr>
-                                            <td class="px-3 py-2">
-                                                <a asp-controller="Order" asp-action="Details" asp-route-id="@order.Id"
-                                                   class="text-decoration-none fw-semibold">
-                                                    #@order.Id
-                                                </a>
-                                            </td>
-                                            <td class="py-2 small">@order.Customer?.FullName</td>
-                                            <td class="py-2 small text-muted">@order.datetime.ToString("MMM dd, yyyy")</td>
-                                            <td class="py-2 text-end fw-bold text-success">$@order.total_amount.ToString("N2")</td>
+                                            <td><a asp-controller="Order" asp-action="Details" asp-route-id="@order.Id">#@order.Id</a></td>
+                                            <td>@(order.Customer?.FullName ?? "N/A")</td>
+                                            <td>@order.datetime.ToString("MMM dd, yyyy")</td>
+                                            <td class="text-end text-success fw-bold">$@order.total_amount.ToString("N2")</td>
                                         </tr>
                                     }
                                 </tbody>
@@ -334,51 +203,38 @@ else
                     }
                     else
                     {
-                        <p class="text-muted text-center py-4">No recent orders</p>
+                        <p class="text-center text-muted py-4">No recent orders</p>
                     }
                 </div>
             </div>
         </div>
-
-        <!-- Recent Expenses -->
         <div class="col-lg-6">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-receipt text-danger me-2"></i>Recent Expenses
-                    </h5>
-                    <div class="d-flex gap-2">
-                        <a asp-controller="Expenses" asp-action="Create" asp-route-businessId="@Model.BusinessId"
-                           class="btn btn-sm btn-success">
-                            <i class="fas fa-plus me-1"></i>Add Expense
-                        </a>
-                        <a asp-controller="Expenses" asp-action="Index" asp-route-businessId="@Model.BusinessId"
-                           class="btn btn-sm btn-outline-danger">
-                            View All
-                        </a>
-                    </div>
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Expenses</h5>
+                    <a asp-controller="Expenses" asp-action="Create" asp-route-businessId="@Model.BusinessId" class="btn btn-sm btn-danger">Add Expense</a>
                 </div>
                 <div class="card-body p-0">
                     @if (Model.RecentExpenses.Any())
                     {
                         <div class="table-responsive">
                             <table class="table table-hover mb-0">
-                                <thead class="bg-light">
+                                <thead>
                                     <tr>
-                                        <th class="px-3 py-2 small">Category</th>
-                                        <th class="py-2 small">Date</th>
-                                        <th class="py-2 small">Method</th>
-                                        <th class="py-2 text-end small">Amount</th>
+                                        <th>Category</th>
+                                        <th>Branch</th>
+                                        <th>Date</th>
+                                        <th class="text-end">Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var expense in Model.RecentExpenses)
                                     {
                                         <tr>
-                                            <td class="px-3 py-2 fw-semibold">@expense.Category</td>
-                                            <td class="py-2 small text-muted">@expense.ExpenseDate.ToString("MMM dd, yyyy")</td>
-                                            <td class="py-2 small">@expense.PaymentMethod</td>
-                                            <td class="py-2 text-end fw-bold text-danger">$@expense.Amount.ToString("N2")</td>
+                                            <td>@(expense.Category ?? "Uncategorized")</td>
+                                            <td>@(expense.Branch?.Name ?? "N/A")</td>
+                                            <td>@expense.ExpenseDate.ToString("MMM dd, yyyy")</td>
+                                            <td class="text-end text-danger fw-bold">$@expense.Amount.ToString("N2")</td>
                                         </tr>
                                     }
                                 </tbody>
@@ -387,46 +243,59 @@ else
                     }
                     else
                     {
-                        <p class="text-muted text-center py-4">No recent expenses</p>
+                        <p class="text-center text-muted py-4">No recent expenses</p>
                     }
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Low Stock Alert -->
+    <!-- Top Selling Products -->
+    @if (Model.TopSellingItems.Any())
+    {
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Top Selling Products</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Units Sold</th>
+                                <th class="text-end">Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.TopSellingItems)
+                            {
+                                <tr>
+                                    <td>@item.ItemName</td>
+                                    <td><span class="badge bg-info">@item.TotalQuantitySold units</span></td>
+                                    <td class="text-end text-success fw-bold">$@item.TotalRevenue.ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Low Stock Alerts -->
     @if (Model.LowStockItems.Any())
     {
-        <div class="row g-4 mt-2">
-            <div class="col-12">
-                <div class="card border-0 shadow-sm border-start border-warning border-4">
-                    <div class="card-header bg-warning-light border-0 py-3">
-                        <h5 class="mb-0 fw-bold text-warning">
-                            <i class="fas fa-exclamation-triangle me-2"></i>Low Stock Alert
-                        </h5>
+        <div class="alert alert-warning">
+            <h5><i class="fas fa-exclamation-triangle me-2"></i>Low Stock Alerts</h5>
+            <div class="row">
+                @foreach (var item in Model.LowStockItems)
+                {
+                    <div class="col-md-4 mb-2">
+                        <strong>@item.Item?.Name</strong> - @item.Quantity left (Min: @item.MinStockLevel)
+                        <small class="d-block text-muted">@item.Branch?.Name</small>
                     </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            @foreach (var item in Model.LowStockItems)
-                            {
-                                <div class="col-md-4">
-                                    <div class="alert alert-warning mb-0">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="mb-1">@item.Item?.Name</h6>
-                                                <small>Branch: @item.Branch?.Name</small>
-                                            </div>
-                                            <div class="text-end">
-                                                <div class="badge bg-warning text-dark">@item.Quantity left</div>
-                                                <small class="d-block text-muted">Min: @item.MinStockLevel</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
+                }
             </div>
         </div>
     }
@@ -435,42 +304,29 @@ else
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Revenue vs Expenses Chart
-        const ctx = document.getElementById('revenueExpensesChart');
-
+        const ctx = document.getElementById('revenueChart');
         const revenueData = @Html.Raw(Json.Serialize(Model.MonthlyRevenue.Select(m => new { m.MonthName, m.Amount })));
         const expensesData = @Html.Raw(Json.Serialize(Model.MonthlyExpenses.Select(m => new { m.MonthName, m.Amount })));
 
-        // Merge data by month
-        const allMonths = [...new Set([...revenueData.map(r => r.monthName), ...expensesData.map(e => e.monthName)])];
-
-        const revenueAmounts = allMonths.map(month => {
-            const found = revenueData.find(r => r.monthName === month);
-            return found ? found.amount : 0;
-        });
-
-        const expenseAmounts = allMonths.map(month => {
-            const found = expensesData.find(e => e.monthName === month);
-            return found ? found.amount : 0;
-        });
+        const months = [...new Set([...revenueData.map(r => r.monthName), ...expensesData.map(e => e.monthName)])];
+        const revenue = months.map(m => revenueData.find(r => r.monthName === m)?.amount || 0);
+        const expenses = months.map(m => expensesData.find(e => e.monthName === m)?.amount || 0);
 
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: allMonths,
+                labels: months,
                 datasets: [{
                     label: 'Revenue',
-                    data: revenueAmounts,
-                    borderColor: '#11998e',
-                    backgroundColor: 'rgba(17, 153, 142, 0.1)',
-                    tension: 0.4,
+                    data: revenue,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
                     fill: true
                 }, {
                     label: 'Expenses',
-                    data: expenseAmounts,
+                    data: expenses,
                     borderColor: '#ef4444',
                     backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                    tension: 0.4,
                     fill: true
                 }]
             },
@@ -478,9 +334,7 @@ else
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        position: 'top',
-                    }
+                    legend: { position: 'top' }
                 },
                 scales: {
                     y: {
@@ -497,109 +351,4 @@ else
     </script>
 }
 
-<style>
-    .stat-card {
-        transition: transform 0.3s, box-shadow 0.3s;
-        border-radius: 12px;
-    }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
-        }
-
-    .icon-box {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-    }
-
-    .bg-success-light {
-        background-color: rgba(17, 153, 142, 0.1);
-    }
-
-    .bg-danger-light {
-        background-color: rgba(239, 68, 68, 0.1);
-    }
-
-    .bg-primary-light {
-        background-color: rgba(102, 126, 234, 0.1);
-    }
-
-    .bg-info-light {
-        background-color: rgba(79, 172, 254, 0.1);
-    }
-
-    .bg-warning-light {
-        background-color: rgba(245, 158, 11, 0.1);
-    }
-
-    .card {
-        border-radius: 12px;
-    }
-
-    .list-group-item {
-        transition: background-color 0.3s;
-    }
-
-        .list-group-item:hover {
-            background-color: #f8f9ff;
-        }
-
-    <style >
-    .stat-card {
-        transition: transform 0.3s, box-shadow 0.3s;
-        border-radius: 12px;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
-    }
-
-    .icon-box {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-    }
-
-    .bg-success-light {
-        background-color: rgba(17, 153, 142, 0.1);
-    }
-
-    .bg-danger-light {
-        background-color: rgba(239, 68, 68, 0.1);
-    }
-
-    .bg-primary-light {
-        background-color: rgba(102, 126, 234, 0.1);
-    }
-
-    .bg-info-light {
-        background-color: rgba(79, 172, 254, 0.1);
-    }
-
-    .bg-warning-light {
-        background-color: rgba(245, 158, 11, 0.1);
-    }
-
-    .card {
-        border-radius: 12px;
-    }
-
-    .list-group-item {
-        transition: background-color 0.3s;
-    }
-
-        .list-group-item:hover {
-            background-color: #f8f9ff;
-        }
-</style>
+<!-- Remove all inline styles - let global CSS handle everything -->

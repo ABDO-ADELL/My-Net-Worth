@@ -88,7 +88,7 @@ public class Program
                 opt.QueueLimit = 50; 
             });
         });
-
+        builder.Services.AddScoped<IReportService, ReportService>();
         builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>)); // Generic repository pattern
         builder.Services.AddControllersWithViews();
         builder.Services.AddHttpContextAccessor();

@@ -42,7 +42,7 @@
                     {
                         <div class="table-responsive">
                             <table class="table table-hover mb-0 align-middle">
-                                <thead class="bg-light">
+                                <thead class="table-header">
                                     <tr>
                                         <th class="px-4 py-3">
                                             <i class="fas fa-user me-2 text-primary"></i>Full Name
@@ -62,7 +62,7 @@
                                 <tbody>
                                     @foreach (var customer in Model)
                                     {
-                                        <tr>
+                                        <tr class="table-row">
                                             <td class="px-4 py-3 fw-semibold">@customer.FullName</td>
                                             <td class="py-3">@customer.Email</td>
                                             <td class="py-3">@customer.Phone</td>
@@ -123,22 +123,25 @@
         font-size: 0.95rem;
     }
 
-        .table thead th {
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid #dee2e6;
-        }
+    /* Dark mode compatible table header */
+    .table-header th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid var(--bs-border-color);
+        background-color: var(--bs-secondary-bg);
+    }
 
-        .table tbody tr {
-            transition: all 0.3s;
-        }
+    /* Dark mode compatible table rows */
+    .table-row {
+        transition: all 0.3s;
+    }
 
-            .table tbody tr:hover {
-                background-color: #f8f9ff;
-                transform: scale(1.01);
-            }
+        .table-row:hover {
+            background-color: var(--bs-tertiary-bg) !important;
+            transform: scale(1.01);
+        }
 
     .btn-group .btn {
         transition: all 0.3s;
@@ -167,5 +170,10 @@
 
     .text-success {
         color: #11998e !important;
+    }
+
+    /* Remove any hardcoded background colors for dark mode compatibility */
+    .table > :not(caption) > * > * {
+        background-color: transparent;
     }
 </style>

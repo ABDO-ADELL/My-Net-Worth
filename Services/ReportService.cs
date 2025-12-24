@@ -1,0 +1,748 @@
+﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using PRISM.DataAccess;
+using PRISM.Dto;
+using PRISM.Services.IServices;
+using System.Security.Claims;
+
+namespace PRISM.Services
+{
+    public class ReportService : IReportService
+    {
+        private readonly AppDbContext _context;
+
+        public ReportService(AppDbContext context)
+        {
+            _context = context;
+        }
+        public void CreateBusinessesSheet(IXLWorksheet sheet, List<Business> businesses)
+        {
+            sheet.Cell(1, 1).Value = "Business ID";
+            sheet.Cell(1, 2).Value = "Business Name";
+            sheet.Cell(1, 3).Value = "Industry";
+            sheet.Cell(1, 4).Value = "Timezone";
+            sheet.Cell(1, 5).Value = "Status";
+
+            sheet.Range(1, 1, 1, 5).Style.Font.Bold = true;
+            sheet.Range(1, 1, 1, 5).Style.Fill.BackgroundColor = XLColor.LightSkyBlue;
+
+            int row = 2;
+            foreach (var business in businesses)
+            {
+                sheet.Cell(row, 1).Value = business.BusinessId;
+                sheet.Cell(row, 2).Value = business.Name;
+                sheet.Cell(row, 3).Value = business.Industry;
+                sheet.Cell(row, 4).Value = business.Timezone;
+                sheet.Cell(row, 5).Value = business.Status;
+                row++;
+            }
+
+            sheet.Columns().AdjustToContents();
+        }
+
+        public void CreateBranchesSheet(IXLWorksheet sheet, List<Branch> branches)
+        {
+            sheet.Cell(1, 1).Value = "Branch ID";
+            sheet.Cell(1, 2).Value = "Branch Name";
+            sheet.Cell(1, 3).Value = "Business";
+            sheet.Cell(1, 4).Value = "Address";
+            sheet.Cell(1, 5).Value = "Phone";
+
+            sheet.Range(1, 1, 1, 5).Style.Font.Bold = true;
+            sheet.Range(1, 1, 1, 5).Style.Fill.BackgroundColor = XLColor.LightGreen;
+
+            int row = 2;
+            foreach (var branch in branches)
+            {
+                sheet.Cell(row, 1).Value = branch.BranchId;
+                sheet.Cell(row, 2).Value = branch.Name;
+                sheet.Cell(row, 3).Value = branch.Business?.Name;
+                sheet.Cell(row, 4).Value = branch.Address;
+                sheet.Cell(row, 5).Value = branch.Phone;
+                row++;
+            }
+
+            sheet.Columns().AdjustToContents();
+        }
+
+        public void CreateCustomersSheet(IXLWorksheet sheet, List<Customer> customers)
+        {
+            sheet.Cell(1, 1).Value = "Customer ID";
+            sheet.Cell(1, 2).Value = "Full Name";
+            sheet.Cell(1, 3).Value = "Email";
+            sheet.Cell(1, 4).Value = "Phone";
+            sheet.Cell(1, 5).Value = "Branch";
+            sheet.Cell(1, 6).Value = "Business";
+
+            sheet.Range(1, 1, 1, 6).Style.Font.Bold = true;
+            sheet.Range(1, 1, 1, 6).Style.Fill.BackgroundColor = XLColor.LightCyan;
+
+            int row = 2;
+            foreach (var customer in customers)
+            {
+                sheet.Cell(row, 1).Value = customer.CustomerId;
+                sheet.Cell(row, 2).Value = customer.FullName;
+                sheet.Cell(row, 3).Value = customer.Email;
+                sheet.Cell(row, 4).Value = customer.Phone;
+                sheet.Cell(row, 5).Value = customer.Branch?.Name;
+                sheet.Cell(row, 6).Value = customer.Branch?.Business?.Name;
+                row++;
+            }
+
+            sheet.Columns().AdjustToContents();
+        }
+
+        public void CreateCategoriesSheet(IXLWorksheet sheet, List<ItemCategory> categories)
+        {
+            sheet.Cell(1, 1).Value = "Category ID";
+            sheet.Cell(1, 2).Value = "Category Name";
+            sheet.Cell(1, 3).Value = "Business";
+            sheet.Cell(1, 4).Value = "Item Count";
+
+            sheet.Range(1, 1, 1, 4).Style.Font.Bold = true;
+            sheet.Range(1, 1, 1, 4).Style.Fill.BackgroundColor = XLColor.LightGoldenrodYellow;
+
+            int row = 2;
+            foreach (var category in categories)
+            {
+                sheet.Cell(row, 1).Value = category.CategoryId;
+                sheet.Cell(row, 2).Value = category.Name;
+                sheet.Cell(row, 3).Value = category.Business?.Name;
+                sheet.Cell(row, 4).Value = category.Items?.Count ?? 0;
+                row++;
+            }
+
+            sheet.Columns().AdjustToContents();
+        }
+
+        public void CreateItemsSheet(IXLWorksheet sheet, List<PRISM.Models.Items> items)
+        {
+            sheet.Cell(1, 1).Value = "Item ID";
+            sheet.Cell(1, 2).Value = "Item Name";
+            sheet.Cell(1, 3).Value = "SKU";
+            sheet.Cell(1, 4).Value = "Category";
+            sheet.Cell(1, 5).Value = "Branch";
+            sheet.Cell(1, 6).Value = "Business";
+            sheet.Cell(1, 7).Value = "Cost Price";
+            sheet.Cell(1, 8).Value = "Sell Price";
+            sheet.Cell(1, 9).Value = "Description";
+
+            sheet.Range(1, 1, 1, 9).Style.Font.Bold = true;
+            sheet.Range(1, 1, 1, 9).Style.Fill.BackgroundColor = XLColor.LightSalmon;
+
+            int row = 2;
+            foreach (var item in items)
+            {
+                sheet.Cell(row, 1).Value = item.ItemId;
+                sheet.Cell(row, 2).Value = item.Name;
+                sheet.Cell(row, 3).Value = item.Sku;
+                sheet.Cell(row, 4).Value = item.ItemCategory?.Name;
+                sheet.Cell(row, 5).Value = item.Branch?.Name;
+                sheet.Cell(row, 6).Value = item.Business?.Name;
+                sheet.Cell(row, 7).Value = item.CostPrice;
+                sheet.Cell(row, 7).Style.NumberFormat.Format = "$#,##0.00";
+                sheet.Cell(row, 8).Value = item.SellPrice;
+                sheet.Cell(row, 8).Style.NumberFormat.Format = "$#,##0.00";
+                sheet.Cell(row, 9).Value = item.Description ?? "";
+                row++;
+            }
+
+            sheet.Columns().AdjustToContents();
+        }
+        public void CreateSummarySheet(IXLWorksheet sheet, List<Order> orders, List<Expense> expenses,
+            List<Payment> payments, DateTime startDate, DateTime endDate)
+        {
+            sheet.Cell(1, 1).Value = "PRISM Financial Report";
+            sheet.Cell(1, 1).Style.Font.Bold = true;
+            sheet.Cell(1, 1).Style.Font.FontSize = 16;
+
+            sheet.Cell(2, 1).Value = $"Period: {startDate:MMM dd, yyyy} - {endDate:MMM dd, yyyy}";
+            sheet.Cell(2, 1).Style.Font.Italic = true;
+
+            int row = 4;
+            sheet.Cell(row, 1).Value = "Metric";
+            sheet.Cell(row, 2).Value = "Value";
+            sheet.Range(row, 1, row, 2).Style.Font.Bold = true;
+            sheet.Range(row, 1, row, 2).Style.Fill.BackgroundColor = XLColor.LightGray;
+
+            row++;
+            sheet.Cell(row++, 1).Value = "Total Orders";
+            sheet.Cell(row - 1, 2).Value = orders.Count;
+
+            sheet.Cell(row++, 1).Value = "Total Revenue";
+            sheet.Cell(row - 1, 2).Value = orders.Sum(o => o.total_amount);
+            sheet.Cell(row - 1, 2).Style.NumberFormat.Format = "$#,##0.00";
+
+            sheet.Cell(row++, 1).Value = "Total Expenses";
+            sheet.Cell(row - 1, 2).Value = expenses.Sum(e => e.Amount);
+            sheet.Cell(row - 1, 2).Style.NumberFormat.Format = "$#,##0.00";
+
+            sheet.Cell(row++, 1).Value = "Net Profit";
+            sheet.Cell(row - 1, 2).Value = orders.Sum(o => o.total_amount) - expenses.Sum(e => e.Amount);
+            sheet.Cell(row - 1, 2).Style.NumberFormat.Format = "$#,##0.00";
+            sheet.Cell(row - 1, 2).Style.Font.Bold = true;
+
+            sheet.Cell(row++, 1).Value = "Total Payments";
+            sheet.Cell(row - 1, 2).Value = payments.Sum(p => p.Amount);
+            sheet.Cell(row - 1, 2).Style.NumberFormat.Format = "$#,##0.00";
+
+            sheet.Cell(row++, 1).Value = "Average Order Value";
+            sheet.Cell(row - 1, 2).Value = orders.Any() ? orders.Average(o => o.total_amount) : 0;
+            sheet.Cell(row - 1, 2).Style.NumberFormat.Format = "$#,##0.00";
+
+            sheet.Columns().AdjustToContents();
+        }
+        public void CreateSuppliersSheet(IXLWorksheet sheet, List<Supplier> suppliers)
+        {
+            sheet.Cell(1, 1).Value = "Supplier ID";
+            sheet.Cell(1, 2).Value = "Supplier Name";
+            sheet.Cell(1, 3).Value = "Email";
+            sheet.Cell(1, 4).Value = "Phone";
+            sheet.Cell(1, 5).Value = "Total Items";
+            sheet.Cell(1, 6).Value = "Total Purchase Value";
+
+            sheet.Range(1, 1, 1, 6).Style.Font.Bold = true;
+            sheet.Range(1, 1, 1, 6).Style.Fill.BackgroundColor = XLColor.LightPastelPurple;
+
+            int row = 2;
+            foreach (var supplier in suppliers)
+            {
+                sheet.Cell(row, 1).Value = supplier.SupplierId;
+                sheet.Cell(row, 2).Value = supplier.Name;
+                sheet.Cell(row, 3).Value = supplier.Email;
+                sheet.Cell(row, 4).Value = supplier.Phone;
+                sheet.Cell(row, 5).Value = supplier.SupplierItems?.Count ?? 0;
+                sheet.Cell(row, 6).Value = supplier.SupplierItems?.Sum(si => si.PurchasePrice) ?? 0;
+                sheet.Cell(row, 6).Style.NumberFormat.Format = "$#,##0.00";
+                row++;
+            }
+
+            sheet.Columns().AdjustToContents();
+        }
+        public void CreateOrdersSheet(IXLWorksheet sheet, List<Order> orders)
+        {
+            sheet.Cell(1, 1).Value = "Order ID";
+            sheet.Cell(1, 2).Value = "Order Name";
+            sheet.Cell(1, 3).Value = "Business";
+            sheet.Cell(1, 4).Value = "Branch";
+            sheet.Cell(1, 5).Value = "Customer";
+            sheet.Cell(1, 6).Value = "Date";
+            sheet.Cell(1, 7).Value = "Total Amount";
+            sheet.Cell(1, 8).Value = "Status";
+            sheet.Cell(1, 9).Value = "Created By";
+
+            sheet.Range(1, 1, 1, 9).Style.Font.Bold = true;
+            sheet.Range(1, 1, 1, 9).Style.Fill.BackgroundColor = XLColor.LightBlue;
+
+            int row = 2;
+            foreach (var order in orders)
+            {
+                sheet.Cell(row, 1).Value = order.Id;
+                sheet.Cell(row, 2).Value = order.OrderName;
+                sheet.Cell(row, 3).Value = order.business?.Name;
+                sheet.Cell(row, 4).Value = order.branch?.Name;
+                sheet.Cell(row, 5).Value = order.Customer?.FullName;
+                sheet.Cell(row, 6).Value = order.datetime;
+                sheet.Cell(row, 6).Style.DateFormat.Format = "mm/dd/yyyy hh:mm";
+                sheet.Cell(row, 7).Value = order.total_amount;
+                sheet.Cell(row, 7).Style.NumberFormat.Format = "$#,##0.00";
+                sheet.Cell(row, 8).Value = order.status ? "Active" : "Inactive";
+                sheet.Cell(row, 9).Value = order.user?.UserName;
+                row++;
+            }
+
+            sheet.Columns().AdjustToContents();
+        }
+
+        public void CreateExpensesSheet(IXLWorksheet sheet, List<Expense> expenses)
+        {
+            sheet.Cell(1, 1).Value = "Expense ID";
+            sheet.Cell(1, 2).Value = "Business";
+            sheet.Cell(1, 3).Value = "Branch";
+            sheet.Cell(1, 4).Value = "Category";
+            sheet.Cell(1, 5).Value = "Amount";
+            sheet.Cell(1, 6).Value = "Date";
+            sheet.Cell(1, 7).Value = "Payment Method";
+            sheet.Cell(1, 8).Value = "Description";
+
+            sheet.Range(1, 1, 1, 8).Style.Font.Bold = true;
+            sheet.Range(1, 1, 1, 8).Style.Fill.BackgroundColor = XLColor.LightCoral;
+
+            int row = 2;
+            foreach (var expense in expenses)
+            {
+                sheet.Cell(row, 1).Value = expense.ExpenseId;
+                sheet.Cell(row, 2).Value = expense.Business?.Name;
+                sheet.Cell(row, 3).Value = expense.Branch?.Name ?? "General";
+                sheet.Cell(row, 4).Value = expense.Category ?? "Uncategorized";
+                sheet.Cell(row, 5).Value = expense.Amount;
+                sheet.Cell(row, 5).Style.NumberFormat.Format = "$#,##0.00";
+                sheet.Cell(row, 6).Value = expense.ExpenseDate;
+                sheet.Cell(row, 6).Style.DateFormat.Format = "mm/dd/yyyy";
+                sheet.Cell(row, 7).Value = expense.PaymentMethod;
+                sheet.Cell(row, 8).Value = expense.Description;
+                row++;
+            }
+
+            sheet.Columns().AdjustToContents();
+        }
+
+        public void CreatePaymentsSheet(IXLWorksheet sheet, List<Payment> payments)
+        {
+            sheet.Cell(1, 1).Value = "Payment ID";
+            sheet.Cell(1, 2).Value = "Order ID";
+            sheet.Cell(1, 3).Value = "Business";
+            sheet.Cell(1, 4).Value = "Amount";
+            sheet.Cell(1, 5).Value = "Method";
+            sheet.Cell(1, 6).Value = "Date";
+
+            sheet.Range(1, 1, 1, 6).Style.Font.Bold = true;
+            sheet.Range(1, 1, 1, 6).Style.Fill.BackgroundColor = XLColor.LightGreen;
+
+            int row = 2;
+            foreach (var payment in payments)
+            {
+                sheet.Cell(row, 1).Value = payment.PaymentId;
+                sheet.Cell(row, 2).Value = payment.OrderId;
+                sheet.Cell(row, 3).Value = payment.Order?.business?.Name;
+                sheet.Cell(row, 4).Value = payment.Amount;
+                sheet.Cell(row, 4).Style.NumberFormat.Format = "$#,##0.00";
+                sheet.Cell(row, 5).Value = payment.Method;
+                sheet.Cell(row, 6).Value = payment.datetime;
+                sheet.Cell(row, 6).Style.DateFormat.Format = "mm/dd/yyyy hh:mm";
+                row++;
+            }
+
+            sheet.Columns().AdjustToContents();
+        }
+
+        public void CreateOrderItemsSheet(IXLWorksheet sheet, List<Order> orders)
+        {
+            sheet.Cell(1, 1).Value = "Order ID";
+            sheet.Cell(1, 2).Value = "Order Name";
+            sheet.Cell(1, 3).Value = "Item Name";
+            sheet.Cell(1, 4).Value = "Quantity";
+            sheet.Cell(1, 5).Value = "Unit Price";
+            sheet.Cell(1, 6).Value = "Total Price";
+
+            sheet.Range(1, 1, 1, 6).Style.Font.Bold = true;
+            sheet.Range(1, 1, 1, 6).Style.Fill.BackgroundColor = XLColor.LightYellow;
+
+            int row = 2;
+            foreach (var order in orders)
+            {
+                if (order.OrderItems != null)
+                {
+                    foreach (var item in order.OrderItems)
+                    {
+                        sheet.Cell(row, 1).Value = order.Id;
+                        sheet.Cell(row, 2).Value = order.OrderName;
+                        sheet.Cell(row, 3).Value = item.Item?.Name;
+                        sheet.Cell(row, 4).Value = item.Quantity;
+                        sheet.Cell(row, 5).Value = item.Price;
+                        sheet.Cell(row, 5).Style.NumberFormat.Format = "$#,##0.00";
+                        sheet.Cell(row, 6).Value = item.TotalPrice;
+                        sheet.Cell(row, 6).Style.NumberFormat.Format = "$#,##0.00";
+                        row++;
+                    }
+                }
+            }
+
+            sheet.Columns().AdjustToContents();
+        }
+        public async Task<List<BusinessPerformance>> GetBusinessPerformance(string userId, DateTime startDate,
+    DateTime endDate, int? businessId)
+        {
+            var query = _context.Orders
+                .Include(o => o.business)
+                .Where(o => !o.IsDeleted
+                    && o.datetime >= startDate
+                    && o.datetime <= endDate
+                    && o.business.UserId == userId);
+
+            if (businessId.HasValue && businessId.Value > 0)
+                query = query.Where(o => o.BusinessId == businessId.Value);
+
+            var businessPerf = await query
+                .GroupBy(o => new { o.BusinessId, o.business.Name })
+                .Select(g => new BusinessPerformance
+                {
+                    BusinessId = g.Key.BusinessId,
+                    BusinessName = g.Key.Name,
+                    TotalOrders = g.Count(),
+                    TotalRevenue = g.Sum(o => o.total_amount),
+                    AverageOrderValue = g.Average(o => o.total_amount)
+                })
+                .ToListAsync();
+
+            // Add expenses
+            foreach (var perf in businessPerf)
+            {
+                perf.TotalExpenses = await _context.Expenses
+                    .Where(e => e.BusinessId == perf.BusinessId
+                        && !e.IsDeleted
+                        && e.ExpenseDate >= startDate
+                        && e.ExpenseDate <= endDate)
+                    .SumAsync(e => e.Amount);
+            }
+
+            return businessPerf;
+        }
+
+        public async Task<List<TopSellingItem>> GetTopSellingItems(string userId, DateTime startDate,
+            DateTime endDate, int? businessId)
+        {
+            var query = _context.OrderItems
+                .Include(oi => oi.Item)
+                .Include(oi => oi.order)
+                    .ThenInclude(o => o.business)
+                .Where(oi => !oi.order.IsDeleted
+                    && oi.order.datetime >= startDate
+                    && oi.order.datetime <= endDate
+                    && oi.order.business.UserId == userId);
+
+            if (businessId.HasValue && businessId.Value > 0)
+                query = query.Where(oi => oi.order.BusinessId == businessId.Value);
+
+            return await query
+                .GroupBy(oi => new { oi.ItemId, oi.Item.Name })
+                .Select(g => new TopSellingItem
+                {
+                    ItemId = g.Key.ItemId,
+                    ItemName = g.Key.Name,
+                    TotalQuantitySold = g.Sum(oi => oi.Quantity),
+                    TotalRevenue = g.Sum(oi => oi.TotalPrice)
+                })
+                .OrderByDescending(i => i.TotalQuantitySold)
+                .Take(10)
+                .ToListAsync();
+        }
+
+        public async Task<List<CustomerSummary>> GetTopCustomers(string userId, DateTime startDate,
+            DateTime endDate, int? businessId)
+        {
+            var query = _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.business)
+                .Where(o => !o.IsDeleted
+                    && o.datetime >= startDate
+                    && o.datetime <= endDate
+                    && o.business.UserId == userId);
+
+            if (businessId.HasValue && businessId.Value > 0)
+                query = query.Where(o => o.BusinessId == businessId.Value);
+
+            return await query
+                .GroupBy(o => new { o.CustomerId, o.Customer.FullName })
+                .Select(g => new CustomerSummary
+                {
+                    CustomerId = g.Key.CustomerId,
+                    CustomerName = g.Key.FullName,
+                    TotalOrders = g.Count(),
+                    TotalSpent = g.Sum(o => o.total_amount)
+                })
+                .OrderByDescending(c => c.TotalSpent)
+                .Take(10)
+                .ToListAsync();
+        }
+
+        public void CreateSupplierSummarySheet(IXLWorksheet sheet, List<SupplierSummary> summaries)
+        {
+            sheet.Cell(1, 1).Value = "Supplier Name";
+            sheet.Cell(1, 2).Value = "Total Items";
+            sheet.Cell(1, 3).Value = "Total Purchase Value";
+
+            sheet.Range(1, 1, 1, 3).Style.Font.Bold = true;
+            sheet.Range(1, 1, 1, 3).Style.Fill.BackgroundColor = XLColor.LightPastelPurple;
+
+            int row = 2;
+            foreach (var summary in summaries)
+            {
+                sheet.Cell(row, 1).Value = summary.SupplierName;
+                sheet.Cell(row, 2).Value = summary.TotalItems;
+                sheet.Cell(row, 3).Value = summary.TotalPurchaseValue;
+                sheet.Cell(row, 3).Style.NumberFormat.Format = "$#,##0.00";
+                row++;
+            }
+
+            sheet.Columns().AdjustToContents();
+        }
+        public async Task<List<SupplierSummary>> GetSupplierSummary(string userId)
+        {
+            return await _context.Suppliers
+                .Include(s => s.SupplierItems)
+                .Include(s => s.Business)
+                .ThenInclude(si => si.Items)
+        .Where(s => !s.IsDeleted && s.Business.UserId == userId) // ✅ Filter by user
+                .Select(s => new SupplierSummary
+                {
+                    SupplierId = s.SupplierId,
+                    SupplierName = s.Name,
+                    TotalItems = s.SupplierItems.Count,
+                    TotalPurchaseValue = s.SupplierItems.Sum(si => si.PurchasePrice)
+                })
+                .ToListAsync();
+        }
+
+        public async Task<ReportViewModel> GetIndexAsync(string userId,int? businessId, DateTime? startDate, DateTime? endDate, string reportType = "summary")
+        {
+            // Build query based on business selection
+            IQueryable<Order> ordersQuery = _context.Orders
+                .Include(o => o.business)
+                .Include(o => o.branch)
+                .Include(o => o.Customer)
+                .Include(o => o.user)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Item)
+                .Where(o => !o.IsDeleted
+                    && o.datetime >= startDate.Value
+                    && o.datetime <= endDate.Value
+                    && o.business.UserId == userId);
+
+            IQueryable<Expense> expensesQuery = _context.Expenses
+                .Include(e => e.Business)
+                .Include(e => e.Branch)
+                .Where(e => !e.IsDeleted
+                    && e.ExpenseDate >= startDate.Value
+                    && e.ExpenseDate <= endDate.Value
+                    && e.Business.UserId == userId);
+
+            IQueryable<Payment> paymentsQuery = _context.Payments
+                .Include(p => p.Order)
+                    .ThenInclude(o => o.business)
+                .Where(p => !p.IsDeleted
+                    && p.datetime >= startDate.Value
+                    && p.datetime <= endDate.Value
+                    && p.Order.business.UserId == userId);
+
+            IQueryable<Supplier> suppliersQuery = _context.Suppliers
+             .Include(s => s.SupplierItems)
+             .ThenInclude(si => si.Item)
+             .Where(s => !s.IsDeleted);
+
+            var suppliers = await suppliersQuery.ToListAsync();
+
+            // Filter by specific business if selected
+            if (businessId.HasValue && businessId.Value > 0)
+            {
+                ordersQuery = ordersQuery.Where(o => o.BusinessId == businessId.Value);
+                expensesQuery = expensesQuery.Where(e => e.BusinessId == businessId.Value);
+                paymentsQuery = paymentsQuery.Where(p => p.Order.BusinessId == businessId.Value);
+            }
+
+            var orders = await ordersQuery.ToListAsync();
+            var expenses = await expensesQuery.ToListAsync();
+            var payments = await paymentsQuery.ToListAsync();
+
+
+            // Add this to get supplier summaries for the report
+            var supplierSummaries = await GetSupplierSummary(userId);
+
+
+
+            var viewModel = new ReportViewModel
+            {
+                BusinessId = businessId,
+                StartDate = startDate.Value,
+                EndDate = endDate.Value,
+                ReportType = reportType,
+                Suppliers = suppliers,
+                TotalSuppliers = suppliers.Count,
+                SupplierSummaries = supplierSummaries,
+
+
+                // Summary Data
+                TotalRevenue = orders.Sum(o => o.total_amount),
+                TotalExpenses = expenses.Sum(e => e.Amount),
+                TotalOrders = orders.Count,
+                TotalPayments = payments.Count,
+                AverageOrderValue = orders.Any() ? orders.Average(o => o.total_amount) : 0,
+
+                // Detailed Data
+                Orders = orders,
+                Expenses = expenses,
+                Payments = payments,
+
+                // Business Performance
+                BusinessPerformance = await GetBusinessPerformance(userId, startDate.Value, endDate.Value, businessId),
+
+                // Category Breakdown
+                ExpensesByCategory = expenses
+                    .GroupBy(e => e.Category ?? "Uncategorized")
+                    .Select(g => new CategorySummary
+                    {
+                        Category = g.Key,
+                        TotalAmount = g.Sum(e => e.Amount),
+                        Count = g.Count()
+                    })
+                    .OrderByDescending(c => c.TotalAmount)
+                    .ToList(),
+                // Top Selling Items
+                TopSellingItems = await GetTopSellingItems(userId, startDate.Value, endDate.Value, businessId),
+
+                // Customer Analysis
+                TopCustomers = await GetTopCustomers(userId, startDate.Value, endDate.Value, businessId)
+            };
+
+            viewModel.TotalProfit = viewModel.TotalRevenue - viewModel.TotalExpenses;
+
+
+            return viewModel;
+        }
+
+        public async Task<ExcelFileResult> ExportToExcelAsync(string userId, int? businessId, DateTime? startDate, DateTime? endDate, string? reportType)
+        {
+            // Get data
+            IQueryable<Order> ordersQuery = _context.Orders
+                .Include(o => o.business)
+                .Include(o => o.branch)
+                .Include(o => o.Customer)
+                .Include(o => o.user)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Item)
+                .Where(o => !o.IsDeleted
+                    && o.datetime >= startDate.Value
+                    && o.datetime <= endDate.Value
+                    && o.business.UserId == userId);
+
+            IQueryable<Expense> expensesQuery = _context.Expenses
+                .Include(e => e.Business)
+                .Include(e => e.Branch)
+                .Where(e => !e.IsDeleted
+                    && e.ExpenseDate >= startDate.Value
+                    && e.ExpenseDate <= endDate.Value
+                    && e.Business.UserId == userId);
+
+            IQueryable<Payment> paymentsQuery = _context.Payments
+                .Include(p => p.Order)
+                    .ThenInclude(o => o.business)
+                .Where(p => !p.IsDeleted
+                    && p.datetime >= startDate.Value
+                    && p.datetime <= endDate.Value
+                    && p.Order.business.UserId == userId);
+
+            if (businessId.HasValue && businessId.Value > 0)
+            {
+                ordersQuery = ordersQuery.Where(o => o.BusinessId == businessId.Value);
+                expensesQuery = expensesQuery.Where(e => e.BusinessId == businessId.Value);
+                paymentsQuery = paymentsQuery.Where(p => p.Order.BusinessId == businessId.Value);
+            }
+
+            var orders = await ordersQuery.ToListAsync();
+            var expenses = await expensesQuery.ToListAsync();
+            var payments = await paymentsQuery.ToListAsync();
+
+            // Get additional data for detailed report
+            var businesses = await _context.Businesses
+                .Where(b => !b.IsDeleted && b.UserId == userId)
+                .ToListAsync();
+
+            var branches = await _context.Branches
+                .Include(b => b.Business)
+                .Where(b => !b.IsDeleted && b.Business.UserId == userId)
+                .ToListAsync();
+
+            var customers = await _context.Customers
+                .Include(c => c.Branch)
+                    .ThenInclude(b => b.Business)
+                .Where(c => c.Branch.Business.UserId == userId)
+                .ToListAsync();
+
+            var categories = await _context.ItemCategories
+                .Include(c => c.Business)
+                .Where(c => !c.IsArchived && c.Business.UserId == userId)
+                .ToListAsync();
+
+            var items = await _context.Items
+                .Include(i => i.Business)
+                .Include(i => i.Branch)
+                .Include(i => i.ItemCategory)
+                .Where(i => !i.IsDeleted && i.Business.UserId == userId)
+                .ToListAsync();
+
+            var suppliers = await _context.Suppliers
+                .Include(s => s.Business)
+                .Include(s => s.SupplierItems)
+                    .ThenInclude(si => si.Item)
+                .Where(s => !s.IsDeleted && s.Business.UserId == userId)
+                .ToListAsync();
+
+            var supplierSummaries = await GetSupplierSummary(userId);
+
+            // Set default report type if not provided
+            if (string.IsNullOrEmpty(reportType))
+                reportType = "summary";
+
+            // Create Excel file
+            using var workbook = new XLWorkbook();
+
+            // Summary Sheet (Always included)
+            var summarySheet = workbook.Worksheets.Add("Summary");
+            CreateSummarySheet(summarySheet, orders, expenses, payments, startDate.Value, endDate.Value);
+
+            // Orders Sheet
+            var ordersSheet = workbook.Worksheets.Add("Orders");
+            CreateOrdersSheet(ordersSheet, orders);
+
+            // Order Items Sheet
+            var orderItemsSheet = workbook.Worksheets.Add("Order Items");
+            CreateOrderItemsSheet(orderItemsSheet, orders);
+
+            // Expenses Sheet
+            var expensesSheet = workbook.Worksheets.Add("Expenses");
+            CreateExpensesSheet(expensesSheet, expenses);
+
+            // Payments Sheet
+            var paymentsSheet = workbook.Worksheets.Add("Payments");
+            CreatePaymentsSheet(paymentsSheet, payments);
+
+            // Detailed Report: Add additional sheets
+            if (reportType == "detailed")
+            {
+                // Businesses Sheet
+                var businessesSheet = workbook.Worksheets.Add("Businesses");
+                CreateBusinessesSheet(businessesSheet, businesses);
+
+                // Branches Sheet
+                var branchesSheet = workbook.Worksheets.Add("Branches");
+                CreateBranchesSheet(branchesSheet, branches);
+
+                // Customers Sheet
+                var customersSheet = workbook.Worksheets.Add("Customers");
+                CreateCustomersSheet(customersSheet, customers);
+
+                // Categories Sheet
+                var categoriesSheet = workbook.Worksheets.Add("Categories");
+                CreateCategoriesSheet(categoriesSheet, categories);
+
+                // Items Sheet
+                var itemsSheet = workbook.Worksheets.Add("Items");
+                CreateItemsSheet(itemsSheet, items);
+            }
+
+            // Suppliers Sheet (Always included)
+            var suppliersSheet = workbook.Worksheets.Add("Suppliers");
+            CreateSuppliersSheet(suppliersSheet, suppliers);
+
+            // Supplier Summary Sheet
+            var supplierSummarySheet = workbook.Worksheets.Add("Supplier Summary");
+            CreateSupplierSummarySheet(supplierSummarySheet, supplierSummaries);
+
+            // Save to memory stream
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+            var content = stream.ToArray();
+
+            var reportTypeLabel = reportType == "detailed" ? "Detailed" : "Summary";
+            var fileName = $"PRISM_{reportTypeLabel}_Report_{startDate.Value:yyyy-MM-dd}_to_{endDate.Value:yyyy-MM-dd}.xlsx";
+
+            return new ExcelFileResult{ Content= content,
+                ContentType= "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
+                FileName= fileName
+            };
+        }
+
+    }
+}
