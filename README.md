@@ -547,12 +547,6 @@ If you discover a security vulnerability, please email security@example.com inst
 
 ---
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
 ## 🙏 Acknowledgments
 
 - Built with ❤️ by the PRISM Team
@@ -563,10 +557,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Contact & Support
 
-- **Project Repository**: [GitHub](https://github.com/your-org/prism)
+- **Project Repository**: [GitHub](https://github.com/ABDO-ADELL/My-Net-Worth)
 - **Production Site**: [PRISM ERP](https://prism-financial-management.runasp.net/)
-- **Documentation**: [Wiki](https://github.com/your-org/prism/wiki)
-- **Issues**: [Issue Tracker](https://github.com/your-org/prism/issues)
 
 ---
 
